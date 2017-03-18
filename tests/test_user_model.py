@@ -3,7 +3,7 @@
 
 import unittest
 from app import create_app, db
-import time
+import time, os
 from datetime import datetime
 from app.models import Role, User
 
@@ -31,6 +31,9 @@ class UserModelTestCase(unittest.TestCase):
 
         db.session.remove()
         db.drop_all()
+        files = os.listdir('./app/static/photo')
+        for f in files:
+            os.remove(os.path.join('./app/static/photo', f))
         self.app_context.pop()
 
     def test_user_role(self):
@@ -62,4 +65,6 @@ class UserModelTestCase(unittest.TestCase):
         '''
 
         u = User()
-        #self.assertTrue()
+        db.session.add(u)
+        db.session.commit()
+        self.assertTrue(u.generate_auth_token(3600))

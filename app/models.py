@@ -152,6 +152,7 @@ class User(UserMixin, db.Model):
                 self.role = Role.query.filter_by(default=True).first()
         if self.photo is None:
             code = 2147483068 + random.randint(1, 1000000000000)
+            print os.getcwd()
             icon = identicorn.render_identicon(code, 48)
             icon.save('./app/static/photo/%08x.png' % code, 'PNG')
             self.photo = '%08x' % code

@@ -57,11 +57,12 @@ def create_app(config_name):
     # config logger part if not set debug flag
     if not app.debug:
         if os.environ.get("HOSTNAME"):
-            pre_fix=os.environ.get("HOSTNAME")
+            pre_fix = os.environ.get("HOSTNAME")
         else:
-            pre_fix=''
+            pre_fix = ''
         file_handler = RotatingFileHandler('./judge-%s.log' % pre_fix, 'a', 1*1024*1024, 10)
-        file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s: %(lineno)d]'))
+        file_handler.setFormatter(logging.Formatter( \
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s: %(lineno)d]'))
         app.logger.setLevel(logging.INFO)
         file_handler.setLevel(logging.INFO)
         app.logger.addHandler(file_handler)

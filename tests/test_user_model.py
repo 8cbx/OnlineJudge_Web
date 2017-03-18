@@ -67,4 +67,4 @@ class UserModelTestCase(unittest.TestCase):
         u = User()
         db.session.add(u)
         db.session.commit()
-        self.assertTrue(u.generate_auth_token(3600))
+        self.assertTrue(u.generate_auth_token(expiration=3600))

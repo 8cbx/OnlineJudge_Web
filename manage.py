@@ -33,7 +33,7 @@ def test():
     import unittest
     tests = unittest.TestLoader().discover('tests')
     result = unittest.TextTestRunner(verbosity=2).run(tests)
-    return len(result.failures)
+    return len(result.failures) or len(result.errors)
 
 
 if __name__ == '__main__':

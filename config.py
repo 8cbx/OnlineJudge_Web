@@ -10,6 +10,7 @@ class Config():
         config keys and values for whole app
     '''
 
+    SECRET_KEY = os.environ.get("SECRET_KEY") or 'hard to guess string'
 
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
     #SERVER_NAME = 'server_name'

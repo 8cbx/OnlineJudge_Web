@@ -1,6 +1,7 @@
 # Online Judge Web/校程序设计竞赛评判系统Web端
 
 [![Build Status](https://travis-ci.org/8cbx/OnlineJudge_Web.svg?branch=master)](https://travis-ci.org/8cbx/OnlineJudge_Web)
+[![Coverage Status](https://coveralls.io/repos/github/8cbx/OnlineJudge_Web/badge.svg?branch=master)](https://coveralls.io/github/8cbx/OnlineJudge_Web?branch=master)
 
 Online Judge用于学校程序设计竞赛的评判工作，本部分为Web端
 

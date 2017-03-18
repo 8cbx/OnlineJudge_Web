@@ -9,7 +9,7 @@ from flask import current_app
 from flask_login import UserMixin, AnonymousUserMixin
 from . import db, login_manager
 from app.exceptions import ValidationError
-import identicorn, random, os
+import identicon, random, os
 
 class Permission(object):
 
@@ -152,7 +152,7 @@ class User(UserMixin, db.Model):
                 self.role = Role.query.filter_by(default=True).first()
         if self.photo is None:
             code = random.randint(1, 1000000000000)
-            icon = identicorn.render_identicon(code, 48)
+            icon = identicon.render_identicon(code, 48)
             icon.save('./app/static/photo/%08x.png' % code, 'PNG')
             self.photo = '%08x' % code
 

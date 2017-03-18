@@ -156,7 +156,7 @@ class User(UserMixin, db.Model):
             icon.save('./app/static/photo/%08x.png' % code, 'PNG')
             self.photo = '%08x' % code
 
-    def generate_auth_token(self, expiration):
+    def generate_auth_token(self, expiration=3600):
 
         '''
             generate the auth token
@@ -169,3 +169,19 @@ class User(UserMixin, db.Model):
             expires_in=expiration
         )
         return s.dumps({'id': self.id})
+
+    @staticmethod
+    def verify_auth_token(token):
+
+        '''
+            verify the token
+        :param token: token
+        :return: User info
+        '''
+
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except:
+            return None
+        return User.query.get(data['id'])

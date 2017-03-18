@@ -33,7 +33,8 @@ class UserModelTestCase(unittest.TestCase):
         db.drop_all()
         files = os.listdir('./app/static/photo')
         for f in files:
-            os.remove(os.path.join('./app/static/photo', f))
+            if f[0] != '.':
+                os.remove(os.path.join('./app/static/photo', f))
         self.app_context.pop()
 
     def test_user_role(self):
@@ -67,4 +68,17 @@ class UserModelTestCase(unittest.TestCase):
         u = User()
         db.session.add(u)
         db.session.commit()
-        self.assertTrue(u.generate_auth_token(expiration=3600))
+        self.assertTrue(u.generate_auth_token())
+
+    def test_verify_auth_token(self):
+
+        '''
+            test if the verify func is good
+        :return: None
+        '''
+
+        u = User()
+        db.session.add(u)
+        db.session.commit()
+        token = u.generate_auth_token()
+        self.assertTrue(u.verify_auth_token(token) == u)

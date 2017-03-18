@@ -290,6 +290,19 @@ class UserModelTestCase(unittest.TestCase):
         u.ping()
         self.assertTrue(u.last_seen > last_seen_before)
 
+    def test_change_photo(self):
+
+        '''
+            test for change photo name
+        :return: None
+        '''
+
+        u = User(email='1@qq.com')
+        db.session.add(u)
+        db.session.commit()
+        old = u.photo
+        self.assertFalse(old == u.change_photo_name())
+
 
     def test_follows(self):
 

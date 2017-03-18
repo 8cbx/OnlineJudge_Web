@@ -238,21 +238,3 @@ def render_identicon(code, size, renderer=None):
         renderer = DonRenderer
     return renderer(code).render(size)
 
-
-if __name__ == '__main__':
-    import sys
-
-    if len(sys.argv) < 2:
-        print 'usage: python identicon.py [CODE]....'
-        raise SystemExit
-
-    for code in sys.argv[1:]:
-        if code.startswith('0x') or code.startswith('0X'):
-            code = int(code[2:], 16)
-        elif code.startswith('0'):
-            code = int(code[1:], 8)
-        else:
-            code = int(code)
-
-        icon = render_identicon(code, 24)
-        icon.save('./app/static/photo/%08x.png' % code, 'PNG')

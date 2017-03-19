@@ -1,0 +1,152 @@
+{% extends "basic.html" %}
+
+{% block title %}Harbin Engineering University Online Judge{% endblock %}
+
+{% block styles %}
+{{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <script>(function(i,s,o,g,r,a,m){i["DaoVoiceObject"]=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;a.charset="utf-8";m.parentNode.insertBefore(a,m)})(window,document,"script",('https:' == document.location.protocol ? 'https:' : 'http:') + "//widget.daovoice.io/widget/272f83b3.js","daovoice")</script>
+{% endblock styles %}
+
+{% block navbar %}
+    <!-- Navigation -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="{{ url_for('index.index_page') }}">HEU Online Judge</a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-left">
+                    <li>
+                        <a href="{{ url_for('index.index_page') }}">首页</a>
+                    </li>
+                    <li>
+                        <a href="services.html">题目列表</a>
+                    </li>
+                    <li>
+                        <a href="contact.html">提交列表</a>
+                    </li>
+                    <li>
+                        <a href="contact.html">比赛列表</a>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="{{ url_for('auth.user_detail', username=current_user.username) }}">个人资料</a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ current_user.username }} <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            {% if current_user.is_admin() %}
+                            <li>
+                                <a href="{{ url_for('admin.admin_index') }}">后台管理</a>
+                            </li>
+                            {% endif %}
+                            <li>
+                                <a href="{{ url_for('auth.edit_profile') }}">修改个人信息</a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('auth.change_email_request') }}">修改邮箱</a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('auth.changde_password') }}">修改密码</a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('auth.logout') }}">退出系统</a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li>
+                        <a href="{{ url_for('auth.register') }}">注册</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('auth.login') }}">登录</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+    </nav>
+{% endblock %}
+
+{% block content %}
+
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-warning alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <strong>
+            {{ message }}
+        </strong>
+    </div>
+    {% endfor %}
+
+    {% block page_content %}
+    {% endblock %}
+
+{% endblock %}
+
+{% block footer %}
+    <hr>
+<footer>
+    <div class="row">
+        <div class="col-lg-12">
+            <p>Copyright &copy; 2016 HEU-8cbx. Licensed under MIT license. | 黑ICP备16005103号-1</p>
+        </div>
+    </div>
+</footer>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+<script type="text/javascript" src="/static/js/moment-with-langs.min.js"></script>
+<script>
+moment.lang('zh-cn');
+
+function flask_moment_render(elem) {
+    $(elem).text(eval('moment("' + $(elem).data('timestamp') + '").' + $(elem).data('format') + ';'));
+    $(elem).removeClass('flask-moment').show();
+}
+
+function flask_moment_render_all() {
+    $('.flask-moment').each(function() {
+        flask_moment_render(this);
+        if ($(this).data('refresh')) {
+            (function(elem, interval) {
+                setInterval(function() {
+                    flask_moment_render(elem)
+                }, interval);
+            })(this, $(this).data('refresh'));
+        }
+    })
+}
+$(document).ready(function() {
+    flask_moment_render_all();
+});
+{% if current_user.is_authenticated %}
+daovoice('init', {
+    app_id: "272f83b3",
+    user_id: "{{ current_user.id }}", // 必填: 该用户在您系统上的唯一ID
+    email: "{{ current_user.email }}", // 选填:  该用户在您系统上的主邮箱
+    name: "{{ current_user.username }}" // 选填: 用户名
+});
+daovoice('update');
+{% else %}
+daovoice('init', {
+    app_id: "272f83b3"
+});
+daovoice('update');
+{% endif %}
+</script>
+
+{% endblock %}

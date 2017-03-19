@@ -12,6 +12,17 @@ class Config():
 
     SECRET_KEY = os.environ.get("SECRET_KEY") or 'hard to guess string'
 
+    # used for sending emails
+    MAIL_SERVER = 'smtp.mxhichina.com'
+    MAIL_PORT = 25
+    MAIL_USE_TLS = False
+    MAIL_USERNAME = 'no_reply@myvjudge.cn'
+    MAIL_PASSWORD = os.environ.get('MAIL_PASS')
+    FLASKY_MAIL_SUBJECT_PREFIX = '[HEU Onlie Judge]'
+    FLASKY_MAIL_SENDER = 'no_reply<no_reply@myvjudge.cn>'
+    FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
+    # SERVER_NAME = 'myvjudge.cn'
+
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
     #SERVER_NAME = 'server_name'
 
@@ -88,6 +99,7 @@ class TestConfig(Config):
 
     TESTING = True
     Debug = True
+    WTF_CSRF_ENABLED = False
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
                               'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
 

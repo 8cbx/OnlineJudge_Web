@@ -496,7 +496,7 @@ class OJList(db.Model):
     url = db.Column(db.String(128))
     vjudge = db.Column(db.Boolean, default=False)
     status = db.Column(db.Integer)
-    #problems = db.relationship('Problem', backref='oj', lazy='dynamic', cascade='all, delete-orphan')
+    problems = db.relationship('Problem', backref='oj', lazy='dynamic', cascade='all, delete-orphan')
     last_check = db.Column(db.DateTime(), default=datetime.utcnow)
 
     def ping(self):
@@ -524,6 +524,96 @@ class OJList(db.Model):
             'last_check': self.last_check
         }
         return json_oj_list
+
+
+class Problem(db.Model):
+
+    '''
+        define problem, and some operation about problem
+    '''
+
+    __tablename__ = 'problems'
+    # local id for problem
+    id = db.Column(db.Integer, primary_key=True)
+    # remote id for problem
+    remote_id = db.Column(db.Integer, index=True)
+    oj_id = db.Column(db.Integer, db.ForeignKey("oj_list.id"))
+    title = db.Column(db.String(128), index=True)
+    time_limit = db.Column(db.Integer)
+    memory_limit = db.Column(db.Integer)
+    special_judge = db.Column(db.Boolean, default=False)
+    submission_num = db.Column(db.Integer)
+    accept_num = db.Column(db.Integer)
+    description = db.Column(db.Text)
+    input = db.Column(db.Text)
+    output = db.Column(db.Text)
+    sample_input = db.Column(db.Text)
+    sample_output = db.Column(db.Text)
+    source_name = db.Column(db.String(128))
+    hint = db.Column(db.Text)
+    author = db.Column(db.String(128))
+    last_update = db.Column(db.DateTime(), default=datetime.utcnow)
+    visible = db.Column(db.Boolean, default=True)
+    # submissions = db.relationship('SubmissionStatus', backref='problem', lazy='dynamic')
+    # tags = db.relationship(
+    #     'TagProblem',
+    #     foreign_keys=[TagProblem.problem_id],
+    #     backref=db.backref('problem', lazy='joined'),
+    #     lazy='dynamic',
+    #     cascade='all, delete-orphan'
+    # )
+    # contest = db.relationship(
+    #     'ContestProblem',
+    #     foreign_keys=[ContestProblem.problem_id],
+    #     backref=db.backref('problem', lazy='joined'),
+    #     lazy='dynamic',
+    #     cascade='all, delete-orphan'
+    # )
+
+    def to_json(self):
+
+        '''
+            problem to json
+        :return: json
+        '''
+
+        json_problem = {
+            'id': self.id,
+            'remomte_id': self.remote_id,
+            'oj_id': self.oj_id,
+            'title': self.title
+        }
+        return json_problem
+
+    @staticmethod
+    def from_json(json_problem):
+
+        '''
+            update problem item using json
+        :param json_problem: json
+        :return: problem item
+        '''
+
+        oj_id = json_problem.get('oj_id')
+        remote_id = json_problem.get('remote_id')
+        title = json_problem.get('title')
+        time_limit = json_problem.get('time_limit')
+        memory_limit = json_problem.get('memory_limit')
+        special_judge = json_problem.get('special_judge')
+        submission_num = json_problem.get('submission_num')
+        accept_num = json_problem.get('accept_num')
+        description = json_problem.get('description')
+        input = json_problem.get('input')
+        output = json_problem.get('output')
+        sample_input = json_problem.get('sample_input')
+        sample_output = json_problem.get('sample_output')
+        source_name = json_problem.get('source_name')
+        hint = json_problem.get('hint')
+        author = json_problem.get('author')
+        last_update = datetime.utcnow()
+        if title is None or title == '' or description is None or description == '' or oj_id is None or oj_id == '' or remote_id == '' or remote_id is None:
+            raise ValidationError('Problem require full data')
+        return Problem(oj_id=oj_id, remote_id=remote_id, title=title, time_limit=time_limit, memory_limit=memory_limit, special_judge=special_judge, submission_num=submission_num, accept_num=accept_num, description=description, input=input, output=output, sample_input=sample_input, sample_output=sample_output, source_name=source_name, hint=hint, author=author, last_update=last_update)
 
 
 class Logs(db.Model):

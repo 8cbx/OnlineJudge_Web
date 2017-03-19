@@ -106,7 +106,7 @@ class UserModelTestCase(unittest.TestCase):
             'remote_id': 1,
             'title': 'test',
             'description': 'test',
-            'oj_id': 1,
+            'oj_id': '1',
         }
         problem = Problem().from_json(problem_dict)
         db.session.add(problem)

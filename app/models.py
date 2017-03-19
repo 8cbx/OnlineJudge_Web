@@ -121,7 +121,7 @@ class User(UserMixin, db.Model):
     photo = db.Column(db.String(64))
     # Todo: need to update to all connection part
     info_protection = db.Column(db.Boolean, default=False)
-    #submission = db.relationship('SubmissionStatus', backref='auther', lazy='dynamic')
+    submission = db.relationship('SubmissionStatus', backref='auther', lazy='dynamic', cascade='all, delete-orphan')
     #manage_contest = db.relationship('Contest', backref='manager', lazy='dynamic')
     operation = db.relationship('Logs', backref='operator', lazy='dynamic')
     followed = db.relationship(
@@ -554,7 +554,7 @@ class Problem(db.Model):
     author = db.Column(db.String(128))
     last_update = db.Column(db.DateTime(), default=datetime.utcnow)
     visible = db.Column(db.Boolean, default=True)
-    # submissions = db.relationship('SubmissionStatus', backref='problem', lazy='dynamic')
+    submissions = db.relationship('SubmissionStatus', backref='problem', lazy='dynamic', cascade='all, delete-orphan')
     # tags = db.relationship(
     #     'TagProblem',
     #     foreign_keys=[TagProblem.problem_id],
@@ -614,6 +614,80 @@ class Problem(db.Model):
         if title is None or title == '' or description is None or description == '' or oj_id is None or oj_id == '' or remote_id == '' or remote_id is None:
             raise ValidationError('Problem require full data')
         return Problem(oj_id=oj_id, remote_id=remote_id, title=title, time_limit=time_limit, memory_limit=memory_limit, special_judge=special_judge, submission_num=submission_num, accept_num=accept_num, description=description, input=input, output=output, sample_input=sample_input, sample_output=sample_output, source_name=source_name, hint=hint, author=author, last_update=last_update)
+
+
+class SubmissionStatus(db.Model):
+
+    '''
+        define Submissions and status with some operation
+    '''
+
+    __tablename__ = 'submission_status'
+    id = db.Column(db.Integer, primary_key=True)
+    submit_time = db.Column(db.DateTime(), default=datetime.utcnow)
+    problem_id = db.Column(db.Integer, db.ForeignKey('problems.id'))
+    status = db.Column(db.Integer, index=True)
+    exec_time = db.Column(db.Integer)
+    exec_memory = db.Column(db.Integer)
+    code_length = db.Column(db.Integer)
+    language = db.Column(db.Integer)
+    code = db.Column(db.Text)
+    author_username = db.Column(db.String(64), db.ForeignKey('users.username'))
+    visible = db.Column(db.Boolean, default=True)
+    #contest_id = db.Column(db.Integer, db.ForeignKey('contests.id'))
+    balloon_sent = db.Column(db.Boolean, default=False)
+    submit_ip = db.Column(db.String(32))
+    #compile_info = db.relationship('compile_info', backref='submission', lazy='dynamic')
+
+    def send_balloon(self):
+
+        '''
+            deal with sent balloon operation
+        :return: None
+        '''
+
+        self.balloon_sent = True
+        db.session.add(self)
+        db.session.commit()
+
+    def to_json(self):
+
+        '''
+            submissions to json
+        :return: json
+        '''
+
+        json_submission={
+            'id': self.id,
+            'submit_time': self.submit_time,
+            'problem_id': self.problem_id,
+            'language': self.language,
+            'status': self.status,
+            'code': self.code,
+            'max_time': self.problem.time_limit,
+            'max_memory': self.problem.memory_limit,
+            'special_judge': 1 if self.problem.special_judge is True else 0
+        }
+        return json_submission
+
+    @staticmethod
+    def from_json(json_submission):
+
+        '''
+            update submissions using json
+        :param json_submission:
+        :return: submission item
+        '''
+
+        status = json_submission.get('status')
+        exec_time = json_submission.get('exec_time')
+        exec_memory = json_submission.get('exec_memory')
+        if status is None or status == '' or exec_time is None or exec_time == '' or exec_memory is None or exec_memory == '':
+            raise ValidationError('Status require full data')
+            return None
+        return SubmissionStatus(status=status, exec_time=exec_time, exec_memory=exec_memory)
+
+
 
 
 class Logs(db.Model):

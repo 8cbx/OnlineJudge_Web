@@ -102,6 +102,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(64), unique=True, index=True)
     username = db.Column(db.String(64), unique=True, index=True)
     nickname = db.Column(db.String(64))
+    realname = db.Column(db.String(64))
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password_hash = db.Column(db.String(128))
     confirmed = db.Column(db.Boolean, default=False)
@@ -109,6 +110,7 @@ class User(UserMixin, db.Model):
     major = db.Column(db.String(64))
     degree = db.Column(db.String(64))
     country = db.Column(db.String(128))
+    address = db.Column(db.String(128))
     school = db.Column(db.String(128))
     student_num = db.Column(db.String(64))
     phone_num = db.Column(db.String(32))
@@ -465,6 +467,63 @@ class AnonymousUser(AnonymousUserMixin):
         '''
 
         return self.can()
+
+
+login_manager.anonymous_user = AnonymousUser
+
+@login_manager.user_loader
+def load_user(user_id):
+
+    '''
+        load user
+    :param user_id: user id
+    :return: user
+    '''
+
+    return User.query.get(int(user_id))
+
+
+class OJList(db.Model):
+
+    '''
+        define OJ list, and some of the operations
+    '''
+
+    __tablename__ = 'oj_list'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128))
+    description = db.Column(db.Text)
+    url = db.Column(db.String(128))
+    vjudge = db.Column(db.Boolean, default=False)
+    status = db.Column(db.Integer)
+    #problems = db.relationship('Problem', backref='oj', lazy='dynamic', cascade='all, delete-orphan')
+    last_check = db.Column(db.DateTime(), default=datetime.utcnow)
+
+    def ping(self):
+
+        '''
+            update last_check value
+        :return: None
+        '''
+
+        self.last_check = datetime.utcnow()
+        db.session.add(self)
+        db.session.commit()
+
+    def to_json(self):
+
+        '''
+            oj status to json
+        :return: json
+        '''
+
+        json_oj_list = {
+            'id': self.id,
+            'name': self.name,
+            'status': self.status,
+            'last_check': self.last_check
+        }
+        return json_oj_list
 
 
 class Logs(db.Model):

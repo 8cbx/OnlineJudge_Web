@@ -131,4 +131,3 @@ class UserModelTestCase(unittest.TestCase):
             db.session.commit()
         except ValidationError:
             self.assertFalse(Problem.query.count() == 1)
-            

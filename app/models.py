@@ -542,6 +542,8 @@ class Problem(db.Model):
     time_limit = db.Column(db.Integer)
     memory_limit = db.Column(db.Integer)
     special_judge = db.Column(db.Boolean, default=False)
+    # False for ACM, True for OI
+    type = db.Column(db.Boolean, default=False)
     submission_num = db.Column(db.Integer)
     accept_num = db.Column(db.Integer)
     description = db.Column(db.Text)
@@ -637,7 +639,6 @@ class SubmissionStatus(db.Model):
     #contest_id = db.Column(db.Integer, db.ForeignKey('contests.id'))
     balloon_sent = db.Column(db.Boolean, default=False)
     submit_ip = db.Column(db.String(32))
-    #compile_info = db.relationship('compile_info', backref='submission', lazy='dynamic')
 
     def send_balloon(self):
 
@@ -666,7 +667,8 @@ class SubmissionStatus(db.Model):
             'code': self.code,
             'max_time': self.problem.time_limit,
             'max_memory': self.problem.memory_limit,
-            'special_judge': 1 if self.problem.special_judge is True else 0
+            'special_judge': 1 if self.problem.special_judge is True else 0,
+            'problem_type': 1 if self.problem.type is True else 0
         }
         return json_submission
 
@@ -684,9 +686,48 @@ class SubmissionStatus(db.Model):
         exec_memory = json_submission.get('exec_memory')
         if status is None or status == '' or exec_time is None or exec_time == '' or exec_memory is None or exec_memory == '':
             raise ValidationError('Status require full data')
-            return None
         return SubmissionStatus(status=status, exec_time=exec_time, exec_memory=exec_memory)
 
+
+class CompileInfo(db.Model):
+
+    '''
+        define compile info and some operations
+    '''
+
+    __tablename__ = 'compile_info'
+    id = db.Column(db.Integer, primary_key=True)
+    submission_id = db.Column(db.Integer, db.ForeignKey('submission_status.id'))
+    info = db.Column(db.Text)
+
+    def to_json(self):
+
+        '''
+            compile info to json
+        :return: json
+        '''
+
+        json_compile_info = {
+            'id': self.id,
+            'submission_id': self.submission_id,
+            'info': self.info
+        }
+        return json_compile_info
+
+    @staticmethod
+    def from_json(json_compile_info):
+
+        '''
+            update compile info using json
+        :param json_compile_info: json
+        :return: compile_info item
+        '''
+
+        submission_id = json_compile_info.get('submission_id')
+        info = json_compile_info.get('info')
+        if submission_id is None or submission_id == '' or info is None or info == '':
+            raise ValidationError('Compile_info require full data')
+        return CompileInfo(submission_id=submission_id, info=info)
 
 
 

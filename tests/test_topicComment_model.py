@@ -5,7 +5,7 @@ import unittest
 from app import create_app, db
 import time
 from datetime import datetime
-from app.models import Topic, Comment, User, Contest
+from app.models import Topic, BlogComment, TopicComment, User, Contest, Blog
 
 class UserModelTestCase(unittest.TestCase):
 
@@ -50,20 +50,20 @@ class UserModelTestCase(unittest.TestCase):
         db.session.add(topic)
         db.session.commit()
         self.assertTrue(topic.contest.id == contest.id)
-        comment = Comment()
+        comment = TopicComment()
         comment.topic_id = topic.id
         db.session.add(comment)
         db.session.commit()
         self.assertTrue(topic.comments.first().id == comment.id)
         db.session.delete(topic)
         db.session.commit()
-        self.assertTrue(Comment.query.count() == 0)
+        self.assertTrue(TopicComment.query.count() == 0)
         topic = Topic()
         topic.contest_id = contest.id
         topic.author_username = user.username
         db.session.add(topic)
         db.session.commit()
-        comment = Comment()
+        comment = TopicComment()
         comment.topic_id = topic.id
         db.session.add(comment)
         db.session.commit()
@@ -71,5 +71,21 @@ class UserModelTestCase(unittest.TestCase):
         db.session.commit()
         self.assertTrue(Topic.query.count() == 0)
 
+    def test_insert_blog(self):
 
+        '''
+            test to insert a blog into the database
+        :return: None
+        '''
 
+        blog = Blog()
+        db.session.add(blog)
+        db.session.commit()
+        comment = BlogComment()
+        comment.blog_id = blog.id
+        db.session.add(comment)
+        db.session.commit()
+        self.assertTrue(blog.comments.first().id == comment.id)
+        db.session.delete(blog)
+        db.session.commit()
+        self.assertTrue(BlogComment.query.count() == 0)

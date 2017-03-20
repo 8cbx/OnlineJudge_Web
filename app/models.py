@@ -862,23 +862,54 @@ class Topic(db.Model):
 
     __tablename__ = 'topic'
     id = db.Column(db.Integer, primary_key=True)
-    contest_id = db.Column(db.Integer, db.ForeignKey('contests.id'))
-    topic_name = db.Column(db.String(256))
+    title = db.Column(db.String(64))
+    content = db.Column(db.Text)
     author_username = db.Column(db.String(64), db.ForeignKey('users.username'))
-    comments = db.relationship('Comment', backref='topic', lazy='dynamic',cascade='all, delete-orphan')
     public = db.Column(db.Boolean())
     last_update = db.Column(db.DateTime(), default=datetime.utcnow)
 
+    contest_id = db.Column(db.Integer, db.ForeignKey('contests.id'))
+    comments = db.relationship('TopicComment', backref='topic', lazy='dynamic', cascade='all, delete-orphan')
 
-class Comment(db.Model):
+
+class Blog(db.Model):
 
     '''
-        define comment table
+        define blog table
     '''
 
-    __tablename__ = 'comment'
+    __tablename__ = 'blog'
     id = db.Column(db.Integer, primary_key=True)
-    topic_id = db.Column(db.Integer, db.ForeignKey("topic.id"))
-    detail = db.Column(db.Text())
+    title = db.Column(db.String(64))
+    content = db.Column(db.Text)
+    author_username = db.Column(db.String(64), db.ForeignKey('users.username'))
+    public = db.Column(db.Boolean())
+    last_update = db.Column(db.DateTime(), default=datetime.utcnow)
+    comments = db.relationship('BlogComment', backref='blog', lazy='dynamic', cascade='all, delete-orphan')
+
+
+class TopicComment(db.Model):
+
+    '''
+        define topic comment
+    '''
+
+    __tablename__ = 'topic_comment'
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text())
     author_username = db.Column(db.String(64), db.ForeignKey('users.username'))
     time = db.Column(db.DateTime(), default=datetime.utcnow)
+    topic_id = db.Column(db.Integer, db.ForeignKey("topic.id"))
+
+class BlogComment(db.Model):
+
+    '''
+        define blog comment
+    '''
+
+    __tablename__ = 'blog_comment'
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text())
+    author_username = db.Column(db.String(64), db.ForeignKey('users.username'))
+    time = db.Column(db.DateTime(), default=datetime.utcnow)
+    blog_id = db.Column(db.Integer, db.ForeignKey("blog.id"))

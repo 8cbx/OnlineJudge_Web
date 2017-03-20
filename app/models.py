@@ -122,6 +122,17 @@ class ContestProblem(db.Model):
     problem_alias = db.Column(db.String(64))
 
 
+class TagProblem(db.Model):
+
+    '''
+        define Tag with problem relationship
+    '''
+
+    __tablename__ = 'tag_problem'
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'), primary_key=True)
+    problem_id = db.Column(db.Integer, db.ForeignKey('problems.id'), primary_key=True)
+
+
 class User(UserMixin, db.Model):
 
     '''
@@ -595,13 +606,13 @@ class Problem(db.Model):
     last_update = db.Column(db.DateTime(), default=datetime.utcnow)
     visible = db.Column(db.Boolean, default=True)
     submissions = db.relationship('SubmissionStatus', backref='problem', lazy='dynamic', cascade='all, delete-orphan')
-    # tags = db.relationship(
-    #     'TagProblem',
-    #     foreign_keys=[TagProblem.problem_id],
-    #     backref=db.backref('problem', lazy='joined'),
-    #     lazy='dynamic',
-    #     cascade='all, delete-orphan'
-    # )
+    tags = db.relationship(
+        'TagProblem',
+        foreign_keys=[TagProblem.problem_id],
+        backref=db.backref('problem', lazy='joined'),
+        lazy='dynamic',
+        cascade='all, delete-orphan'
+    )
     contest = db.relationship(
         'ContestProblem',
         foreign_keys=[ContestProblem.problem_id],
@@ -806,6 +817,24 @@ class Contest(db.Model):
         'ContestUsers',
         foreign_keys=[ContestUsers.contest_id],
         backref=db.backref('contest', lazy='joined'),
+        lazy='dynamic',
+        cascade='all, delete-orphan'
+    )
+
+
+class Tag(db.Model):
+
+    '''
+        define tag table
+    '''
+
+    __tablename__ = 'tags'
+    id = db.Column(db.Integer, primary_key=True)
+    tag_name = db.Column(db.String(32), unique=True)
+    problems = db.relationship(
+        'TagProblem',
+        foreign_keys=[TagProblem.tag_id],
+        backref=db.backref('tag', lazy='joined'),
         lazy='dynamic',
         cascade='all, delete-orphan'
     )

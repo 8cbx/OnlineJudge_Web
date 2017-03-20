@@ -813,6 +813,7 @@ class Contest(db.Model):
         cascade='all, delete-orphan'
     )
     submissions = db.relationship('SubmissionStatus', backref='contest', lazy='dynamic', cascade='all, delete-orphan')
+    topics = db.relationship('Topic', backref='contest', lazy='dynamic', cascade='all, delete-orphan')
     users = db.relationship(
         'ContestUsers',
         foreign_keys=[ContestUsers.contest_id],
@@ -850,4 +851,34 @@ class Logs(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     operator_name = db.Column(db.String(64), db.ForeignKey('users.username'))
     operation = db.Column(db.String(128))
+    time = db.Column(db.DateTime(), default=datetime.utcnow)
+
+
+class Topic(db.Model):
+
+    '''
+        define topic in contest table
+    '''
+
+    __tablename__ = 'topic'
+    id = db.Column(db.Integer, primary_key=True)
+    contest_id = db.Column(db.Integer, db.ForeignKey('contests.id'))
+    topic_name = db.Column(db.String(256))
+    author_username = db.Column(db.String(64), db.ForeignKey('users.username'))
+    comments = db.relationship('Comment', backref='topic', lazy='dynamic',cascade='all, delete-orphan')
+    public = db.Column(db.Boolean())
+    last_update = db.Column(db.DateTime(), default=datetime.utcnow)
+
+
+class Comment(db.Model):
+
+    '''
+        define comment table
+    '''
+
+    __tablename__ = 'comment'
+    id = db.Column(db.Integer, primary_key=True)
+    topic_id = db.Column(db.Integer, db.ForeignKey("topic.id"))
+    detail = db.Column(db.Text())
+    author_username = db.Column(db.String(64), db.ForeignKey('users.username'))
     time = db.Column(db.DateTime(), default=datetime.utcnow)

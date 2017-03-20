@@ -91,6 +91,37 @@ class Follow(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 
+class ContestUsers(db.Model):
+
+    '''
+        define contest with user relationship
+    '''
+
+    __tablename__ = 'contest_user'
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    contest_id = db.Column(db.Integer, db.ForeignKey('contests.id'), primary_key=True)
+    realname = db.Column(db.String(32))
+    address = db.Column(db.String(128))
+    school = db.Column(db.String(128))
+    student_num = db.Column(db.String(64))
+    phone_num = db.Column(db.String(32))
+    user_confirmed = db.Column(db.Boolean, default=False)
+    register_time = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class ContestProblem(db.Model):
+
+    '''
+        define contest with problem relationship
+    '''
+
+    __tablename__ = 'contest_problem'
+    problem_id = db.Column(db.Integer, db.ForeignKey('problems.id'), primary_key=True)
+    contest_id = db.Column(db.Integer, db.ForeignKey('contests.id'), primary_key=True)
+    problem_index = db.Column(db.Integer)
+    problem_alias = db.Column(db.String(64))
+
+
 class User(UserMixin, db.Model):
 
     '''
@@ -122,8 +153,15 @@ class User(UserMixin, db.Model):
     # Todo: need to update to all connection part
     info_protection = db.Column(db.Boolean, default=False)
     submission = db.relationship('SubmissionStatus', backref='auther', lazy='dynamic', cascade='all, delete-orphan')
-    #manage_contest = db.relationship('Contest', backref='manager', lazy='dynamic')
-    operation = db.relationship('Logs', backref='operator', lazy='dynamic')
+    manage_contest = db.relationship('Contest', backref='manager', lazy='dynamic', cascade='all, delete-orphan')
+    operation = db.relationship('Logs', backref='operator', lazy='dynamic', cascade='all, delete-orphan')
+    contest = db.relationship(
+        'ContestUsers',
+        foreign_keys=[ContestUsers.user_id],
+        backref=db.backref('user', lazy='joined'),
+        lazy='dynamic',
+        cascade='all, delete-orphan'
+    )
     followed = db.relationship(
         'Follow',
         foreign_keys=[Follow.follower_id],
@@ -564,13 +602,13 @@ class Problem(db.Model):
     #     lazy='dynamic',
     #     cascade='all, delete-orphan'
     # )
-    # contest = db.relationship(
-    #     'ContestProblem',
-    #     foreign_keys=[ContestProblem.problem_id],
-    #     backref=db.backref('problem', lazy='joined'),
-    #     lazy='dynamic',
-    #     cascade='all, delete-orphan'
-    # )
+    contest = db.relationship(
+        'ContestProblem',
+        foreign_keys=[ContestProblem.problem_id],
+        backref=db.backref('problem', lazy='joined'),
+        lazy='dynamic',
+        cascade='all, delete-orphan'
+    )
 
     def to_json(self):
 
@@ -636,7 +674,7 @@ class SubmissionStatus(db.Model):
     code = db.Column(db.Text)
     author_username = db.Column(db.String(64), db.ForeignKey('users.username'))
     visible = db.Column(db.Boolean, default=True)
-    #contest_id = db.Column(db.Integer, db.ForeignKey('contests.id'))
+    contest_id = db.Column(db.Integer, db.ForeignKey('contests.id'))
     balloon_sent = db.Column(db.Boolean, default=False)
     submit_ip = db.Column(db.String(32))
 
@@ -729,6 +767,48 @@ class CompileInfo(db.Model):
             raise ValidationError('Compile_info require full data')
         return CompileInfo(submission_id=submission_id, info=info)
 
+
+class Contest(db.Model):
+
+    '''
+        define contest table and some operations
+    '''
+
+    __tablename__ = 'contests'
+    id = db.Column(db.Integer, primary_key=True)
+    contest_name = db.Column(db.String(128), index=True, unique=True)
+    start_time = db.Column(db.DateTime(), default=datetime.utcnow)
+    end_time = db.Column(db.DateTime(), default=datetime.utcnow)
+    # need to verify by the manager
+    verify = db.Column(db.Boolean)
+    # password type of the contest
+    password = db.Column(db.String(64))
+    # define what type is the contest
+    style = db.Column(db.Integer)
+    # description of the contest, show in the first page, or the register page
+    description = db.Column(db.Text)
+    # announcement of the problem page
+    announce = db.Column(db.Text)
+    # notification in the problem page, status page, rank page
+    notification = db.Column(db.Text)
+    manager_username = db.Column(db.String(64), db.ForeignKey('users.username'))
+    visible = db.Column(db.Boolean, default=True)
+    rank_frozen = db.Column(db.Boolean, default=True)
+    problems = db.relationship(
+        'ContestProblem',
+        foreign_keys=[ContestProblem.contest_id],
+        backref=db.backref('contest', lazy='joined'),
+        lazy='dynamic',
+        cascade='all, delete-orphan'
+    )
+    submissions = db.relationship('SubmissionStatus', backref='contest', lazy='dynamic', cascade='all, delete-orphan')
+    users = db.relationship(
+        'ContestUsers',
+        foreign_keys=[ContestUsers.contest_id],
+        backref=db.backref('contest', lazy='joined'),
+        lazy='dynamic',
+        cascade='all, delete-orphan'
+    )
 
 
 class Logs(db.Model):

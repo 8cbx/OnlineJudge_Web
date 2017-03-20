@@ -35,7 +35,7 @@ class UserModelTestCase(unittest.TestCase):
     def test_compileinfo_add_new(self):
 
         '''
-            test to insert into a new oj to database
+            test to insert into a new compile info to database
         :return: None
         '''
 

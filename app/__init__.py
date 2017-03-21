@@ -6,12 +6,16 @@ from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from config import config
+from flask_mail import Mail
+from flask_celery import Celery
 import logging, os
 from logging.handlers import RotatingFileHandler
 
-# init moment obj and db obj
+# init moment obj and db obj, mail onj
 moment = Moment()
 db = SQLAlchemy()
+mail = Mail()
+flask_celery = Celery()
 
 # set login params, user basic protection and set the view of login page
 login_manager = LoginManager()
@@ -36,6 +40,8 @@ def create_app(config_name):
     moment.init_app(app)
     db.init_app(app)
     login_manager.init_app(app)
+    mail.init_app(app)
+    flask_celery.init_app(app)
 
     # register url for different part
     # index part

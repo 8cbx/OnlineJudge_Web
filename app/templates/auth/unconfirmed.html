@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+        <!-- Page Heading/Breadcrumbs -->
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">该账号尚未确认！
+                    <small>Unconfirmed</small>
+                </h1>
+                <ol class="breadcrumb">
+                    <li><a href="#">Home</a>
+                    </li>
+                    <li class="active">unconfirmed</li>
+                </ol>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <div class="row">
+
+            <div class="col-lg-12">
+                <div class="jumbotron">
+                    <h1><span class="error-unconfirmed">账号未确认</span>
+                    </h1>
+                    <p>你的账号尚未确认，需要你登陆邮箱点击确认链接来完成确认！<br/>没收到邮件？<a href="#">点击这里</a></p>
+                </div>
+            </div>
+
+        </div>
+{% endblock %}

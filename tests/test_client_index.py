@@ -3,6 +3,7 @@
 
 import unittest
 from flask import url_for
+from flask_login import login_user
 from app import create_app, db
 from app.models import User, Role
 
@@ -42,4 +43,15 @@ class FlaskClientTestCase(unittest.TestCase):
 
         response = self.client.get(url_for('static', filename='styles.css'))
         self.assertTrue(response.status_code == 404)
-        self.assertTrue(b'not be found.' in response.data)
+        self.assertTrue(b'你要访问的页面去火星了' in response.data)
+
+    def test_index_page(self):
+
+        '''
+            test index page is good
+        :return: None
+        '''
+
+        response = self.client.get(url_for('index.index_page'))
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(b'Welcome to HEU Online Judge' in response.data)

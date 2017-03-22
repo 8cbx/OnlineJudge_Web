@@ -70,7 +70,7 @@ class FlaskClientTestCase(unittest.TestCase):
         })
         self.assertTrue(b'用户名只能包含字母' in response.data)
         # right user
-        u = User(username='test', password='test')
+        u = User(username='test', password='test', nickname='hahahaha')
         db.session.add(u)
         db.session.commit()
         response = self.client.post(url_for('auth.login'), data={
@@ -78,6 +78,12 @@ class FlaskClientTestCase(unittest.TestCase):
             'password': 'test'
         })
         self.assertTrue(response.status_code == 302)
+        u.confirmed = True
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.get(url_for('index.index_page'))
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(b'hahahaha' in response.data)
 
     def test_unconfirmed_page(self):
 
@@ -105,3 +111,24 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get(url_for('auth.unconfirmed'))
         self.assertTrue(response.status_code == 404)
         self.assertTrue(b'你要访问的页面去火星了' in response.data)
+
+    def test_log_out(self):
+
+        '''
+            test logout func is good
+        :return: None
+        '''
+
+        u = User(username='test', password='test', nickname='hahahaha', confirmed=True)
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test',
+            'password': 'test'
+        })
+        self.assertTrue(response.status_code == 302)
+        response = self.client.get(url_for('auth.logout'))
+        self.assertTrue(response.status_code == 302)
+        response = self.client.get(url_for('index.index_page'))
+        self.assertTrue(response.status_code == 200)
+        self.assertFalse(b'hahahaha' in response.data)

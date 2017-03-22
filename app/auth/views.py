@@ -64,3 +64,17 @@ def login():
             user.log_operation('Wrong password to login, login ip is %s' % request.headers.get('X-Real-IP'))
         flash(u'用户名或密码错误！')
     return render_template('auth/login.html', form=form)
+
+
+@auth.route('/logout')
+@login_required
+def logout():
+
+    '''
+        define operation of user logout
+    :return: redirect page
+    '''
+
+    logout_user()
+    flash(u'注销成功')
+    return redirect(url_for('index.index_page'))

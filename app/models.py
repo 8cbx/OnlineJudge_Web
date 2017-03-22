@@ -206,6 +206,8 @@ class User(UserMixin, db.Model):
             icon = identicon.render_identicon(code, 48)
             icon.save('./app/static/photo/%08x.png' % code, 'PNG')
             self.photo = '%08x' % code
+        if self.nickname is None:
+            self.nickname = self.username
 
     def generate_auth_token(self, expiration=3600):
 

@@ -1,0 +1,6 @@
+<p>尊敬的&nbsp;{{ username }},</p>
+<p>请点击<a href="{{ url_for('auth.change_email', token=token, _external=True) }}">这里</a>来验证您的新的电子邮箱地址。</p>
+<p>如果您因为一些原因（如安全设置），无法点击上面的链接，请将下面的地址粘贴到您的浏览器地址栏中并进入，来完成认证过程。</p>
+<p>{{ url_for('auth.change_email', token=token, _external=True) }}</p>
+<p>谢谢。</p>
+<p><small>注意：此邮件为程序自动发送，请不要回复此地址。</small></p>

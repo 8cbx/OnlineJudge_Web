@@ -1,0 +1,9 @@
+尊敬的 {{ username }},
+
+为了完成认证过程，请点击下面的链接：
+
+{{ url_for('auth.change_email', token=token, _external=True) }}
+
+谢谢。
+
+注意：此邮件为程序自动发送，请不要回复此地址。

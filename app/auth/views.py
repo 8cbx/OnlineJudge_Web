@@ -7,7 +7,7 @@ from . import auth
 from .. import db
 from ..models import User, Permission, SubmissionStatus, Follow
 from ..email import send_email
-from .forms import LoginForm
+from .forms import LoginForm, RegistrationForm
 from ..decorators import admin_required
 from datetime import datetime
 
@@ -77,4 +77,50 @@ def logout():
 
     logout_user()
     flash(u'注销成功')
+    return redirect(url_for('index.index_page'))
+
+
+@auth.route('/register', methods=['GET', 'POST'])
+def register():
+
+    '''
+        define operations of user registion
+    :return: page
+    '''
+
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(email=form.email.data,
+                    username=form.username.data,
+                    password=form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        token = user.generate_confirm_token()
+        # Todo: for celery
+        # send_email.apply_async(args=[user.email, u'账号确认', 'auth/email/confirm', user.username, token])
+        send_email(user.email, u'账号确认', 'auth/email/confirm', user.username, token)
+        login_user(user, False)
+        flash(u'一封注册邮件已经发往您的邮箱，请点击确认连接进行确认！')
+        return redirect(url_for('auth.unconfirmed'))
+    return render_template('auth/register.html', form=form)
+
+
+@auth.route('/confirm/<token>')
+@login_required
+def confirm(token):
+
+    '''
+        define operation of confirm user
+    :param token: token
+    :return: page
+    '''
+
+    if current_user.confirmed:
+        return redirect(url_for('index.index_page'))
+    if current_user.confirm(token):
+        flash(u'感谢您确认了您的账号！')
+        # return redirect(url_for('auth.edit_profile'))
+        return redirect(url_for('index.index_page'))
+    else:
+        flash(u'确认链接无效或超过了最长的确认时间')
     return redirect(url_for('index.index_page'))

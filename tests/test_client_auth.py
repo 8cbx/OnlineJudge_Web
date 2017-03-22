@@ -322,3 +322,46 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get(url_for('auth.change_email', token=token), follow_redirects=True)
         self.assertTrue(b'您的邮箱已经被更新' in response.data)
         self.assertTrue(User.query.get(1).email == 'testt@test.com')
+
+    def test_user_detail(self):
+
+        '''
+            test user detail func
+        :return: None
+        '''
+
+        u = User(username='test', password='testtest', confirmed=True, email='test@test.com', major='hahahaha')
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.get(url_for('auth.user_detail', username=u.username))
+        self.assertTrue(b'hahahaha' in response.data)
+
+        u2 = User(username='test2', password='testtest', confirmed=True, email='test2@test.com')
+        db.session.add(u2)
+        db.session.commit()
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test2',
+            'password': 'testtest'
+        }, follow_redirects=True)
+        response = self.client.get(url_for('auth.user_detail', username=u.username))
+        self.assertTrue(b'hahahaha' in response.data)
+
+        u.info_protection = True
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.get(url_for('auth.user_detail', username=u.username))
+        self.assertFalse(b'hahahaha' in response.data)
+
+        u2.role_id = Role.query.filter_by(permission=0xff).first().id
+        db.session.add(u2)
+        db.session.commit()
+        response = self.client.get(url_for('auth.user_detail', username=u.username))
+        self.assertTrue(b'hahahaha' in response.data)
+
+        response = self.client.get(url_for('auth.logout'), follow_redirects=True)
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test',
+            'password': 'testtest'
+        }, follow_redirects=True)
+        response = self.client.get(url_for('auth.user_detail', username=u.username))
+        self.assertTrue(b'hahahaha' in response.data)

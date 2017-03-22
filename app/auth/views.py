@@ -246,3 +246,21 @@ def change_email(token):
     else:
         flash(u'重置邮箱链接无效或超过了最长的有效时间')
     return redirect(url_for('index.index_page'))
+
+
+@auth.route('/user/<username>', methods=['GET', 'POST'])
+# @login_required
+def user_detail(username):
+
+    '''
+        define operation of showing user profile
+    :param username: username
+    :return: page
+    '''
+
+    user = User.query.filter_by(username = username).first_or_404()
+    total_submission = SubmissionStatus.query.filter(SubmissionStatus.author_username==user.username).count()
+    status = {}
+    for k in current_app.config["LOCAL_SUBMISSION_STATUS"].keys():
+        status[k] = SubmissionStatus.query.filter(SubmissionStatus.status==current_app.config['LOCAL_SUBMISSION_STATUS'][k], SubmissionStatus.author_username==user.username).count()
+    return render_template('auth/user_detail.html', user=user, total_submission=total_submission, status=status)

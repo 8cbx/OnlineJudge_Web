@@ -203,7 +203,7 @@ class User(UserMixin, db.Model):
                 self.role = Role.query.filter_by(default=True).first()
         if self.photo is None:
             code = random.randint(1, 1000000000000)
-            icon = identicon.render_identicon(code, 48)
+            icon = identicon.render_identicon(code, 128)
             icon.save('./app/static/photo/%08x.png' % code, 'PNG')
             self.photo = '%08x' % code
         if self.nickname is None:
@@ -509,7 +509,7 @@ class AnonymousUser(AnonymousUserMixin):
         :return: False
         '''
 
-        return self.can()
+        return self.can(Permission.ADMIN)
 
     def is_super_admin(self):
         '''
@@ -517,7 +517,7 @@ class AnonymousUser(AnonymousUserMixin):
         :return: False
         '''
 
-        return self.can()
+        return self.can(Permission.SUPER_ADMIN)
 
 
 login_manager.anonymous_user = AnonymousUser

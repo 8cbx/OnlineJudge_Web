@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+        <!-- Page Heading/Breadcrumbs -->
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">About
+                    <small>{{ user.nickname }}</small>
+                </h1>
+                <ol class="breadcrumb">
+                    <li><a href="{{ url_for('index.index_page') }}">Home</a>
+                    </li>
+                    <li class="active">About</li>
+                </ol>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <div class="row">
+            <div class="col-md-4">
+                <img src="{{ '/static/photo/'+user.photo+'.png' }}" alt="" class="img-circle img-responsive img-thumbnail">
+            </div>
+            <div class="col-md-8">
+                <h2>{{ user.nickname }} 的个人信息</h2>
+                <table class="table table-hover">
+                    <tr>
+                        <th>用户名:</th>
+                        <td>{{ user.username }}</td>
+                    </tr>
+                    <tr>
+                        <th>昵称:</th>
+                        <td>{{ user.nickname }}</td>
+                    </tr>
+                    <tr>
+                        <th>关于我:</th>
+                        <td>{{ user.about_me }}</td>
+                    </tr>
+                    {% if (not user.info_protection) or current_user.username == user.username or current_user.is_admin()  %}
+                    <tr>
+                        <th >性别:</th>
+                        <td >{{ user.gender }}</td>
+                    </tr>
+                    <tr>
+                        <th>专业:</th>
+                        <td>{{ user.major }}</td>
+                    </tr>
+                    <tr>
+                        <th>学历:</th>
+                        <td>{{ user.degree }}</td>
+                    </tr>
+                    <tr>
+                        <th>国家:</th>
+                        <td>{{ user.country }}</td>
+                    </tr>
+                    <tr>
+                        <th>学校:</th>
+                        <td>{{ user.school }}</td>
+                    </tr>
+                    <tr>
+                        <th>学号:</th>
+                        <td>{{ user.student_num }}</td>
+                    </tr>
+                    <tr>
+                        <th>注册时间:</th>
+                        <td>{{ user.member_since }}</td>
+                    </tr>
+                    <tr>
+                        <th>总提交数:</th>
+                        <td>{{ total_submission }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <th class="danger"></th>
+                        <td class="danger">用户设置了隐私保护，您无法查看被保护的信息！</td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+{% endblock %}

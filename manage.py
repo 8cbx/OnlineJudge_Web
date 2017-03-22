@@ -10,7 +10,7 @@ if os.environ.get('FLASK_COVERAGE'):
     COV.start()
 
 from app import create_app, db
-from app.models import Permission, Role
+from app.models import Permission, Role, User
 from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
 
@@ -25,7 +25,7 @@ def make_shell_context():
         make context to the shell
     :return: dicts
     '''
-    return dict(app=app, db=db, Permission=Permission, Role=Role)
+    return dict(app=app, db=db, Permission=Permission, Role=Role, User=User)
 
 manager.add_command('shell', Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)

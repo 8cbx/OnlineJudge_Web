@@ -65,3 +65,81 @@ class RegistrationForm(FlaskForm):
 
         if len(field.data) < 6:
             raise ValidationError(u'密码长度必须大于6位')
+
+
+class ChangePasswordForm(FlaskForm):
+
+    '''
+        define change password form
+    '''
+
+    old_password = PasswordField(u'旧密码', validators=[DataRequired()])
+    password = PasswordField(u'新密码', validators=[DataRequired(), EqualTo('password2', message=u'两次输入密码必须匹配')])
+    password2 = PasswordField(u'新密码确认', validators=[DataRequired()])
+    submit = SubmitField(u'更新密码')
+
+    def validate_password(self, field):
+
+        '''
+            judge if the password length is bigger than 6
+        :param field: field
+        :return: Null
+        '''
+
+        if len(field.data) < 6:
+            raise ValidationError(u'密码必须大于6位')
+
+
+class PasswordResetRequestForm(FlaskForm):
+
+    '''
+        define request password reset form
+    '''
+
+    email = StringField(u'邮箱', validators=[DataRequired(), Length(1, 64), Email()])
+    submit = SubmitField(u'重置密码')
+
+
+class PasswordResetForm(FlaskForm):
+
+    '''
+        define password reset form
+    '''
+
+    email = StringField(u'邮箱', validators=[DataRequired(), Length(1, 64), Email()])
+    password = PasswordField(u'新密码', validators=[DataRequired(), EqualTo('password2', message=u'两次输入密码必须匹配')])
+    password2 = PasswordField(u'新密码确认', validators=[DataRequired()])
+    submit = SubmitField(u'重置密码')
+
+    def validate_email(self, field):
+
+        '''
+            judge if the email is good to use
+        :param field: field
+        :return: Null
+        '''
+
+        if User.query.filter_by(email=field.data).first() is None:
+            raise ValidationError(u'无效邮箱')
+
+
+class ChangeEmailForm(FlaskForm):
+
+    '''
+        define change email form
+    '''
+
+    email = StringField(u'新邮箱', validators=[DataRequired(), Length(1, 64), Email()])
+    password = PasswordField(u'密码', validators=[DataRequired()])
+    submit = SubmitField(u"更新邮箱")
+
+    def validate_email(self, field):
+
+        '''
+            judge if the email is good to use
+        :param field: field
+        :return: Null
+        '''
+
+        if User.query.filter_by(email=field.data).first():
+            raise ValidationError(u'邮箱已被注册')

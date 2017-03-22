@@ -7,7 +7,7 @@ from . import auth
 from .. import db
 from ..models import User, Permission, SubmissionStatus, Follow
 from ..email import send_email
-from .forms import LoginForm, RegistrationForm
+from .forms import LoginForm, RegistrationForm, ChangePasswordForm, PasswordResetRequestForm, PasswordResetForm, ChangeEmailForm
 from ..decorators import admin_required
 from datetime import datetime
 
@@ -96,9 +96,8 @@ def register():
         db.session.add(user)
         db.session.commit()
         token = user.generate_confirm_token()
-        # Todo: for celery
-        # send_email.apply_async(args=[user.email, u'账号确认', 'auth/email/confirm', user.username, token])
-        send_email(user.email, u'账号确认', 'auth/email/confirm', user.username, token)
+        send_email.apply_async(args=[user.email, u'账号确认', 'auth/email/confirm', user.username, token])
+        # send_email(user.email, u'账号确认', 'auth/email/confirm', user.username, token)
         login_user(user, False)
         flash(u'一封注册邮件已经发往您的邮箱，请点击确认连接进行确认！')
         return redirect(url_for('auth.unconfirmed'))
@@ -123,4 +122,127 @@ def confirm(token):
         return redirect(url_for('index.index_page'))
     else:
         flash(u'确认链接无效或超过了最长的确认时间')
+    return redirect(url_for('index.index_page'))
+
+
+@auth.route('/confirm')
+@login_required
+def resend_confirmation():
+
+    '''
+        define operation of confirm user
+    :return: page
+    '''
+
+    token = current_user.generate_confirm_token()
+    send_email.apply_async(args=[current_user.email, 'Confirm Your Account', 'auth/email/confirm', current_user.username, token])
+    flash(u'一封新的注册邮件已经发往您的邮箱，请点击确认连接进行确认！')
+    return redirect(url_for('index.index_page'))
+
+
+@auth.route('/change-password', methods=['GET', 'POST'])
+@login_required
+def changde_password():
+
+    '''
+        define operation of change password
+    :return: page
+    '''
+
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        if current_user.verify_password(form.old_password.data):
+            current_user.password = form.password.data
+            db.session.add(current_user)
+            db.session.commit()
+            flash(u'您的密码已经被更新！')
+            return redirect(url_for('index.index_page'))
+        else:
+            flash(u'旧密码无效！')
+    return render_template('auth/change_password.html', form=form)
+
+
+@auth.route('/reset', methods=['GET', 'POST'])
+def password_reset_request():
+
+    '''
+        define request reset password operation
+    :return: page
+    '''
+
+    if not current_user.is_anonymous:
+        return redirect(url_for('index.index_page'))
+    form = PasswordResetRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            token = user.generate_reset_token()
+            send_email.apply_async(args=[user.email, 'Reset your password', 'auth/email/reset_password', user.username, token])
+            flash(u'一封重置密码的确认邮件已经发往您的邮箱，请点击连接进行密码重置！')
+        else:
+            flash(u'无效邮箱')
+            return redirect(url_for('auth.password_reset_request'))
+        return redirect(url_for('auth.login'))
+    return render_template('auth/reset_password_request.html', form=form)
+
+
+@auth.route('/reset/<token>', methods=['GET', 'POST'])
+def password_reset(token):
+
+    '''
+        define operation of reset password
+    :param token: token
+    :return: page
+    '''
+
+    if not current_user.is_anonymous:
+        return redirect(url_for('index.index_page'))
+    form = PasswordResetForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user.reset_password(token, form.password.data):
+            flash(u'您的密码已经被更新')
+            return redirect(url_for('auth.login'))
+        else:
+            flash(u'重置链接无效或超过了最长的重置时间')
+            return redirect(url_for('index.index_page'))
+    return render_template('auth/reset_password.html', form=form)
+
+
+@auth.route('/change-email', methods=['GET', 'POST'])
+@login_required
+def change_email_request():
+
+    '''
+        define operation of change email request
+    :return: page
+    '''
+
+    form = ChangeEmailForm()
+    if form.validate_on_submit():
+        if current_user.verify_password(form.password.data):
+            new_email = form.email.data
+            token = current_user.generate_email_change_token(new_email)
+            send_email.apply_async(args=[new_email, 'Reset your email', 'auth/email/change_email', current_user.username, token])
+            flash(u'一封修改邮箱的确认邮件已经发往您的旧邮箱，请点击连接进行邮箱修改操作！')
+            return redirect(url_for('index.index_page'))
+        else:
+            flash(u'密码错误！')
+    return render_template('auth/change_email.html', form=form)
+
+
+@auth.route('/change-email/<token>')
+@login_required
+def change_email(token):
+
+    '''
+        define operation of change email
+    :param token: token
+    :return: page
+    '''
+
+    if current_user.change_email(token):
+        flash(u'您的邮箱已经被更新！')
+    else:
+        flash(u'重置邮箱链接无效或超过了最长的有效时间')
     return redirect(url_for('index.index_page'))

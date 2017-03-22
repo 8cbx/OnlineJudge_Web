@@ -193,3 +193,132 @@ class FlaskClientTestCase(unittest.TestCase):
         token = user.generate_confirm_token()
         response = self.client.get(url_for('auth.confirm', token=token), follow_redirects=True)
         self.assertTrue(b'感谢您确认了您的账号' in response.data)
+
+    def test_change_password(self):
+
+        '''
+            test change password func is good
+        :return: None
+        '''
+
+        u = User(username='test', password='testtest', confirmed=True)
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test',
+            'password': 'testtest',
+            'remember_me': 0
+        }, follow_redirects=True)
+        self.assertTrue(response.status_code == 200)
+        # invalid old password
+        response = self.client.post(url_for('auth.changde_password'), data={
+            'old_password': 'test1',
+            'password': 'testtestt',
+            'password2': 'testtestt'
+        }, follow_redirects=True)
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(b'旧密码无效' in response.data)
+        # valid old password
+        response = self.client.post(url_for('auth.changde_password'), data={
+            'old_password': 'testtest',
+            'password': 'testtestt',
+            'password2': 'testtestt'
+        }, follow_redirects=True)
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(b'您的密码已经被更新' in response.data)
+
+    def test_reset_password(self):
+
+        '''
+            test request reset password func is good
+        :return: None
+        '''
+
+        u = User(username='test', password='testtest', confirmed=True)
+        db.session.add(u)
+        db.session.commit()
+        # login user redirect to index
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test',
+            'password': 'testtest',
+            'remember_me': 0
+        }, follow_redirects=True)
+        response = self.client.post(url_for('auth.password_reset_request'), data={
+            'email': 'test@test.com'
+        })
+        self.assertTrue(response.status_code == 302)
+        response = self.client.get(url_for('auth.logout'), follow_redirects=True)
+        response = self.client.post(url_for('auth.password_reset_request'), data={
+            'email': 'test@test.com'
+        }, follow_redirects=True)
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(b'无效邮箱' in response.data)
+
+        # reset fail
+        user = User.query.filter_by(username='test').first()
+        token = user.generate_confirm_token()
+        response = self.client.post(url_for('auth.password_reset', token=token), data={
+            'email': 'test@test.com',
+            'password': 'testtestt',
+            'password2': 'testtestt'
+        }, follow_redirects=True)
+        self.assertTrue(b'无效邮箱' in response.data)
+
+        # reset token time out
+        user.email = 'test@test.com'
+        db.session.add(user)
+        db.session.commit()
+        token = user.generate_reset_token(1)
+        time.sleep(3)
+        response = self.client.post(url_for('auth.password_reset', token=token), data={
+            'email': 'test@test.com',
+            'password': 'testtestt',
+            'password2': 'testtestt'
+        }, follow_redirects=True)
+        self.assertTrue(b'重置链接无效或超过了最长的重置时间' in response.data)
+
+        # reset success
+        token = user.generate_reset_token()
+        response = self.client.post(url_for('auth.password_reset', token=token), data={
+            'email': 'test@test.com',
+            'password': 'testtestt',
+            'password2': 'testtestt'
+        }, follow_redirects=True)
+        self.assertTrue(b'您的密码已经被更新' in response.data)
+
+    def test_change_email(self):
+
+        '''
+            test change email func
+        :return: None
+        '''
+
+        u = User(username='test', password='testtest', confirmed=True, email='test@test.com')
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test',
+            'password': 'testtest',
+            'remember_me': 0
+        }, follow_redirects=True)
+        response = self.client.post(url_for('auth.change_email_request'), data={
+            'email': 'test@test.com',
+            'password': 'testtest',
+        }, follow_redirects=True)
+        self.assertTrue(b'邮箱已被注册' in response.data)
+        response = self.client.post(url_for('auth.change_email_request'), data={
+            'email': 'testt@test.com',
+            'password': 'testtestt',
+        }, follow_redirects=True)
+        self.assertTrue(b'密码错误' in response.data)
+
+        # use good token test time out
+        token = u.generate_email_change_token('testt@test.com', 1)
+        time.sleep(3)
+        response = self.client.get(url_for('auth.change_email', token=token), follow_redirects=True)
+        self.assertTrue(b'重置邮箱链接无效或超过了最长的有效时间' in response.data)
+        # test good token
+        token = u.generate_email_change_token('testt@test.com')
+        response = self.client.get(url_for('auth.change_email', token=token), follow_redirects=True)
+        self.assertTrue(b'您的邮箱已经被更新' in response.data)
+        self.assertTrue(User.query.get(1).email == 'testt@test.com')

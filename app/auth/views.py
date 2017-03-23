@@ -7,7 +7,7 @@ from . import auth
 from .. import db
 from ..models import User, Permission, SubmissionStatus, Follow
 from ..email import send_email
-from .forms import LoginForm, RegistrationForm, ChangePasswordForm, PasswordResetRequestForm, PasswordResetForm, ChangeEmailForm
+from .forms import LoginForm, RegistrationForm, ChangePasswordForm, PasswordResetRequestForm, PasswordResetForm, ChangeEmailForm, EditProfileForm
 from ..decorators import admin_required
 from datetime import datetime
 
@@ -142,7 +142,7 @@ def resend_confirmation():
 
 @auth.route('/change-password', methods=['GET', 'POST'])
 @login_required
-def changde_password():
+def change_password():
 
     '''
         define operation of change password
@@ -264,3 +264,41 @@ def user_detail(username):
     for k in current_app.config["LOCAL_SUBMISSION_STATUS"].keys():
         status[k] = SubmissionStatus.query.filter(SubmissionStatus.status==current_app.config['LOCAL_SUBMISSION_STATUS'][k], SubmissionStatus.author_username==user.username).count()
     return render_template('auth/user_detail.html', user=user, total_submission=total_submission, status=status)
+
+
+@auth.route('/edit-profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+
+    '''
+        define operation of editing profile
+    :return: page
+    '''
+
+    form = EditProfileForm()
+    if form.validate_on_submit():
+        current_user.nickname = form.nickname.data
+        current_user.gender = form.gender.data
+        current_user.major = form.major.data
+        current_user.degree = form.degree.data
+        current_user.country = form.country.data
+        current_user.address = form.address.data
+        current_user.school = form.school.data
+        current_user.student_num = form.student_num.data
+        current_user.phone_num = form.phone_num.data
+        current_user.about_me = form.about_me.data
+        db.session.add(current_user)
+        db.session.commit()
+        flash(u'您的个人信息已经更新')
+        return redirect(url_for('auth.user_detail', username=current_user.username))
+    form.nickname.data = current_user.nickname
+    form.gender.data = current_user.gender
+    form.major.data = current_user.major
+    form.degree.data = current_user.degree
+    form.country.data = current_user.country
+    form.address.data = current_user.address
+    form.school.data = current_user.school
+    form.student_num.data = current_user.student_num
+    form.phone_num.data = current_user.phone_num
+    form.about_me.data = current_user.about_me
+    return render_template('auth/edit_profile.html', form=form)

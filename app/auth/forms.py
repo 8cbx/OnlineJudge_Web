@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, TextAreaField
 from wtforms.validators import Required, Length, Email, Regexp, EqualTo, DataRequired
 from wtforms import ValidationError
 from ..models import User
@@ -143,3 +143,38 @@ class ChangeEmailForm(FlaskForm):
 
         if User.query.filter_by(email=field.data).first():
             raise ValidationError(u'邮箱已被注册')
+
+
+class EditProfileForm(FlaskForm):
+
+    '''
+        define edit profile form
+    '''
+
+    nickname = StringField(u'昵称', validators=[Length(0, 64)])
+    gender = SelectField(u'性别', coerce=unicode)
+    major = StringField(u'专业', validators=[Length(0, 64)])
+    degree = SelectField(u'学位', coerce=unicode)
+    country = SelectField(u'国家', coerce=unicode)
+    address = StringField(u'通讯地址', validators=[Length(0, 128)])
+    school = StringField(u'学校', validators=[Length(0, 128)])
+    student_num = StringField(u'学号', validators=[Length(0, 64)])
+    phone_num = StringField(u'手机号', validators=[Length(0, 32), Regexp('0?(13|14|15|18)[0-9]{9}', 0, u'非法手机号')])
+    about_me = TextAreaField(u'关于我', validators=[Length(0, 1024)])
+    submit = SubmitField(u'提交')
+
+    def __init__(self, *args, **kwargs):
+
+        '''
+            init func to deal with the choices
+        :param args: args
+        :param kwargs: kwargs
+        '''
+
+        super(EditProfileForm, self).__init__(*args, **kwargs)
+        self.gender.choices = [(current_app.config['GENDER'][k][0], current_app.config['GENDER'][k][1])
+                               for k in range(0, len(current_app.config['GENDER']))]
+        self.degree.choices = [(current_app.config['DEGREE'][k][0], current_app.config['DEGREE'][k][1])
+                               for k in range(0, len(current_app.config['DEGREE']))]
+        self.country.choices = [(current_app.config['COUNTRY'][k][0], current_app.config['COUNTRY'][k][1])
+                               for k in range(0, len(current_app.config['COUNTRY']))]

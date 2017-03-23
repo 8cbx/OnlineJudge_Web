@@ -211,7 +211,7 @@ class FlaskClientTestCase(unittest.TestCase):
         }, follow_redirects=True)
         self.assertTrue(response.status_code == 200)
         # invalid old password
-        response = self.client.post(url_for('auth.changde_password'), data={
+        response = self.client.post(url_for('auth.change_password'), data={
             'old_password': 'test1',
             'password': 'testtestt',
             'password2': 'testtestt'
@@ -219,7 +219,7 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue(response.status_code == 200)
         self.assertTrue(b'旧密码无效' in response.data)
         # valid old password
-        response = self.client.post(url_for('auth.changde_password'), data={
+        response = self.client.post(url_for('auth.change_password'), data={
             'old_password': 'testtest',
             'password': 'testtestt',
             'password2': 'testtestt'
@@ -365,3 +365,31 @@ class FlaskClientTestCase(unittest.TestCase):
         }, follow_redirects=True)
         response = self.client.get(url_for('auth.user_detail', username=u.username))
         self.assertTrue(b'hahahaha' in response.data)
+
+    def test_edit_profile(self):
+
+        '''
+            test if the edit user profile is good
+        :return:
+        '''
+        u = User(username='test', password='testtest', confirmed=True, email='test@test.com', major='hahahaha')
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test',
+            'password': 'testtest'
+        }, follow_redirects=True)
+        self.assertTrue(b'test' in response.data)
+        response = self.client.post(url_for('auth.edit_profile'), data={
+            'major': 'test2',
+            'gender': 'Male',
+            'degree': 'Bachelor',
+            'country': 'China',
+            'phone_num': '15555555555'
+        }, follow_redirects=True)
+        self.assertTrue(b'您的个人信息已经更新' in response.data)
+        response = self.client.post(url_for('auth.edit_profile'), data={
+            'major': 'test2',
+            'phone_num': '155555555'
+        }, follow_redirects=True)
+        self.assertTrue(b'非法手机号' in response.data)

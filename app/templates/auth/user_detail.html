@@ -62,7 +62,7 @@
                     </tr>
                     <tr>
                         <th>注册时间:</th>
-                        <td>{{ user.member_since }}</td>
+                        <td>{{ moment(user.member_since).format('LLL') }}</td>
                     </tr>
                     <tr>
                         <th>总提交数:</th>
@@ -72,6 +72,20 @@
                     <tr>
                         <th class="danger"></th>
                         <td class="danger">用户设置了隐私保护，您无法查看被保护的信息！</td>
+                    </tr>
+                    {% endif %}
+                    {% if current_user.username == user.username or current_user.is_admin()  %}
+                    <tr>
+                        <th>邮箱:</th>
+                        <td>{{ user.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>通讯地址:</th>
+                        <td>{{ user.address }}</td>
+                    </tr>
+                    <tr>
+                        <th>手机号:</th>
+                        <td>{{ user.phone_num }}</td>
                     </tr>
                     {% endif %}
                 </table>

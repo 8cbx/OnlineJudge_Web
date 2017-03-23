@@ -49,21 +49,21 @@
                             </li>
                             {% endif %}
                             <li>
-                                <a href="#">修改个人信息</a>
+                                <a href="{{ url_for('auth.edit_profile') }}">修改个人信息</a>
                             </li>
                             <li>
-                                <a href="#">修改邮箱</a>
+                                <a href="{{ url_for('auth.change_email_request') }}">修改邮箱</a>
                             </li>
                             <li>
-                                <a href="#">修改密码</a>
+                                <a href="{{ url_for('auth.change_password') }}">修改密码</a>
                             </li>
                             <li>
-                                <a href="#">退出系统</a>
+                                <a href="{{ url_for('auth.logout') }}">退出系统</a>
                             </li>
                         </ul>
                     </li>
                     <li>
-                        <a href="#">个人资料</a>
+                        <a href="{{ url_for('auth.user_detail', username=current_user.username) }}">个人资料</a>
                     </li>
                     {% else %}
                     <li>
@@ -78,10 +78,6 @@
             <!-- /.navbar-collapse -->
         </div>
     </nav>
-{% endblock %}
-
-{% block content %}
-
     {% for message in get_flashed_messages() %}
     <div class="alert alert-warning alert-dismissible" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -92,6 +88,9 @@
         </strong>
     </div>
     {% endfor %}
+{% endblock %}
+
+{% block content %}
 
     {% block page_content %}
     {% endblock %}

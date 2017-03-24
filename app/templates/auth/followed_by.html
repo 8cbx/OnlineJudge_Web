@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+{% block page_content %}
+        <!-- Page Heading/Breadcrumbs -->
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">关注我的人
+                    <small>Followed By</small>
+                </h1>
+                <ol class="breadcrumb">
+                    <li><a href="{{ url_for('index.index_page') }}">Home</a>
+                    </li>
+                    <li class="active">Followed By</li>
+                </ol>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <div class="row">
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-10">
+                <h2>关注我的人</h2>
+                <table class="table table-hover">
+                    <tbody>
+                        {% for follow in follows %}
+                        <tr>
+                            <td><img style="width:50px;height:50px;" src="{{ '/static/photo/'+follow.follower.photo+'.png' }}" alt="" class="img-circle img-responsive img-thumbnail"></td>
+                            <td style="vertical-align: middle;"><a href="{{ url_for('auth.user_detail', username=follow.follower.username) }}">{{ follow.follower.nickname }}</a></td>
+                            <td style="vertical-align: middle;">上次登陆：{{ moment(follow.follower.last_seen).fromNow() }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% if pagination %}
+                    {{ macros.pagination_widget(pagination, 'auth.followed_by') }}
+                {% endif %}
+            </div>
+        </div>
+{% endblock %}

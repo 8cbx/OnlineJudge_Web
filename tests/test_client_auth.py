@@ -334,7 +334,7 @@ class FlaskClientTestCase(unittest.TestCase):
         db.session.add(u)
         db.session.commit()
         response = self.client.get(url_for('auth.user_detail', username=u.username))
-        self.assertTrue(b'hahahaha' in response.data)
+        self.assertFalse(b'hahahaha' in response.data)
 
         u2 = User(username='test2', password='testtest', confirmed=True, email='test2@test.com')
         db.session.add(u2)
@@ -372,6 +372,7 @@ class FlaskClientTestCase(unittest.TestCase):
             test if the edit user profile is good
         :return:
         '''
+
         u = User(username='test', password='testtest', confirmed=True, email='test@test.com', major='hahahaha')
         db.session.add(u)
         db.session.commit()
@@ -393,3 +394,50 @@ class FlaskClientTestCase(unittest.TestCase):
             'phone_num': '155555555'
         }, follow_redirects=True)
         self.assertTrue(b'非法手机号' in response.data)
+
+    def test_followed(self):
+
+        '''
+            test if the followed and followed_by func is good
+        :return: None
+        '''
+
+        u1 = User(username='test', password='testtest', confirmed=True, email='test@test.com')
+        db.session.add(u1)
+        db.session.commit()
+        u2 = User(username='test2', password='testtest', confirmed=True, email='test2@test.com')
+        db.session.add(u2)
+        db.session.commit()
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test',
+            'password': 'testtest'
+        }, follow_redirects=True)
+        self.assertTrue(response.status_code == 200)
+        response = self.client.get(url_for('auth.follow', username=u2.username), follow_redirects=True)
+        self.assertTrue(b'您从现在起关注了' in response.data)
+        response = self.client.get(url_for('auth.follow', username=u2.username), follow_redirects=True)
+        self.assertTrue(b'你已经关注了这个用户' in response.data)
+        response = self.client.get(url_for('auth.follow', username='testtt'), follow_redirects=True)
+        self.assertTrue(b'无效用户名' in response.data)
+        response = self.client.get(url_for('auth.follow', username='test'), follow_redirects=True)
+        self.assertTrue(b'无效用户名' in response.data)
+        response = self.client.get(url_for('auth.followed'), follow_redirects=True)
+        self.assertTrue(b'test2' in response.data)
+        response = self.client.get(url_for('auth.unfollow', username=u2.username), follow_redirects=True)
+        self.assertTrue(b'您从现在起不再关注' in response.data)
+        response = self.client.get(url_for('auth.unfollow', username='testtt'), follow_redirects=True)
+        self.assertTrue(b'无效用户名' in response.data)
+        response = self.client.get(url_for('auth.unfollow', username=u2.username), follow_redirects=True)
+        self.assertTrue(b'你没有关注过这个用户' in response.data)
+        response = self.client.get(url_for('auth.followed'), follow_redirects=True)
+        self.assertFalse(b'test2' in response.data)
+        u2.follow(u1)
+        db.session.add(u2)
+        db.session.commit()
+        response = self.client.get(url_for('auth.followed_by'), follow_redirects=True)
+        self.assertTrue(b'test2' in response.data)
+        u2.unfollow(u1)
+        db.session.add(u2)
+        db.session.commit()
+        response = self.client.get(url_for('auth.followed_by'), follow_redirects=True)
+        self.assertFalse(b'test2' in response.data)

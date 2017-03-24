@@ -249,7 +249,7 @@ def change_email(token):
 
 
 @auth.route('/user/<username>', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def user_detail(username):
 
     '''
@@ -302,3 +302,77 @@ def edit_profile():
     form.phone_num.data = current_user.phone_num
     form.about_me.data = current_user.about_me
     return render_template('auth/edit_profile.html', form=form)
+
+
+@auth.route('/follow/<username>')
+@login_required
+def follow(username):
+
+    '''
+        define follow operations
+    :param username: username
+    :return:
+    '''
+
+    user = User.query.filter_by(username=username).first()
+    if user is None or user.username==current_user.username:
+        flash(u'无效用户名')
+        return redirect(url_for('index.index_page'))
+    if current_user.is_following(user):
+        flash(u'你已经关注了这个用户！')
+        return redirect(url_for('auth.user_detail', username=username))
+    current_user.follow(user)
+    flash(u'您从现在起关注了 %s.' % username)
+    return redirect(url_for('auth.user_detail', username=username))
+
+
+@auth.route('/unfollow/<username>')
+@login_required
+def unfollow(username):
+
+    '''
+        define operation of unfollow user
+    :param username: username
+    :return: page
+    '''
+
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash(u'无效用户名')
+        return redirect(url_for('index.index_page'))
+    if not current_user.is_following(user):
+        flash(u'你没有关注过这个用户！')
+        return redirect(url_for('auth.user_detail', username=username))
+    current_user.unfollow(user)
+    flash(u'您从现在起不再关注 %s 了.' % username)
+    return redirect(url_for('auth.user_detail', username=username))
+
+
+@auth.route('/followed')
+@login_required
+def followed():
+
+    '''
+        define operation of showing followed user
+    :return: page
+    '''
+
+    page = request.args.get('page', 1, type=int)
+    pagination = current_user.followed.order_by(Follow.followed_id.asc()).paginate(page, per_page=current_app.config['FLASKY_USERS_PER_PAGE'])
+    follows = pagination.items
+    return render_template('auth/followed.html', follows=follows, pagination=pagination)
+
+
+@auth.route('/followed_by')
+@login_required
+def followed_by():
+
+    '''
+        define operation of showing followed user
+    :return: page
+    '''
+
+    page = request.args.get('page', 1, type=int)
+    pagination = current_user.followers.order_by(Follow.follower_id.asc()).paginate(page, per_page=current_app.config['FLASKY_USERS_PER_PAGE'])
+    follows = pagination.items
+    return render_template('auth/followed_by.html', follows=follows, pagination=pagination)

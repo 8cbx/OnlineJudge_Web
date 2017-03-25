@@ -1,0 +1,43 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+       <div class="right_col" role="main">
+          <!-- top tiles -->
+          <div class="row tile_count">
+            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+              <span class="count_top"><i class="fa fa-user"></i> 总用户 </span>
+              <div class="count">{{ user_num }}</div>
+              <span class="count_bottom"><i class="red">{{ unconfirmed_user }} </i> 名未确认用户</span>
+            </div>
+            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+              <span class="count_top"><i class="fa fa-clock-o"></i> 在线用户</span>
+              <div class="count">{{ online_user_num }}</div>
+            </div>
+            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+              <span class="count_top"><i class="fa fa-user"></i> OJ阻塞</span>
+              <div class="count green">{{ oj_status }}</div>
+            </div>
+            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+              <span class="count_top"><i class="fa fa-user"></i> 题目数量</span>
+              <div class="count">{{ problem_num }}</div>
+            </div>
+            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+              <span class="count_top"><i class="fa fa-user"></i> 提交数量</span>
+              <div class="count">{{ submission_num }}</div>
+            </div>
+            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+              <span class="count_top"><i class="fa fa-user"></i> Judging状态数量</span>
+              <div class="count">{{ judging_num }}</div>
+              <span class="count_bottom"><i class="red"><i class="fa fa-sort-asc"></i>{{ waiting_num }} </i> waiting状态数量</span>
+            </div>
+            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+              <span class="count_top"><i class="fa fa-user"></i> 比赛数量</span>
+              <div class="count">{{ contest_num }}</div>
+            </div>
+            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+              <span class="count_top"><i class="fa fa-user"></i> 标签数</span>
+              <div class="count">{{ tag_num }}</div>
+            </div>
+          </div>
+        </div>
+{% endblock %}

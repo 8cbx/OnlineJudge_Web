@@ -47,6 +47,12 @@ def create_app(config_name):
     # index part
     from .index import index as index_blueprint
     app.register_blueprint(index_blueprint)
+    # problem list and submit
+    from .problem import problem as problem_blueprint
+    app.register_blueprint(problem_blueprint, url_prefix='/problem')
+    # submissions and status
+    from .status import status as status_blueprint
+    app.register_blueprint(status_blueprint, url_prefix='/status')
     # login and register part
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')

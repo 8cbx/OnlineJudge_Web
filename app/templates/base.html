@@ -29,7 +29,7 @@
                         <a href="{{ url_for('index.index_page') }}">首页</a>
                     </li>
                     <li>
-                        <a href="services.html">题目列表</a>
+                        <a href="{{ url_for('problem.problem_list') }}">题目列表</a>
                     </li>
                     <li>
                         <a href="contact.html">提交列表</a>
@@ -45,7 +45,7 @@
                         <ul class="dropdown-menu">
                             {% if current_user.is_admin() %}
                             <li>
-                                <a href="#">后台管理</a>
+                                <a href="{{ url_for('admin.admin_index') }}">后台管理</a>
                             </li>
                             {% endif %}
                             <li>

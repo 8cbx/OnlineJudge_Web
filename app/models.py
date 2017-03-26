@@ -606,7 +606,7 @@ class Problem(db.Model):
     hint = db.Column(db.Text)
     author = db.Column(db.String(128))
     last_update = db.Column(db.DateTime(), default=datetime.utcnow)
-    visible = db.Column(db.Boolean, default=True)
+    visible = db.Column(db.Boolean, default=False)
     submissions = db.relationship('SubmissionStatus', backref='problem', lazy='dynamic', cascade='all, delete-orphan')
     tags = db.relationship(
         'TagProblem',

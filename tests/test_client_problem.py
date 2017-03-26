@@ -34,6 +34,16 @@ class FlaskClientTestCase(unittest.TestCase):
         db.drop_all()
         self.app_context.pop()
 
+    def test_problem_404(self):
+
+        '''
+            test 404 is good for problem
+        :return: None
+        '''
+
+        response = self.client.get(url_for('problem.problem_detail', problem_id=123))
+        self.assertTrue(response.status_code == 404)
+
     def test_problem_list(self):
 
         '''
@@ -73,11 +83,74 @@ class FlaskClientTestCase(unittest.TestCase):
 
         '''
             test problem_detail is good
-        :return:
+        :return: None
         '''
 
         p = Problem(title='test')
         db.session.add(p)
         db.session.commit()
-        response = self.client.get(url_for('problem.problem_list', problem_id=p.id))
+        response = self.client.get(url_for('problem.problem_detail', problem_id=p.id))
+        self.assertTrue(response.status_code == 404)
+        p.visible = True
+        db.session.add(p)
+        db.session.commit()
+        response = self.client.get(url_for('problem.problem_detail', problem_id=p.id))
         self.assertTrue(response.status_code == 200)
+
+    def test_problem_submit(self):
+
+        '''
+            test problem submit is good
+        :return: None
+        '''
+
+        p = Problem(title='test')
+        db.session.add(p)
+        db.session.commit()
+        response = self.client.post(url_for('problem.submit', problem_id=2), data={
+            'problem_id': '2',
+            'language': '1',
+            'code': 'helloworldsdfsdf'
+        })
+        self.assertTrue(response.status_code == 302)
+        u = User(username='test', password='test', email='test@test.com', nickname='hahahaha', confirmed=True)
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test',
+            'password': 'test',
+            'remember_me': 0
+        }, follow_redirects=True)
+        response = self.client.post(url_for('problem.submit', problem_id=2), data={
+            'problem_id': '2',
+            'language': '1',
+            'code': 'helloworldsdfsdf'
+        })
+        self.assertTrue(b'No such problem!' in response.data)
+        response = self.client.post(url_for('problem.submit', problem_id=p.id), data={
+            'problem_id': p.id,
+            'language': '1',
+            'code': 'helloworldsdfsdf'
+        }, follow_redirects=True)
+        self.assertTrue(b'No such problem!' in response.data)
+        p.visible = True
+        db.session.add(p)
+        db.session.commit()
+        response = self.client.post(url_for('problem.submit', problem_id=p.id), data={
+            'problem_id': '1',
+            'language': '1',
+            'code': 'helloworldsdfsdf'
+        })
+        self.assertTrue(response.status_code == 302)
+        p.visible = False
+        db.session.add(p)
+        db.session.commit()
+        u.role_id = Role.query.filter_by(permission=0xff).first().id
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.post(url_for('problem.submit', problem_id=p.id), data={
+            'problem_id': '1',
+            'language': '1',
+            'code': 'helloworldsdfsdf'
+        })
+        self.assertTrue(response.status_code == 302)

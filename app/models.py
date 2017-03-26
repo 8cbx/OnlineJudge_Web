@@ -623,6 +623,19 @@ class Problem(db.Model):
         cascade='all, delete-orphan'
     )
 
+    def __init__(self, **kwargs):
+
+        '''
+            init class, generate user role and photo
+        :param kwargs: kwargs
+        '''
+
+        super(Problem, self).__init__(**kwargs)
+        if self.submission_num is None:
+            self.submission_num = 0
+        if self.accept_num is None:
+            self.accept_num = 0
+
     def to_json(self):
 
         '''

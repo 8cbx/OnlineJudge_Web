@@ -7,6 +7,7 @@ from . import problem
 from .. import db
 from ..models import SubmissionStatus, Problem
 from datetime import datetime
+from .forms import SubmitForm
 import base64
 
 
@@ -51,30 +52,30 @@ def submit(problem_id):
     :return: page
     '''
 
-    pass
-    # submission = SubmissionStatus()
-    # form = SubmitForm()
-    # if form.validate_on_submit():
-    #     problem = Problem.query.with_lockmode('update').get(form.problem_id.data)
-    #     if problem is None:
-    #         flash("No such problem!")
-    #         return render_template('problem/submit.html')
-    #     submission.submit_time = datetime.utcnow()
-    #     submission.problem_id = form.problem_id.data
-    #     submission.status = 0
-    #     submission.time = 0
-    #     submission.exec_memory = 0
-    #     submission.language = form.language.data
-    #     submission.code_length = len(form.code.data)
-    #     submission.code = base64.b64encode(form.code.data.encode('utf-8'))
-    #     submission.author_username = current_user.username
-    #     submission.visible = True
-    #     submission.submit_ip = request.headers.get('X-Real-IP')
-    #     problem.submission_num += 1
-    #     db.session.add(problem)
-    #     db.session.add(submission)
-    #     db.session.commit()
-    #     return redirect(url_for('status.status_list'))
-    # form.problem_id.data = problem_id
-    # return render_template('problem/submit.html', form=form)
+    submission = SubmissionStatus()
+    form = SubmitForm()
+    if form.validate_on_submit():
+        problem = Problem.query.with_lockmode('update').get(form.problem_id.data)
+        if problem is None or (problem.visible == False and not current_user.is_admin()):
+            flash("No such problem!")
+            return render_template('problem/submit.html', form=form)
+        submission.submit_time = datetime.utcnow()
+        submission.problem_id = form.problem_id.data
+        submission.status = 0
+        submission.time = 0
+        submission.exec_memory = 0
+        submission.language = form.language.data
+        submission.code_length = len(form.code.data)
+        submission.code = base64.b64encode(form.code.data.encode('utf-8'))
+        submission.author_username = current_user.username
+        submission.visible = True
+        submission.submit_ip = request.headers.get('X-Real-IP')
+        problem.submission_num += 1
+        db.session.add(problem)
+        db.session.add(submission)
+        db.session.commit()
+        #return redirect(url_for('status.status_list'))
+        return redirect(url_for('index.index_page'))
+    form.problem_id.data = problem_id
+    return render_template('problem/submit.html', form=form)
 

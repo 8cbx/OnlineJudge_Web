@@ -37,7 +37,7 @@ class FlaskClientTestCase(unittest.TestCase):
     def test_problem_list(self):
 
         '''
-            test index page is good
+            test problem list is good
         :return: None
         '''
 
@@ -68,3 +68,16 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue(response.status_code == 200)
         self.assertTrue(b'Problem List' in response.data)
         self.assertTrue(b'thisisatest' in response.data)
+
+    def test_problem_detail(self):
+
+        '''
+            test problem_detail is good
+        :return:
+        '''
+
+        p = Problem(title='test')
+        db.session.add(p)
+        db.session.commit()
+        response = self.client.get(url_for('problem.problem_list', problem_id=p.id))
+        self.assertTrue(response.status_code == 200)

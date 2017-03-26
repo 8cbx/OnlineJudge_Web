@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+{% block title %}题目列表{% endblock %}
+{% block page_content %}
+    <!-- Page Heading/Breadcrumbs -->
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">{{ problem.title }}
+                    <small>{{ problem.oj.name }}-{{ problem.remote_id }}</small>
+                </h1>
+                <ol class="breadcrumb">
+                    <li><a href="{{ url_for('index.index_page') }}">Home</a>
+                    </li>
+                    <li class="active">Problem</li>
+                </ol>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <div class="row">
+            <div class="col-lg-12">
+            	<div class="col-lg-2">
+            	</div>
+                <div class="col-lg-8">
+                    <table class="table table-bordered" cellspacing="0" width="100%" style="font-size:10px;">
+                        <thead>
+                            <tr>
+                                <th>时间限制</th>
+                                <th>内存限制</th>
+                                <th>总提交数</th>
+                                <th>AC数</th>
+                                <th>Special Judge</th>
+                                <th>Virtual Judge</th>
+                                {% if problem.oj.vjudge is sameas true %}
+                                <th>源OJ名称</th>
+                                <th>源OJ题号</th>
+                                {% endif %}
+                                <th>最近更新时间</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>{{ problem.time_limit }}s</th>
+                                <th>{{ problem.memory_limit }}m</th>
+                                <th>{{ problem.submission_num }}</th>
+                                <th>{{ problem.accept_num }}</th>
+                                {% if problem.special_judge is sameas true %}
+                                <th>是</th>
+                                {% else %}
+                                <th>否</th>
+                                {% endif %}
+                                {% if problem.oj.vjudge is sameas true %}
+                                <th>是</th>
+                                <th>{{ problem.oj.name }}</th>
+                                <th>{{ problem.remote_id }}</th>
+                                {% else %}
+                                <th>否</th>
+                                {% endif %}
+                                <td>{{ moment(problem.last_update).fromNow(refresh=True) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <a class="btn btn-default btn-block btn btn-primary" href="{{ url_for('problem.submit',problem_id=problem.id) }}" role="button">提交</a>
+                    <h2>Description</h2>
+                        <p style="white-space: pre-wrap;">{{ problem.description|safe }}</p>
+                    <hr/>
+                    <h2>Input</h2>
+                        <p style="white-space: pre-wrap;">{{ problem.input|escape }}</p>
+                    <hr/>
+                    <h2>Output</h2>
+                        <p style="white-space: pre-wrap;">{{ problem.output|escape }}</p>
+                    <hr/>
+                    <h2>Sample Input</h2>
+                    <div class="well">
+                        <p style="white-space: pre-wrap;">{{ problem.sample_input|escape }}</p>
+                    </div>
+                    <hr/>
+                    <h2>Sample Output</h2>
+                    <div class="well">
+                        <p style="white-space: pre-wrap;">{{ problem.sample_output|escape }}</p>
+                    </div>
+                    <hr/>
+                    <h2>Hint</h2>
+                        <p style="white-space: pre-wrap;">{{ problem.hint|escape }}</p>
+                    <hr/>
+                    <h2>Source</h2>
+                        <p style="white-space: pre-wrap;">{{ problem.source_name|escape }}</p>
+                    <hr/>
+                    <h2>Author</h2>
+                        <p style="white-space: pre-wrap;">{{ problem.author|escape }}</p>
+                </div>
+            </div>
+        </div>
+{% endblock %}

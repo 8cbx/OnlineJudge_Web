@@ -35,8 +35,46 @@ def problem_detail(problem_id):
     :return: page
     '''
 
+    problem = Problem.query.get_or_404(problem_id)
+    if problem.visible is False and (not current_user.is_admin()):
+        abort(404)
+    return render_template('problem/problem.html', problem=problem)
+
+
+@problem.route('/submit/<int:problem_id>', methods=['GET', 'POST'])
+@login_required
+def submit(problem_id):
+
+    '''
+        operation of submit code
+    :param problem_id: problem_id
+    :return: page
+    '''
+
     pass
-    # problem = Problem.query.get_or_404(problem_id)
-    # if problem.visible is False and (not current_user.is_admin()):
-    #     abort(404)
-    # return render_template('problem/problem.html', problem=problem)
+    # submission = SubmissionStatus()
+    # form = SubmitForm()
+    # if form.validate_on_submit():
+    #     problem = Problem.query.with_lockmode('update').get(form.problem_id.data)
+    #     if problem is None:
+    #         flash("No such problem!")
+    #         return render_template('problem/submit.html')
+    #     submission.submit_time = datetime.utcnow()
+    #     submission.problem_id = form.problem_id.data
+    #     submission.status = 0
+    #     submission.time = 0
+    #     submission.exec_memory = 0
+    #     submission.language = form.language.data
+    #     submission.code_length = len(form.code.data)
+    #     submission.code = base64.b64encode(form.code.data.encode('utf-8'))
+    #     submission.author_username = current_user.username
+    #     submission.visible = True
+    #     submission.submit_ip = request.headers.get('X-Real-IP')
+    #     problem.submission_num += 1
+    #     db.session.add(problem)
+    #     db.session.add(submission)
+    #     db.session.commit()
+    #     return redirect(url_for('status.status_list'))
+    # form.problem_id.data = problem_id
+    # return render_template('problem/submit.html', form=form)
+

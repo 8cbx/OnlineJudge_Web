@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+{% block title %}Code{% endblock %}
+{% block page_content %}
+    <!-- Page Heading/Breadcrumbs -->
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">代码
+                    <small>Code - {{ status.id }}</small>
+                </h1>
+                <ol class="breadcrumb">
+                    <li><a href="{{ url_for('index.index_page') }}">Home</a>
+                    </li>
+                    <li class="active">Code</li>
+                </ol>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <div class="row">
+            <div class="col-lg-12">
+            	<div class="col-lg-2">
+            	</div>
+                <div class="col-lg-8">
+                    <table class="table table-bordered" cellspacing="0" width="100%" style="font-size:10px;">
+                        <thead>
+                            <tr>
+                                <th>运行ID</th>
+                                <th>题目ID</th>
+                                <th>提交时间</th>
+                                <th>评测状态</th>
+                                <th>运行时间</th>
+                                <th>运行内存</th>
+                                <th>语言</th>
+                                <th>提交用户</th>
+                                {% if current_user.is_admin() %}
+                                <th>提交ip</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>{{ status.id }}</th>
+                                <th><a href="{{ url_for('problem.problem_detail', problem_id=status.problem_id) }}">{{ status.problem_id }}</a></th>
+                                <th>{{ moment(status.submit_time).format('LLL') }}</th>
+                                <th>{{ status_list[status.status] }}</th>
+                                <th>{% if status.status != 0 and status.status != 10%}{{ status.exec_time }}ms{% else %}-{% endif %}</th>
+                                <th>{% if status.status != 0 and status.status != 10%}{{ status.exec_memory }}k{% else %}-{% endif %}</th>
+                                <th>{{ language[status.language] }}</th>
+                                <td><a href="{{ url_for('auth.user_detail', username=status.author_username) }}">{{ status.author_username }}</a></td>
+                                {% if current_user.is_admin() %}
+                                <td>{{ status.submit_ip }}</td>
+                                {% endif %}
+                            </tr>
+                        </tbody>
+                    </table>
+                    {% if ce_info %}
+                    <hr>
+                        <div class="well">
+                        <h3>编译信息:</h3>
+                        {{ ce_info.info|replace("\n", "<br>")|safe }}
+                        </div>
+                    {% endif %}
+                    <hr>
+                    <h2>Code</h2>
+      <pre>
+          <code>
+{{ code }}
+          </code>
+      </pre>
+
+                </div>
+            </div>
+        </div>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+
+<script src="{{ url_for('static', filename='js/highlight.pack.js') }}"></script>
+<script >hljs.initHighlightingOnLoad();</script>
+
+{% endblock %}

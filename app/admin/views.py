@@ -47,3 +47,17 @@ def problem_list():
     pagination = Problem.query.order_by(Problem.id.asc()).paginate(page, per_page=current_app.config['FLASKY_PROBLEMS_PER_PAGE'])
     problems = pagination.items
     return render_template('admin/problem_list.html', problems=problems, pagination=pagination)
+
+
+@admin.route('/problem/<int:problem_id>', methods=['GET', 'POST'])
+@admin_required
+def problem_detail(problem_id):
+
+    '''
+        deal with the problem detail
+    :param problem_id: problem id
+    :return: page
+    '''
+
+    problem = Problem.query.get_or_404(problem_id)
+    return render_template('admin/problem.html', problem=problem)

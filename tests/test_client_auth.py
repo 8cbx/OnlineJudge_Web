@@ -194,6 +194,11 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get(url_for('auth.confirm', token=token), follow_redirects=True)
         self.assertTrue(b'感谢您确认了您的账号' in response.data)
 
+        # confirm again
+        token = user.generate_confirm_token()
+        response = self.client.get(url_for('auth.confirm', token=token), follow_redirects=True)
+        self.assertFalse(b'感谢您确认了您的账号' in response.data)
+
     def test_change_password(self):
 
         '''
@@ -285,6 +290,22 @@ class FlaskClientTestCase(unittest.TestCase):
             'password2': 'testtestt'
         }, follow_redirects=True)
         self.assertTrue(b'您的密码已经被更新' in response.data)
+        # login user redirect to index
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test',
+            'password': 'testtestt',
+            'remember_me': 0
+        }, follow_redirects=True)
+        token = user.generate_confirm_token()
+        response = self.client.post(url_for('auth.password_reset', token=token), data={
+            'email': 'test@test.com',
+            'password': 'testtestt',
+            'password2': 'testtestt'
+        }, follow_redirects=True)
+        self.assertFalse(b'您的密码已经被更新' in response.data)
+        self.assertFalse(b'重置链接无效或超过了最长的重置时间' in response.data)
+        self.assertFalse(b'无效邮箱' in response.data)
+
 
     def test_change_email(self):
 

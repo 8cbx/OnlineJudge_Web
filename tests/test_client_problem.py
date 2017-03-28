@@ -78,6 +78,18 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue(response.status_code == 200)
         self.assertTrue(b'Problem List' in response.data)
         self.assertTrue(b'thisisatest' in response.data)
+        p.visible = False
+        db.session.add(p)
+        db.session.commit()
+        u.role_id = Role.query.filter_by(permission=0xff).first().id
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.get(url_for('problem.problem_list'))
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(b'Problem List' in response.data)
+        self.assertTrue(b'thisisatest' in response.data)
+
+
 
     def test_problem_detail(self):
 
@@ -154,3 +166,11 @@ class FlaskClientTestCase(unittest.TestCase):
             'code': 'helloworldsdfsdf'
         })
         self.assertTrue(response.status_code == 302)
+        response = self.client.post(url_for('problem.submit', problem_id=p.id), data={
+            'problem_id': '1',
+            'language': '1',
+            'code': 'hellow'
+        })
+        self.assertTrue(b'代码长度必须在10到65535个字符之间' in response.data)
+        response = self.client.get(url_for('problem.submit', problem_id=p.id))
+        self.assertTrue(response.status_code == 200)

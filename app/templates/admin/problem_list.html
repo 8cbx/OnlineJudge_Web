@@ -45,7 +45,7 @@
 					            <td>{{ problem.id }}</td>
 					            <td>{{ problem.oj.name }}</td>
 					            <td>{{ problem.remote_id }}</td>
-					            <td><a href="{{ url_for('problem.problem_detail', problem_id=problem.id) }}">{{ problem.title }}</a></td>
+					            <td><a href="{{ url_for('admin.problem_detail', problem_id=problem.id) }}">{{ problem.title }}</a></td>
 					            <td>{{ problem.submission_num }}</td>
 					            <td>{{ problem.accept_num }}</td>
 					            <td>{{ moment(problem.last_update).fromNow(refresh=True) }}</td>

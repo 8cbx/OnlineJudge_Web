@@ -70,7 +70,7 @@
                   </li>
                   <li><a><i class="fa fa-edit"></i> 题目管理 <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
-                      <li><a href="form_advanced.html">题目列表</a></li>
+                      <li><a href="{{ url_for('admin.problem_list') }}">题目列表</a></li>
                       <li><a href="form_validation.html">添加题目</a></li>
                       <li><a href="form_wizards.html">题目标签列表</a></li>
                       <li><a href="form_upload.html">添加题目标签</a></li>
@@ -131,7 +131,7 @@
               <ul class="nav navbar-nav navbar-right">
                 <li class="">
                   <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                    <img src="{{ '/static/photo/'+current_user.photo+'.png' }}" alt="..." class="img-circle profile_img">{{ current_user.nickname }}
+                    <img src="{{ '/static/photo/'+current_user.photo+'.png' }}">{{ current_user.nickname }}
                     <span class=" fa fa-angle-down"></span>
                   </a>
                   <ul class="dropdown-menu dropdown-usermenu pull-right">

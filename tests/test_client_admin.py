@@ -5,7 +5,7 @@ import unittest
 from flask import url_for
 from flask_login import login_user
 from app import create_app, db
-from app.models import User, Role
+from app.models import User, Role, Problem
 
 class FlaskClientTestCase(unittest.TestCase):
 
@@ -72,3 +72,28 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get(url_for('admin.admin_index'), follow_redirects=True)
         self.assertTrue(response.status_code == 200)
         self.assertTrue(b'test2' in response.data)
+
+    def test_problem_list(self):
+
+        '''
+            test admin problem_list is good
+        :return: None
+        '''
+
+        response = self.client.get(url_for('admin.problem_list'))
+        self.assertTrue(response.status_code == 403)
+        u = User(username='test2', password='123456', email='test@test.com', confirmed=True)
+        u.role_id = Role.query.filter_by(permission=0xff).first().id
+        db.session.add(u)
+        db.session.commit()
+        p = Problem(title='thisisatest')
+        db.session.add(p)
+        db.session.commit()
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test2',
+            'password': '123456'
+        }, follow_redirects=True)
+        response = self.client.get(url_for('admin.problem_list'))
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(b'Problem List' in response.data)
+        self.assertTrue(b'thisisatest' in response.data)

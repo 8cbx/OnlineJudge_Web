@@ -32,3 +32,18 @@ def admin_index():
     judging_num = SubmissionStatus.query.filter_by(status=current_app.config['LOCAL_SUBMISSION_STATUS']['Judging']).count()
     waiting_num = SubmissionStatus.query.filter_by(status=current_app.config['LOCAL_SUBMISSION_STATUS']['Waiting']).count()
     return render_template('admin/index.html', user_num=user_num, unconfirmed_user=unconfirmed_user, oj_status=oj_status, online_user_num=online_user_num, problem_num=problem_num, submission_num=submission_num, contest_num=contest_num, tag_num=tag_num, judging_num=judging_num, waiting_num=waiting_num)
+
+
+@admin.route('/problems', methods=['GET', 'POST'])
+@admin_required
+def problem_list():
+
+    '''
+        deal with the problem list page of admin part
+    :return: page
+    '''
+
+    page = request.args.get('page', 1, type=int)
+    pagination = Problem.query.order_by(Problem.id.asc()).paginate(page, per_page=current_app.config['FLASKY_PROBLEMS_PER_PAGE'])
+    problems = pagination.items
+    return render_template('admin/problem_list.html', problems=problems, pagination=pagination)

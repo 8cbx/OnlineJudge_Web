@@ -6,6 +6,7 @@ from flask import url_for
 from flask_login import login_user
 from app import create_app, db
 from app.models import User, Role
+from app.index.views import gen_random_filename
 
 class FlaskClientTestCase(unittest.TestCase):
 
@@ -55,3 +56,22 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get(url_for('index.index_page'))
         self.assertTrue(response.status_code == 200)
         self.assertTrue(b'Welcome to HEU Online Judge' in response.data)
+
+    def test_gen_random(self):
+
+        '''
+            test gen_random file name
+        :return: None
+        '''
+
+        self.assertTrue(gen_random_filename() != gen_random_filename())
+
+    def test_index_upload(self):
+
+        '''
+            test ckeditor upload func
+        :return: None
+        '''
+
+        response = self.client.post(url_for('index.ckupload'))
+        self.assertTrue(b'POST_ERROR' in response.data)

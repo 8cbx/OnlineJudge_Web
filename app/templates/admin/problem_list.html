@@ -55,7 +55,7 @@
                                 <td>{{ problem.visible }}</td>
                                 <td>
                                     <a href="{{ url_for('admin.problem_edit', problem_id=problem.id) }}"><button class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span> 编辑</button></a>
-                                    <a href="{# {{ url_for('admin.upload_file', problem_id=problems.id) }} #}"><button class="btn btn-default"><span class="glyphicon glyphicon-upload"></span> 输入输出文件上传</button></a>
+                                    <a href="{{ url_for('admin.upload_file', problem_id=problem.id) }}"><button class="btn btn-default"><span class="glyphicon glyphicon-upload"></span> 输入输出文件上传</button></a>
 	                            </td>
 					        </tr>
                             {% endfor %}

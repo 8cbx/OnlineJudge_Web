@@ -1,0 +1,33 @@
+{% extends "admin/base.html" %}
+{% import "_macros.html" as macros %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dropzone.css') }}">
+<script src="{{ url_for('static', filename='js/dropzone.js') }}"></script>
+{% endblock %}
+{% block content %}
+       <div class="right_col" role="main">
+          <!-- top tiles -->
+          <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">上传数据
+                    <small>Upload Data</small>
+                </h1>
+                <ol class="breadcrumb">
+                    <li><a href="{{ url_for('index.index_page') }}">Home</a>
+                    </li>
+                    <li class="active">Admin</li>
+                    <li class="active">Upload Data</li>
+                </ol>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <div class="row">
+            <div class="col-lg-12">
+                <form action="{{ url_for('admin.upload_file', problem_id=problem_id) }}" class="dropzone" method="POST" enctype="multipart/form-data">
+                </form>
+            </div>
+        </div>
+        </div>
+{% endblock %}

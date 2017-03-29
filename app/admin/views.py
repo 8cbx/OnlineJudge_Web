@@ -184,3 +184,23 @@ def problem_edit(problem_id):
     form.visible.data = problem.visible
     form.tags.data = problem.tags
     return render_template('admin/problem_edit.html', form=form, problem=problem)
+
+
+@admin.route('/upload/<int:problem_id>', methods=['GET', 'POST'])
+@admin_required
+def upload_file(problem_id):
+
+    '''
+        deal with the input file list upload operation
+    :param problem_id: problem_id
+    :return: None
+    '''
+
+    problem = Problem.query.get_or_404(problem_id)
+    if request.method == 'POST':
+        if not os.path.exists(current_app.config['UPLOADED_PATH'] + str(problem_id) + '/'):
+            os.makedirs(current_app.config['UPLOADED_PATH'] + str(problem_id) + '/')
+        for f in request.files.getlist('file'):
+            # print os.path.join(current_app.config['UPLOADED_PATH'] + str(problem_id) + '/', f.filename)
+            f.save(os.path.join(current_app.config['UPLOADED_PATH'] + str(problem_id) + '/', f.filename))
+    return render_template('admin/upload.html', problem_id=problem_id)

@@ -72,8 +72,8 @@
                     <ul class="nav child_menu">
                       <li><a href="{{ url_for('admin.problem_list') }}">题目列表</a></li>
                       <li><a href="{{ url_for('admin.problem_insert') }}">添加题目</a></li>
-                      <li><a href="form_wizards.html">题目标签列表</a></li>
-                      <li><a href="form_upload.html">添加题目标签</a></li>
+                      <li><a href="{{ url_for('admin.tag_list') }}">题目标签列表</a></li>
+                      <li><a href="{{ url_for('admin.tag_insert') }}">添加题目标签</a></li>
                     </ul>
                   </li>
                   <li><a><i class="fa fa-desktop"></i> 用户管理 <span class="fa fa-chevron-down"></span></a>

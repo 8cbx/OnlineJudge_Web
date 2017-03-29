@@ -9,7 +9,7 @@ from ..models import Role, User, Permission, OJList, Problem, SubmissionStatus, 
 from werkzeug.utils import secure_filename
 from ..decorators import admin_required, permission_required
 from datetime import datetime, timedelta
-from .forms import ModifyProblem
+from .forms import ModifyProblem, ModifyTag
 import os, base64, json
 
 @admin.route('/')
@@ -204,3 +204,63 @@ def upload_file(problem_id):
             # print os.path.join(current_app.config['UPLOADED_PATH'] + str(problem_id) + '/', f.filename)
             f.save(os.path.join(current_app.config['UPLOADED_PATH'] + str(problem_id) + '/', f.filename))
     return render_template('admin/upload.html', problem_id=problem_id)
+
+
+@admin.route('/tags', methods=['GET', 'POST'])
+@admin_required
+def tag_list():
+
+    '''
+        define tag list operations
+    :return: page
+    '''
+
+    page = request.args.get('page', 1, type=int)
+    pagination = Tag.query.order_by(Tag.id.desc()).paginate(page, per_page=current_app.config['FLASKY_TAGS_PER_PAGE'])
+    tags = pagination.items
+    return render_template('admin/tag_list.html', tags=tags,  pagination=pagination)
+
+
+@admin.route('/tag/edit/<int:tag_id>', methods=['GET', 'POST'])
+@admin_required
+def tag_edit(tag_id):
+
+    '''
+        define edit tag operation
+    :param tag_id: tag id
+    :return: page
+    '''
+
+    tag = Tag.query.get_or_404(tag_id)
+    form = ModifyTag()
+    if form .validate_on_submit():
+        tag.tag_name = form.tag_name.data
+        db.session.add(tag)
+        db.session.commit()
+        current_user.log_operation('Edit tag %s, tag_id is %s' % (tag.tag_name, str(tag.id)))
+        flash('Tag update sucessful!')
+        return redirect(url_for('admin.tag_list'))
+    form.tag_name.data = tag.tag_name
+    return render_template('admin/tag_edit.html', form=form)
+
+
+@admin.route('/tag/add', methods=['GET', 'POST'])
+@admin_required
+def tag_insert():
+
+    '''
+        define add tag operation
+    :return: page
+    '''
+
+    tag = Tag()
+    form = ModifyTag()
+    if form.validate_on_submit():
+        tag.tag_name = form.tag_name.data
+        db.session.add(tag)
+        db.session.commit()
+        current_user.log_operation('Add tag %s' % tag.tag_name)
+        flash('Add tag sucessful!')
+        return redirect(url_for('admin.tag_list'))
+    form.tag_name.data = ''
+    return render_template('admin/tag_edit.html', form=form)

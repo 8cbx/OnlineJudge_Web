@@ -51,3 +51,13 @@ class ModifyProblem(FlaskForm):
                               for oj in OJList.query.order_by(OJList.name).all()]
         self.tags.choices = [(tag.id, tag.tag_name)
                              for tag in Tag.query.order_by(Tag.tag_name).all()]
+
+
+class ModifyTag(FlaskForm):
+
+    '''
+        define form about TagModify
+    '''
+
+    tag_name = StringField(u'标签名称', validators=[DataRequired(), Length(0, 32)])
+    submit = SubmitField(u'提交')

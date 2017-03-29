@@ -213,3 +213,27 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue(response.status_code == 200)
         response = self.client.post(url_for('admin.upload_file', problem_id=1))
         self.assertTrue(response.status_code == 200)
+
+    def test_tag(self):
+
+        '''
+            test tag part
+        :return: None
+        '''
+
+        u = User(username='test2', password='123456', email='test@test.com', confirmed=True)
+        u.role_id = Role.query.filter_by(permission=0xff).first().id
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test2',
+            'password': '123456'
+        }, follow_redirects=True)
+        response = self.client.post(url_for('admin.tag_insert'), data={
+            'tag_name': 'thisisatag'
+        }, follow_redirects=True)
+        self.assertTrue(b'thisisatag' in response.data)
+        response = self.client.post(url_for('admin.tag_edit', tag_id=1), data={
+            'tag_name': 'thisisatag2'
+        }, follow_redirects=True)
+        self.assertTrue(b'thisisatag2' in response.data)

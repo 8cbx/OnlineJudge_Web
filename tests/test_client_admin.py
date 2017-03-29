@@ -5,7 +5,7 @@ import unittest
 from flask import url_for
 from flask_login import login_user
 from app import create_app, db
-from app.models import User, Role, Problem
+from app.models import User, Role, Problem, OJList
 
 class FlaskClientTestCase(unittest.TestCase):
 
@@ -119,3 +119,31 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get(url_for('admin.problem_detail', problem_id=p.id))
         self.assertTrue(response.status_code == 200)
         self.assertTrue(b'thisisatest' in response.data)
+
+    def test_add_problem(self):
+
+        '''
+            test admin add problem page is good
+        :return: None
+        '''
+
+        u = User(username='test2', password='123456', email='test@test.com', confirmed=True)
+        u.role_id = Role.query.filter_by(permission=0xff).first().id
+        db.session.add(u)
+        db.session.commit()
+        oj = OJList(name='local')
+        db.session.add(oj)
+        db.session.commit()
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test2',
+            'password': '123456'
+        }, follow_redirects=True)
+        response = self.client.get(url_for('admin.problem_insert'))
+        response = self.client.post(url_for('admin.problem_insert'), data={
+            'oj_id': '1',
+            'title': 'hahah',
+            'time_limit': '1',
+            'memory_limit': '1'
+        }, follow_redirects=True)
+        self.assertTrue(b'hahah' in response.data)
+

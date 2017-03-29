@@ -9,6 +9,7 @@ from ..models import Role, User, Permission, OJList, Problem, SubmissionStatus, 
 from werkzeug.utils import secure_filename
 from ..decorators import admin_required, permission_required
 from datetime import datetime, timedelta
+from .forms import ModifyProblem
 import os, base64, json
 
 @admin.route('/')
@@ -61,3 +62,64 @@ def problem_detail(problem_id):
 
     problem = Problem.query.get_or_404(problem_id)
     return render_template('admin/problem.html', problem=problem)
+
+
+@admin.route('/problem/insert', methods=['GET', 'POST'])
+@admin_required
+def problem_insert():
+
+    '''
+        deal with the insert problem operation
+    :return: page
+    '''
+
+    problem = Problem()
+    form = ModifyProblem()
+    if form.validate_on_submit():
+        if Problem.query.filter_by(oj_id=form.oj_id.data).order_by(Problem.remote_id.desc()).first() is None:
+            problem.remote_id = 1
+        else:
+            problem.remote_id = Problem.query.filter_by(oj_id=form.oj_id.data).order_by(Problem.remote_id.desc()).first().id + 1
+        problem.oj_id = form.oj_id.data
+        problem.title = form.title.data
+        problem.time_limit = form.time_limit.data
+        problem.memory_limit = form.memory_limit.data
+        problem.special_judge = form.special_judge.data
+        problem.submission_num = form.submission_num.data
+        problem.accept_num = form.accept_num.data
+        problem.description = form.description.data
+        problem.input = form.input.data
+        problem.output = form.output.data
+        problem.sample_input = form.sample_input.data
+        problem.sample_output = form.sample_output.data
+        problem.source_name = form.source_name.data
+        problem.hint = form.hint.data
+        problem.author = form.author.data
+        problem.visible = form.visible.data
+        for i in form.tags.data:
+            t = TagProblem(tag=Tag.query.get(i), problem=problem)
+            db.session.add(t)
+            # db.session.commit()
+        problem.last_update = datetime.utcnow()
+        db.session.add(problem)
+        db.session.commit()
+        current_user.log_operation('Insert problem "%s", problem_id is %s' % (problem.title, str(problem.id)))
+        return redirect(url_for('admin.problem_list'))
+    form.oj_id.data =  problem.oj_id
+    form.title.data = problem.title
+    form.time_limit.data = problem.time_limit
+    form.memory_limit.data = problem.memory_limit
+    form.special_judge.data = problem.special_judge
+    form.submission_num .data = problem.submission_num
+    form.accept_num.data = problem.accept_num
+    form.description.data = problem.description
+    form.input.data = problem.input
+    form.output.data = problem.output
+    form.sample_input.data = problem.sample_input
+    form.sample_output.data = problem.sample_output
+    form.source_name.data = problem.source_name
+    form.hint.data = problem.hint
+    form.author.data = problem.hint
+    form.visible.data = problem.visible
+    form.tags.data = problem.tags
+    return render_template('admin/problem_insert.html', form=form, problem=problem)

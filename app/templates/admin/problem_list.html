@@ -33,10 +33,12 @@
 					            <th>OJ</th>
 					            <th>远程ID</th>
 					            <th>标题</th>
+                                <th>vjudge</th>
 					            <th>提交数</th>
 					            <th>AC数</th>
 					            <th>最近更新时间</th>
                                 <th>可见性</th>
+                                <th>操作</th>
 					        </tr>
 					    </thead>
 					    <tbody>
@@ -46,10 +48,15 @@
 					            <td>{{ problem.oj.name }}</td>
 					            <td>{{ problem.remote_id }}</td>
 					            <td><a href="{{ url_for('admin.problem_detail', problem_id=problem.id) }}">{{ problem.title }}</a></td>
+                                <td>{% if problem.oj_id.vjudge is sameas true %}Yes{% else %}No{% endif %}</td>
 					            <td>{{ problem.submission_num }}</td>
 					            <td>{{ problem.accept_num }}</td>
 					            <td>{{ moment(problem.last_update).fromNow(refresh=True) }}</td>
                                 <td>{{ problem.visible }}</td>
+                                <td>
+                                    <a href="{{ url_for('admin.problem_edit', problem_id=problem.id) }}"><button class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span> 编辑</button></a>
+                                    <a href="{# {{ url_for('admin.upload_file', problem_id=problems.id) }} #}"><button class="btn btn-default"><span class="glyphicon glyphicon-upload"></span> 输入输出文件上传</button></a>
+	                            </td>
 					        </tr>
                             {% endfor %}
 					    </tbody>

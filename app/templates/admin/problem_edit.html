@@ -1,0 +1,303 @@
+{% extends "admin/base.html" %}
+{% block head %}
+{{ super() }}
+<script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
+{% endblock %}
+{% block content %}
+       <div class="right_col" role="main">
+          <!-- top tiles -->
+          <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">编辑题目
+                    <small>Edit Problem</small>
+                </h1>
+                <ol class="breadcrumb">
+                    <li><a href="{{ url_for('index.index_page') }}">Home</a>
+                    </li>
+                    <li class="active">Admin</li>
+                    <li class="active">Edit Problem</li>
+                </ol>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <form method="post" class="form-horizontal">
+            {{ form.hidden_tag() }}
+    		<div class="form-group has-feedback{% if form.oj_id.errors %} has-error{% endif %}">
+                {{ form.oj_id.label(for="inputOJ_ID", class="col-sm-2 control-label") }}
+        		<div class="col-sm-8">
+                    {{ form.oj_id(type="text", class="form-control", placeholder="oj_id") }}
+        		    {% if form.oj_id.errors %}
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                    <span id="inputError" class="sr-only">(error)</span>
+                        {% for error in form.oj_id.errors %}
+	                        <span id="helpBlock" class="help-block">
+	                        {{ error }}
+                            </span>
+		                {% endfor%}
+	                {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group has-feedback{% if form.problem_id.errors %} has-error{% endif %}">
+                {{ form.problem_id.label(for="inputRemoteID", class="col-sm-2 control-label") }}
+        		<div class="col-sm-8">
+                    {{ form.problem_id(type="text", class="form-control", placeholder="远程题目ID") }}
+        		    {% if form.problem_id.errors %}
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                    <span id="inputError" class="sr-only">(error)</span>
+                        {% for error in form.problem_id.errors %}
+	                        <span id="helpBlock" class="help-block">
+	                        {{ error }}
+                            </span>
+		                {% endfor%}
+	                {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group has-feedback{% if form.title.errors %} has-error{% endif %}">
+                {{ form.title.label(for="inputTitle", class="col-sm-2 control-label") }}
+        		<div class="col-sm-8">
+                    {{ form.title(type="text", class="form-control", placeholder="题目名称") }}
+                    {% if form.title.errors %}
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                    <span id="inputError" class="sr-only">(error)</span>
+                        {% for error in form.title.errors %}
+	                        <span id="helpBlock" class="help-block">
+	                        {{ error }}
+                            </span>
+		                {% endfor%}
+	                {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group has-feedback{% if form.time_limit.errors %} has-error{% endif %}">
+                {{ form.time_limit.label(for="inputTimeLimit", class="col-sm-2 control-label") }}
+        		<div class="col-sm-8">
+                    {{ form.time_limit(type="text", class="form-control", placeholder="时间限制") }}
+                    {% if form.time_limit.errors %}
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                    <span id="inputError" class="sr-only">(error)</span>
+                        {% for error in form.time_limit.errors %}
+	                        <span id="helpBlock" class="help-block">
+	                        {{ error }}
+                            </span>
+		                {% endfor%}
+	                {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group has-feedback{% if form.memory_limit.errors %} has-error{% endif %}">
+                {{ form.memory_limit.label(for="inputMemoryLimit", class="col-sm-2 control-label") }}
+        		<div class="col-sm-8">
+                    {{ form.memory_limit(type="text", class="form-control", placeholder="内存限制") }}
+                    {% if form.memory_limit.errors %}
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                    <span id="inputError" class="sr-only">(error)</span>
+                        {% for error in form.memory_limit.errors %}
+	                        <span id="helpBlock" class="help-block">
+	                        {{ error }}
+                            </span>
+		                {% endfor%}
+	                {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+		        <label class="col-sm-2 control-label" for="inputSpecialJudge">Special Judge</label>
+                <div class="col-sm-8">
+                    {{ form.special_judge(type="checkbox") }}
+		        </div>
+		    </div>
+
+            <div class="form-group has-feedback{% if form.submission_num.errors %} has-error{% endif %}">
+                {{ form.submission_num.label(for="inputSubmissionNum", class="col-sm-2 control-label") }}
+        		<div class="col-sm-8">
+                    {{ form.submission_num(type="text", class="form-control", placeholder="提交数") }}
+                    {% if form.submission_num.errors %}
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                    <span id="inputError" class="sr-only">(error)</span>
+                        {% for error in form.submission_num.errors %}
+	                        <span id="helpBlock" class="help-block">
+	                        {{ error }}
+                            </span>
+		                {% endfor%}
+	                {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group has-feedback{% if form.accept_num.errors %} has-error{% endif %}">
+                {{ form.accept_num.label(for="inputAcceptNum", class="col-sm-2 control-label") }}
+        		<div class="col-sm-8">
+                    {{ form.accept_num(type="text", class="form-control", placeholder="通过数") }}
+                    {% if form.accept_num.errors %}
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                    <span id="inputError" class="sr-only">(error)</span>
+                        {% for error in form.accept_num.errors %}
+	                        <span id="helpBlock" class="help-block">
+	                        {{ error }}
+                            </span>
+		                {% endfor%}
+	                {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group {% if form.description.errors %} has-error{% endif %}">
+                {{ form.description.label(for="inputDescription", class="col-sm-2 control-label") }}
+        		<div class="col-sm-8">
+                    {{ form.description(class="ckeditor", placeholder="题目描述", rows="8") }}
+                    {% if form.description.errors %}
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                    <span id="inputError" class="sr-only">(error)</span>
+                        {% for error in form.description.errors %}
+	                        <span id="helpBlock" class="help-block">
+	                        {{ error }}
+                            </span>
+		                {% endfor%}
+	                {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group has-feedback{% if form.input.errors %} has-error{% endif %}">
+                {{ form.input.label(for="inputInput", class="col-sm-2 control-label") }}
+        		<div class="col-sm-8">
+                    {{ form.input(type="text", class="form-control", placeholder="输入说明", rows="4") }}
+                    {% if form.input.errors %}
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                    <span id="inputError" class="sr-only">(error)</span>
+                        {% for error in form.input.errors %}
+	                        <span id="helpBlock" class="help-block">
+	                        {{ error }}
+                            </span>
+		                {% endfor%}
+	                {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group has-feedback{% if form.output.errors %} has-error{% endif %}">
+                {{ form.output.label(for="inputOutput", class="col-sm-2 control-label") }}
+        		<div class="col-sm-8">
+                    {{ form.output(type="text", class="form-control", placeholder="输出说明", rows="4") }}
+                    {% if form.output.errors %}
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                    <span id="inputError" class="sr-only">(error)</span>
+                        {% for error in form.output.errors %}
+	                        <span id="helpBlock" class="help-block">
+	                        {{ error }}
+                            </span>
+		                {% endfor%}
+	                {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group has-feedback{% if form.sample_input.errors %} has-error{% endif %}">
+                {{ form.sample_input.label(for="inputSampleInput", class="col-sm-2 control-label") }}
+        		<div class="col-sm-8">
+                    {{ form.sample_input(type="text", class="form-control", placeholder="输入样例", rows="4") }}
+                    {% if form.sample_input.errors %}
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                    <span id="inputError" class="sr-only">(error)</span>
+                        {% for error in form.sample_input.errors %}
+	                        <span id="helpBlock" class="help-block">
+	                        {{ error }}
+                            </span>
+		                {% endfor%}
+	                {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group has-feedback{% if form.sample_output.errors %} has-error{% endif %}">
+                {{ form.sample_output.label(for="inputSampleOutput", class="col-sm-2 control-label") }}
+        		<div class="col-sm-8">
+                    {{ form.sample_output(type="text", class="form-control", placeholder="输出样例", rows="4") }}
+                    {% if form.sample_output.errors %}
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                    <span id="inputError" class="sr-only">(error)</span>
+                        {% for error in form.sample_output.errors %}
+	                        <span id="helpBlock" class="help-block">
+	                        {{ error }}
+                            </span>
+		                {% endfor%}
+	                {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group has-feedback{% if form.source_name.errors %} has-error{% endif %}">
+                {{ form.source_name.label(for="inputSource", class="col-sm-2 control-label") }}
+        		<div class="col-sm-8">
+                    {{ form.source_name(type="text", class="form-control", placeholder="题目来源") }}
+                    {% if form.source_name.errors %}
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                    <span id="inputError" class="sr-only">(error)</span>
+                        {% for error in form.source_name.errors %}
+	                        <span id="helpBlock" class="help-block">
+	                        {{ error }}
+                            </span>
+		                {% endfor%}
+	                {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group has-feedback{% if form.hint.errors %} has-error{% endif %}">
+                {{ form.hint.label(for="inputHint", class="col-sm-2 control-label") }}
+        		<div class="col-sm-8">
+                    {{ form.hint(type="text", class="form-control", placeholder="提示") }}
+                    {% if form.hint.errors %}
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                    <span id="inputError" class="sr-only">(error)</span>
+                        {% for error in form.hint.errors %}
+	                        <span id="helpBlock" class="help-block">
+	                        {{ error }}
+                            </span>
+		                {% endfor%}
+	                {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group has-feedback{% if form.author.errors %} has-error{% endif %}">
+                {{ form.author.label(for="inputAuthor", class="col-sm-2 control-label") }}
+        		<div class="col-sm-8">
+                    {{ form.author(type="text", class="form-control", placeholder="题目作者") }}
+                    {% if form.author.errors %}
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                    <span id="inputError" class="sr-only">(error)</span>
+                        {% for error in form.author.errors %}
+	                        <span id="helpBlock" class="help-block">
+	                        {{ error }}
+                            </span>
+		                {% endfor%}
+	                {% endif %}
+                </div>
+            </div>
+
+		    <div class="form-group">
+                <label class="col-sm-2 control-label" for="inputVisible">题目可见</label>
+		        <div class="col-sm-8">
+                    {{ form.visible(type="checkbox") }}
+		        </div>
+		    </div>
+
+            <div class="form-group has-feedback{% if form.tags.errors %} has-error{% endif %}">
+                {{ form.tags.label(for="inputTag", class="col-sm-2 control-label") }}
+        		<div class="col-sm-8">
+                    {{ form.tags(type="text", class="form-control") }}
+                    {% if form.tags.errors %}
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                    <span id="inputError" class="sr-only">(error)</span>
+                        {% for error in form.tags.errors %}
+	                        <span id="helpBlock" class="help-block">
+	                        {{ error }}
+                            </span>
+		                {% endfor%}
+	                {% endif %}
+                </div>
+            </div>
+
+		    <div class="form-group">
+		        <div class="col-sm-offset-2 col-sm-8">
+		            {{ form.submit(class="btn btn-default btn-block btn btn-primary") }}
+		        </div>
+		    </div>
+		</form>
+        </div>
+{% endblock %}

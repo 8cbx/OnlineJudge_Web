@@ -123,3 +123,64 @@ def problem_insert():
     form.visible.data = problem.visible
     form.tags.data = problem.tags
     return render_template('admin/problem_insert.html', form=form, problem=problem)
+
+
+@admin.route('/problem/edit/<int:problem_id>', methods=['GET', 'POST'])
+@admin_required
+def problem_edit(problem_id):
+
+    '''
+        deal with the edit problem operation
+    :param problem_id: problem_id
+    :return:
+    '''
+
+    problem = Problem.query.get_or_404(problem_id)
+    form = ModifyProblem()
+    if form.validate_on_submit():
+        problem.remote_id = form.problem_id.data
+        problem.oj_id = form.oj_id.data
+        problem.title = form.title.data
+        problem.time_limit = form.time_limit.data
+        problem.memory_limit = form.memory_limit.data
+        problem.special_judge = form.special_judge.data
+        problem.submission_num = form.submission_num.data
+        problem.accept_num = form.accept_num.data
+        problem.description = form.description.data
+        problem.input = form.input.data
+        problem.output = form.output.data
+        problem.sample_input = form.sample_input.data
+        problem.sample_output = form.sample_output.data
+        problem.source_name = form.source_name.data
+        problem.hint = form.hint.data
+        problem.author = form.author.data
+        problem.visible = form.visible.data
+        # add tags to the problem, tag and problems are primary key, so it can't be duplicate
+        for i in form.tags.data:
+            t = TagProblem(tag=Tag.query.get(i), problems=problem)
+            db.session.add(t)
+            # db.session.commit()
+        problem.last_update = datetime.utcnow()
+        db.session.add(problem)
+        db.session.commit()
+        current_user.log_operation('Edit problem "%s", problem_id is %s' % (problem.title, str(problem.id)))
+        return redirect(url_for('admin.problem_list'))
+    form.problem_id.data = problem.remote_id
+    form.oj_id.data = problem.oj_id
+    form.title.data = problem.title
+    form.time_limit.data = problem.time_limit
+    form.memory_limit.data = problem.memory_limit
+    form.special_judge.data = problem.special_judge
+    form.submission_num.data = problem.submission_num
+    form.accept_num.data = problem.accept_num
+    form.description.data = problem.description
+    form.input.data = problem.input
+    form.output.data = problem.output
+    form.sample_input.data = problem.sample_input
+    form.sample_output.data = problem.sample_output
+    form.source_name.data = problem.source_name
+    form.hint.data = problem.hint
+    form.author.data = problem.hint
+    form.visible.data = problem.visible
+    form.tags.data = problem.tags
+    return render_template('admin/problem_edit.html', form=form, problem=problem)

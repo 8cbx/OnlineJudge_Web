@@ -78,7 +78,7 @@
                   </li>
                   <li><a><i class="fa fa-desktop"></i> 用户管理 <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
-                      <li><a href="general_elements.html">用户列表</a></li>
+                      <li><a href="{{ url_for('admin.user_list') }}">用户列表</a></li>
                     </ul>
                   </li>
                   <li><a><i class="fa fa-table"></i> Judge管理 <span class="fa fa-chevron-down"></span></a>
@@ -148,6 +148,16 @@
               </ul>
             </nav>
           </div>
+            {% for message in get_flashed_messages() %}
+    <div class="alert alert-warning alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <strong>
+            {{ message }}
+        </strong>
+    </div>
+    {% endfor %}
         </div>
         <!-- /top navigation -->
 

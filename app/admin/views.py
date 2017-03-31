@@ -9,7 +9,7 @@ from ..models import Role, User, Permission, OJList, Problem, SubmissionStatus, 
 from werkzeug.utils import secure_filename
 from ..decorators import admin_required, permission_required
 from datetime import datetime, timedelta
-from .forms import ModifyProblem, ModifyTag
+from .forms import ModifyProblem, ModifyTag, ModifyUser
 import os, base64, json
 
 @admin.route('/')
@@ -264,3 +264,91 @@ def tag_insert():
         return redirect(url_for('admin.tag_list'))
     form.tag_name.data = ''
     return render_template('admin/tag_edit.html', form=form)
+
+
+@admin.route('/users', methods=['GET', 'POST'])
+@admin_required
+def user_list():
+
+    '''
+        deal with user list operation
+    :return: page
+    '''
+
+    page = request.args.get('page', 1, type=int)
+    pagination = User.query.order_by(User.id.asc()).paginate(page, per_page=current_app.config['FLASKY_USERS_PER_PAGE'])
+    users = pagination.items
+    return render_template('admin/user_list.html', users=users, pagination=pagination)
+
+
+@admin.route('/user/edit/<int:user_id>', methods=['GET', 'POST'])
+@admin_required
+def user_edit(user_id):
+
+    '''
+        deal with user edit operation
+    :param user_id: user_id
+    :return: page
+    '''
+
+    user = User.query.get_or_404(user_id)
+    form = ModifyUser(user)
+    if form.validate_on_submit():
+        if user.role.permission >= current_user.role.permission and current_user.username != user.username and current_user.role.permission != 0xff:
+            current_user.log_operation(
+                'Try to edit a high level permission user %s, user_id is %s' % (user.username, str(user.id)))
+            flash(u"您无法编辑一个更高权限的用户!")
+            return redirect(url_for('admin.user_list'))
+        # if change to a high level role, the operation can not be exec
+        elif Role.query.get_or_404(form.role_id.data).permission >= current_user.role.permission and current_user.role.permission != 0xff:
+            current_user.log_operation(
+                'Try to grant user %s a high level permission, user_id is %s' % (user.username, str(user.id)))
+            flash(u"您不能给用户授予高于您本身的权限!")
+            return redirect(url_for('admin.user_edit', user_id=user_id))
+        user.email = form.email.data
+        user.confirmed = form.confirmed.data
+        user.nickname = form.nickname.data
+        user.gender = form.gender.data
+        user.major = form.major.data
+        user.degree = form.degree.data
+        user.country = form.country.data
+        user.address = form.address.data
+        user.school = form.school.data
+        user.student_num = form.student_num.data
+        user.phone_num = form.phone_num.data
+        user.about_me = form.about_me.data
+        user.role_id = form.role_id.data
+        db.session.add(user)
+        db.session.commit()
+        current_user.log_operation('Edit user %s, user_id is %s' % (user.username, str(user.id)))
+        flash('Update successful!')
+        return redirect(url_for('admin.user_list'))
+    form.email.data = user.email
+    form.username.data = user.username
+    form.nickname.data = user.nickname
+    form.confirmed.data = user.confirmed
+    form.role_id.data = user.role_id
+    form.gender.data = user.gender
+    form.major.data = user.major
+    form.degree.data = user.degree
+    form.address.data = user.address
+    form.country.data = user.country
+    form.school.data = user.school
+    form.student_num.data = user.student_num
+    form.phone_num.data = user.phone_num
+    form.about_me.data = user.about_me
+    return render_template('admin/user_edit.html', form=form, user=user)
+
+
+@admin.route('/user/<int:user_id>', methods=['GET', 'POST'])
+@admin_required
+def user_detail(user_id):
+
+    '''
+        define user detail operation
+    :param user_id: user_id
+    :return: page
+    '''
+
+    user = User.query.get_or_404(user_id)
+    return render_template('admin/user_detail.html', user=user)

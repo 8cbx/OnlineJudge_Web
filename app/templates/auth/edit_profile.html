@@ -37,7 +37,7 @@
             <div class="form-group has-feedback{% if form.gender.errors %} has-error{% endif %}">
                 {{ form.gender.label(for="inputGender", class="col-sm-2 control-label") }}
         		<div class="col-sm-8">
-                    {{ form.gender(type="password", class="form-control") }}
+                    {{ form.gender(type="text", class="form-control") }}
                     {% if form.gender.errors %}
                     <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
                     <span id="inputError" class="sr-only">(error)</span>

@@ -237,3 +237,108 @@ class FlaskClientTestCase(unittest.TestCase):
             'tag_name': 'thisisatag2'
         }, follow_redirects=True)
         self.assertTrue(b'thisisatag2' in response.data)
+
+    def test_edit_user(self):
+
+        '''
+            test user part
+        :return: None
+        '''
+
+        u = User(username='test2', password='123456', email='test2@test.com', confirmed=True)
+        u.role_id = Role.query.filter_by(permission=0xff).first().id
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test2',
+            'password': '123456'
+        }, follow_redirects=True)
+        u2 = User(username='test3', password='123456', email='test3@test.com', confirmed=True)
+        db.session.add(u2)
+        db.session.commit()
+        response = self.client.get(url_for('admin.user_list'))
+        self.assertTrue(b'test3' in response.data)
+        response = self.client.get(url_for('admin.user_detail', user_id=u2.id))
+        self.assertTrue(b'test3' in response.data)
+        response = self.client.get(url_for('admin.user_edit', user_id=u2.id))
+        self.assertTrue(b'test3' in response.data)
+        response = self.client.post(url_for('admin.user_edit', user_id=u2.id), data={
+            'email': 'test4@test.com',
+            'username': 'test3',
+            'role_id': Role.query.filter_by(permission=0x11).first().id,
+            'gender': 'Male',
+            'degree': 'Bachelor',
+            'country': 'China'
+        }, follow_redirects=True)
+        self.assertTrue(b'test4' in response.data)
+        u.role_id = Role.query.filter_by(permission=0x40).first().id
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.post(url_for('admin.user_edit', user_id=u2.id), data={
+            'email': 'test14@test.com',
+            'username': 'test3',
+            'role_id': Role.query.filter_by(permission=0x11).first().id,
+            'gender': 'Male',
+            'degree': 'Bachelor',
+            'country': 'China'
+        }, follow_redirects=True)
+        self.assertTrue(b'test14' in response.data)
+        u2.role_id = Role.query.filter_by(permission=0x40).first().id
+        db.session.add(u2)
+        db.session.commit()
+        response = self.client.post(url_for('admin.user_edit', user_id=u2.id), data={
+            'email': 'test14@test.com',
+            'username': 'test3',
+            'role_id': Role.query.filter_by(permission=0x11).first().id,
+            'gender': 'Male',
+            'degree': 'Bachelor',
+            'country': 'China'
+        }, follow_redirects=True)
+        self.assertTrue(b'您无法编辑一个更高权限' in response.data)
+        u2.role_id = Role.query.filter_by(permission=0x11).first().id
+        db.session.add(u2)
+        db.session.commit()
+        response = self.client.post(url_for('admin.user_edit', user_id=u2.id), data={
+            'email': 'test14@test.com',
+            'username': 'test3',
+            'role_id': Role.query.filter_by(permission=0xff).first().id,
+            'gender': 'Male',
+            'degree': 'Bachelor',
+            'country': 'China'
+        }, follow_redirects=True)
+        self.assertTrue(b'您不能给用户授予高于您本身的权限' in response.data)
+        response = self.client.post(url_for('admin.user_edit', user_id=u2.id), data={
+            'email': 'test14@test.com',
+            'username': 'test3',
+            'role_id': Role.query.filter_by(permission=0x40).first().id,
+            'gender': 'Male',
+            'degree': 'Bachelor',
+            'country': 'China'
+        }, follow_redirects=True)
+        self.assertTrue(b'您不能给用户授予高于您本身的权限' in response.data)
+        u.role_id = Role.query.filter_by(permission=0xff).first().id
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.post(url_for('admin.user_edit', user_id=u2.id), data={
+            'email': 'test14@test.com',
+            'username': 'test3',
+            'role_id': Role.query.filter_by(permission=0xff).first().id,
+            'gender': 'Male',
+            'degree': 'Bachelor',
+            'country': 'China'
+        }, follow_redirects=True)
+        self.assertFalse(b'您不能给用户授予高于您本身的权限' in response.data)
+        self.assertFalse(b'您无法编辑一个更高权限' in response.data)
+        u.role_id = Role.query.filter_by(permission=0x40).first().id
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.post(url_for('admin.user_edit', user_id=u.id), data={
+            'email': 'test55@test.com',
+            'username': 'test2',
+            'role_id': Role.query.filter_by(permission=0x11).first().id,
+            'gender': 'Male',
+            'degree': 'Bachelor',
+            'country': 'China'
+        }, follow_redirects=True)
+        self.assertFalse(b'您不能给用户授予高于您本身的权限' in response.data)
+        self.assertFalse(b'您无法编辑一个更高权限' in response.data)

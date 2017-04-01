@@ -127,3 +127,16 @@ class ModifyUser(FlaskForm):
         if field.data != self.user.username and User.query.filter_by(username=field.data).first():
             raise ValidationError(u'用户名已注册！.')
 
+
+class ModifyOJStatus(FlaskForm):
+
+    '''
+        define Modify OJ status form
+    '''
+
+    oj_name = StringField(u'OJ名称', validators=[DataRequired(), Length(0, 128)])
+    description = TextAreaField(u'OJ描述')
+    url = StringField(u'OJ地址', validators=[DataRequired(), Length(0, 128)])
+    vjudge = BooleanField(u'vjudge')
+    status = SelectField(u'OJ状态', validators=[DataRequired()], choices=[('0', u'负载较重'), ('1', u'一般'), ('2', u'正常')])
+    submit = SubmitField(u'提交')

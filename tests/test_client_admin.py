@@ -342,3 +342,50 @@ class FlaskClientTestCase(unittest.TestCase):
         }, follow_redirects=True)
         self.assertFalse(b'您不能给用户授予高于您本身的权限' in response.data)
         self.assertFalse(b'您无法编辑一个更高权限' in response.data)
+
+    def test_oj(self):
+
+        '''
+            test if admin oj part is good
+        :return: None
+        '''
+
+        u = User(username='test2', password='123456', email='test2@test.com', confirmed=True)
+        u.role_id = Role.query.filter_by(permission=0xff).first().id
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test2',
+            'password': '123456'
+        }, follow_redirects=True)
+        response = self.client.post(url_for('admin.oj_status_insert'), data={
+            'oj_name': 'oj_test',
+            'url': 'http://127.0.0.1',
+            'status': 0
+        }, follow_redirects=True)
+        self.assertTrue(b'Add oj status successful!' in response.data)
+        response = self.client.get(url_for('admin.oj_list'))
+        self.assertTrue(b'oj_test' in response.data)
+        response = self.client.get(url_for('admin.oj_status', oj_id=1))
+        self.assertTrue(b'oj_test' in response.data)
+        response = self.client.get(url_for('admin.oj_status_edit', oj_id=1))
+        self.assertTrue(b'oj_test' in response.data)
+        response = self.client.post(url_for('admin.oj_status_edit', oj_id=1), data={
+            'oj_name': 'oj_test2',
+            'url': 'http://127.0.0.12',
+            'status': 0
+        }, follow_redirects=True)
+        self.assertTrue(b'oj_test2' in response.data)
+        self.assertTrue(b'http://127.0.0.12' in response.data)
+        self.assertTrue(b'Update oj status successful!' in response.data)
+        response = self.client.get(url_for('admin.oj_status_delete'), follow_redirects=True)
+        self.assertTrue(b'No such oj in oj_list!' in response.data)
+        response = self.client.get(url_for('admin.oj_status_delete', oj_id=2), follow_redirects=True)
+        self.assertTrue(b'No such oj in oj_list!' in response.data)
+        response = self.client.get(url_for('admin.oj_status_delete', oj_id=1), follow_redirects=True)
+        self.assertTrue(b'Delete oj successful!' in response.data)
+        response = self.client.get(url_for('admin.oj_list'))
+        self.assertFalse(b'oj_test' in response.data)
+
+
+

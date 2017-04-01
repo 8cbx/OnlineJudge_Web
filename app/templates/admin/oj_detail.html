@@ -1,0 +1,52 @@
+{% extends "admin/base.html" %}
+{% block content %}
+       <div class="right_col" role="main">
+          <!-- top tiles -->
+          <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">OJ信息
+                    <small>OJ Detail</small>
+                </h1>
+                <ol class="breadcrumb">
+                    <li><a href="{{ url_for('index.index_page') }}">Home</a>
+                    </li>
+                    <li class="active">Admin</li>
+                    <li class="active">OJ Detail</li>
+                </ol>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <div class="row">
+            <div class="col-lg-12">
+            	<div class="col-lg-2">
+            	</div>
+                <div class="col-lg-8">
+                        <h2>{{ oj.name }} 的信息</h2>
+                        <table class="table table-hover">
+                            <tr>
+                                <th>OJ描述:</th>
+                                <td>{{ oj.description }}</td>
+                            </tr>
+                            <tr>
+                                <th >url:</th>
+                                <td >{{ oj.url }}</td>
+                            </tr>
+                            <tr>
+                                <th>Vjudge:</th>
+                                <td>{% if oj.vjudge is sameas true %}是{% else %}否{% endif %}</td>
+                            </tr>
+                            <tr>
+                                <th>OJ状态:</th>
+                                <td>{% if oj.status == 0 %}负载较重{% elif oj.status == 1 %}一般{% elif oj.status == 2 %}正常{% else %}未知{% endif %}</td>
+                            </tr>
+                            <tr>
+                                <th>上次检查:</th>
+                                <td>{{ moment(oj.last_check).fromNow() }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}

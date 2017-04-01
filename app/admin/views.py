@@ -9,7 +9,7 @@ from ..models import Role, User, Permission, OJList, Problem, SubmissionStatus, 
 from werkzeug.utils import secure_filename
 from ..decorators import admin_required, permission_required
 from datetime import datetime, timedelta
-from .forms import ModifyProblem, ModifyTag, ModifyUser
+from .forms import ModifyProblem, ModifyTag, ModifyUser, ModifyOJStatus
 import os, base64, json
 
 @admin.route('/')
@@ -352,3 +352,114 @@ def user_detail(user_id):
 
     user = User.query.get_or_404(user_id)
     return render_template('admin/user_detail.html', user=user)
+
+
+@admin.route('/oj-status', methods=['GET', 'POST'])
+@admin_required
+def oj_list():
+
+    '''
+        define operations about showing oj list
+    :return: page
+    '''
+
+    page = request.args.get('page', 1, type=int)
+    pagination = OJList.query.order_by(OJList.id.asc()).paginate(page, per_page=current_app.config['FLASKY_OJS_PER_PAGE'])
+    oj = pagination.items
+    return render_template('admin/oj_list.html', oj=oj, pagination=pagination)
+
+
+@admin.route('/oj-status/<int:oj_id>', methods=['GET', 'POST'])
+@admin_required
+def oj_status(oj_id):
+
+    '''
+        define operations about showing oj status
+    :param oj_id: oj_id
+    :return: page
+    '''
+
+    oj = OJList.query.get_or_404(oj_id)
+    return render_template('admin/oj_detail.html', oj=oj)
+
+
+@admin.route('/oj-status/edit/<int:oj_id>', methods=['GET', 'POST'])
+@admin_required
+def oj_status_edit(oj_id):
+
+    '''
+        define operations about editing oj status
+    :param oj_id: oj_id
+    :return: page
+    '''
+
+    oj = OJList.query.get_or_404(oj_id)
+    form = ModifyOJStatus()
+    if form.validate_on_submit():
+        oj.name = form.oj_name.data
+        oj.description = form.description.data
+        oj.url = form.url.data
+        oj.vjudge = form.vjudge.data
+        oj.status = form.status.data
+        db.session.add(oj)
+        db.session.commit()
+        current_user.log_operation('Edit oj %s Status, oj_id is %s' % (oj.name, str(oj.id)))
+        flash('Update oj status successful!')
+        return redirect(url_for('admin.oj_list'))
+    form.oj_name.data = oj.name
+    form.description.data = oj.description
+    form.url.data = oj.url
+    form.vjudge.data = oj.vjudge
+    form.status.data = oj.status
+    return render_template('admin/oj-status_edit.html', form=form, oj=oj)
+
+
+@admin.route('/oj-status/add', methods=['GET', 'POST'])
+@admin_required
+def oj_status_insert():
+
+    '''
+        define operations about adding oj status
+    :return: page
+    '''
+
+    oj = OJList()
+    form = ModifyOJStatus()
+    if form.validate_on_submit():
+        oj.name = form.oj_name.data
+        oj.description = form.description.data
+        oj.url = form.url.data
+        oj.vjudge = form.vjudge.data
+        oj.status = form.status.data
+        db.session.add(oj)
+        db.session.commit()
+        current_user.log_operation('Add oj %s, oj_id is %s' % (oj.name, str(oj.id)))
+        flash('Add oj status successful!')
+        return redirect(url_for('admin.oj_list'))
+    return render_template('admin/oj-status_add.html', form=form)
+
+
+@admin.route('/oj-status/delete', methods=['GET', 'POST'])
+@admin_required
+def oj_status_delete():
+
+    '''
+        define operations about deleting oj status
+    :return: page
+    '''
+
+    # get problem_id from GET request
+    oj_id = request.args.get('oj_id', -1, type=int)
+    if oj_id != -1:
+        oj = OJList.query.get(oj_id)
+        if oj is not None:
+            db.session.delete(oj)
+            db.session.commit()
+            current_user.log_operation('Delete oj %s, oj_id is %s' % (oj.name, str(oj.id)))
+            flash('Delete oj successful!')
+            return redirect(url_for('admin.oj_list'))
+        else:
+            flash('No such oj in oj_list!')
+    else:
+        flash('No such oj in oj_list!')
+    return redirect(url_for('admin.oj_list'))

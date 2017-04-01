@@ -83,8 +83,8 @@
                   </li>
                   <li><a><i class="fa fa-table"></i> Judge管理 <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
-                      <li><a href="tables.html">OJ列表</a></li>
-                      <li><a href="tables_dynamic.html">添加OJ</a></li>
+                      <li><a href="{{ url_for('admin.oj_list') }}">OJ列表</a></li>
+                      <li><a href="{{ url_for('admin.oj_status_insert') }}">添加OJ</a></li>
                     </ul>
                   </li>
                   <li><a><i class="fa fa-bar-chart-o"></i> 比赛管理 <span class="fa fa-chevron-down"></span></a>

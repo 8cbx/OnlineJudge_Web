@@ -12,7 +12,7 @@ None
 
 ## Bugs and Issues
 
-Have a bug or an issue with this template? [Open a new issue](https://github.com/8cbx/OnlineJudge_Web/issues) here on GitHub.
+Have a bug or an issue with this project? [Open a new issue](https://github.com/8cbx/OnlineJudge_Web/issues) here on GitHub.
 
 
 ## Copyright and License

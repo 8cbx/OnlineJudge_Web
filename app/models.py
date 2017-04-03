@@ -900,7 +900,7 @@ class Blog(db.Model):
     title = db.Column(db.String(64))
     content = db.Column(db.Text)
     author_username = db.Column(db.String(64), db.ForeignKey('users.username'))
-    public = db.Column(db.Boolean())
+    public = db.Column(db.Boolean(), default=False)
     last_update = db.Column(db.DateTime(), default=datetime.utcnow)
     comments = db.relationship('BlogComment', backref='blog', lazy='dynamic', cascade='all, delete-orphan')
 

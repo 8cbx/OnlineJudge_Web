@@ -45,6 +45,8 @@ def status_detail(run_id):
     '''
 
     status_detail = SubmissionStatus.query.filter_by(id=run_id).first_or_404()
+    if status_detail.visible == False and not current_user.is_admin():
+        return abort(404)
     if current_user.username != status_detail.author_username and (not current_user.is_admin()):
         return abort(403)
     code = base64.b64decode(status_detail.code).decode('utf-8')

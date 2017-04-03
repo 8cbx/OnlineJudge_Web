@@ -37,6 +37,9 @@
                     <li>
                         <a href="contact.html">比赛列表</a>
                     </li>
+                    <li>
+                        <a href="{{ url_for('blog.blog_list') }}">Blog</a>
+                    </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     {% if current_user.is_authenticated %}

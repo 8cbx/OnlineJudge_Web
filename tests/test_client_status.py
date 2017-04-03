@@ -102,6 +102,10 @@ class FlaskClientTestCase(unittest.TestCase):
             'password': 'test',
             'remember_me': 0
         }, follow_redirects=True)
+        s = SubmissionStatus.query.get(1)
+        s.visible = True
+        db.session.add(s)
+        db.session.commit()
         response = self.client.get(url_for('status.status_detail', run_id=1))
         self.assertTrue(response.status_code == 403)
         u2.role_id = Role.query.filter_by(permission=0xff).first().id

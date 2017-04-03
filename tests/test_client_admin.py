@@ -423,3 +423,15 @@ class FlaskClientTestCase(unittest.TestCase):
             'exec_memory': '1'
         }, follow_redirects=True)
         self.assertTrue(b'Accepted' in response.data)
+
+    def test_log(self):
+        u = User(username='test2', password='123456', email='test2@test.com', confirmed=True)
+        u.role_id = Role.query.filter_by(permission=0xff).first().id
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test2',
+            'password': '123456'
+        }, follow_redirects=True)
+        response = self.client.get(url_for('admin.log_list'))
+        self.assertTrue(b'Admin user' in response.data)

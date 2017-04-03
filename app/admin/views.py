@@ -533,3 +533,18 @@ def submission_status_edit(submission_id):
     form.exec_memory.data = status_detail.exec_memory
     form.visible.data = status_detail.visible
     return render_template('admin/submission_edit_status.html', status=status_detail, code=code, ce_info=ce_info, form=form)
+
+
+@admin.route('/logs', methods=['GET', 'POST'])
+@admin_required
+def log_list():
+
+    '''
+        define operations about showing website log
+    :return: page
+    '''
+
+    page = request.args.get('page', 1, type=int)
+    pagination = Logs.query.order_by(Logs.id.desc()).paginate(page, per_page=current_app.config['FLASKY_LOGS_PER_PAGE'])
+    logs = pagination.items
+    return render_template('admin/log_list.html', logs=logs, pagination=pagination)

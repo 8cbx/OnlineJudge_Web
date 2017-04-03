@@ -86,6 +86,8 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue(response.status_code == 200)
         self.assertTrue(b'Status List' in response.data)
         self.assertFalse(b'Waiting' in response.data)
+        response = self.client.get(url_for('status.status_detail', run_id=1), follow_redirects=True)
+        self.assertTrue(b'404' in response.data)
         u.role_id = Role.query.filter_by(permission=0xff).first().id
         db.session.add(u)
         db.session.commit()

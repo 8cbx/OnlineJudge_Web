@@ -158,3 +158,16 @@ class ModifySubmissionStatus(FlaskForm):
         super(ModifySubmissionStatus, self).__init__(*args, **kwargs)
         self.status.choices = [(int(current_app.config['LOCAL_SUBMISSION_STATUS'][k]), k)
                                for k in current_app.config['LOCAL_SUBMISSION_STATUS']]
+
+
+class ModifyBlog(FlaskForm):
+
+    '''
+        define Modify Blog form
+    '''
+
+    title = StringField(u'标题', validators=[InputRequired(), Length(0, 64)])
+    content = TextAreaField(u'内容', validators=[InputRequired()])
+    public = BooleanField(u'可见性')
+    submit = SubmitField(u'提交')
+

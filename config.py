@@ -34,6 +34,7 @@ class Config():
     FLASKY_CONTESTS_PER_PAGE = 50
     FLASKY_OJS_PER_PAGE = 50
     FLASKY_LOGS_PER_PAGE = 50
+    FLASKY_BLOGS_PER_PAGE = 50
     UPLOADED_PATH = './data/'
 
     # celery_settings

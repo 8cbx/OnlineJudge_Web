@@ -166,6 +166,8 @@ class User(UserMixin, db.Model):
     submission = db.relationship('SubmissionStatus', backref='auther', lazy='dynamic', cascade='all, delete-orphan')
     manage_contest = db.relationship('Contest', backref='manager', lazy='dynamic', cascade='all, delete-orphan')
     operation = db.relationship('Logs', backref='operator', lazy='dynamic', cascade='all, delete-orphan')
+    blog_comments = db.relationship('BlogComment', backref='author', lazy='dynamic')
+    topic_comments = db.relationship('TopicComment', backref='author', lazy='dynamic')
     contest = db.relationship(
         'ContestUsers',
         foreign_keys=[ContestUsers.user_id],
@@ -926,5 +928,5 @@ class BlogComment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text())
     author_username = db.Column(db.String(64), db.ForeignKey('users.username'))
-    time = db.Column(db.DateTime(), default=datetime.utcnow)
+    time = db.Column(db.DateTime(), index=True, default=datetime.utcnow)
     blog_id = db.Column(db.Integer, db.ForeignKey("blog.id"))

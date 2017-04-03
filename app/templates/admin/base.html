@@ -100,8 +100,8 @@
                   </li>
                   <li><a><i class="fa fa-clone"></i> Blog管理 <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
-                      <li><a href="fixed_sidebar.html">Blog列表</a></li>
-                      <li><a href="fixed_sidebar.html">添加Blog</a></li>
+                      <li><a href="{{ url_for('admin.blog_list') }}">Blog列表</a></li>
+                      <li><a href="{{ url_for('admin.blog_insert') }}">添加Blog</a></li>
                     </ul>
                   </li>
                   <li><a><i class="fa fa-clone"></i> 通用工具 <span class="fa fa-chevron-down"></span></a>

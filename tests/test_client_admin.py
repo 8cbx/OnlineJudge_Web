@@ -425,6 +425,12 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue(b'Accepted' in response.data)
 
     def test_log(self):
+
+        '''
+            test log part is good
+        :return: None
+        '''
+
         u = User(username='test2', password='123456', email='test2@test.com', confirmed=True)
         u.role_id = Role.query.filter_by(permission=0xff).first().id
         db.session.add(u)
@@ -435,3 +441,31 @@ class FlaskClientTestCase(unittest.TestCase):
         }, follow_redirects=True)
         response = self.client.get(url_for('admin.log_list'))
         self.assertTrue(b'Admin user' in response.data)
+
+    def test_blog(self):
+
+        '''
+            test blog part is good
+        :return: None
+        '''
+
+        u = User(username='test2', password='123456', email='test2@test.com', confirmed=True)
+        u.role_id = Role.query.filter_by(permission=0xff).first().id
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test2',
+            'password': '123456'
+        }, follow_redirects=True)
+        response = self.client.post(url_for('admin.blog_insert'), data={
+            'title': 'thisisatest',
+            'content': '123456'
+        }, follow_redirects=True)
+        self.assertTrue(b'thisisatest' in response.data)
+        response = self.client.post(url_for('admin.blog_edit', blog_id=1), data={
+            'title': 'thisisatestttttt',
+            'content': '123456'
+        }, follow_redirects=True)
+        self.assertTrue(b'thisisatestttttt' in response.data)
+        response = self.client.get(url_for('admin.blog_detail', blog_id=1))
+        self.assertTrue(b'thisisatestttttt' in response.data)

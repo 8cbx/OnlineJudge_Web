@@ -5,11 +5,11 @@ from flask import render_template, redirect, request, url_for, flash, abort, cur
 from flask_login import login_user, logout_user, login_required, current_user
 from . import admin
 from .. import db
-from ..models import Role, User, Permission, OJList, Problem, SubmissionStatus, CompileInfo, Contest, Logs, Tag, TagProblem, ContestUsers, ContestProblem, KeyValue
+from ..models import Role, User, Permission, OJList, Problem, SubmissionStatus, CompileInfo, Contest, Logs, Tag, TagProblem, ContestUsers, ContestProblem, KeyValue, Blog
 from werkzeug.utils import secure_filename
 from ..decorators import admin_required, permission_required
 from datetime import datetime, timedelta
-from .forms import ModifyProblem, ModifyTag, ModifyUser, ModifyOJStatus, ModifySubmissionStatus
+from .forms import ModifyProblem, ModifyTag, ModifyUser, ModifyOJStatus, ModifySubmissionStatus, ModifyBlog
 import os, base64, json
 
 @admin.route('/')
@@ -548,3 +548,84 @@ def log_list():
     pagination = Logs.query.order_by(Logs.id.desc()).paginate(page, per_page=current_app.config['FLASKY_LOGS_PER_PAGE'])
     logs = pagination.items
     return render_template('admin/log_list.html', logs=logs, pagination=pagination)
+
+
+@admin.route('/blogs', methods=['GET', 'POST'])
+@admin_required
+def blog_list():
+
+    '''
+        define operations about showing blog
+    :return: page
+    '''
+
+    page = request.args.get('page', 1, type=int)
+    pagination = Blog.query.order_by(Blog.id.desc()).paginate(page, per_page=current_app.config['FLASKY_BLOGS_PER_PAGE'])
+    blogs = pagination.items
+    return render_template('admin/blog_list.html', blogs=blogs, pagination=pagination)
+
+
+@admin.route('/blog/add', methods=['GET', 'POST'])
+@admin_required
+def blog_insert():
+
+    '''
+        define operation about insert blog
+    :return: page
+    '''
+
+    blog = Blog()
+    form = ModifyBlog()
+    if form.validate_on_submit():
+        blog.title = form.title.data
+        blog.content = form.content.data
+        blog.author_username = current_user.username
+        blog.public = form.public.data
+        db.session.add(blog)
+        db.session.commit()
+        current_user.log_operation('Add blog %s, blog_id is %s' % (blog.title, str(blog.id)))
+        flash('Add blog successful!')
+        return redirect(url_for('admin.blog_list'))
+    return render_template('admin/blog_add.html', form=form)
+
+
+@admin.route('/blog/edit/<int:blog_id>', methods=['GET', 'POST'])
+@admin_required
+def blog_edit(blog_id):
+
+    '''
+        define operation about edit blog
+    :return: page
+    '''
+
+    blog = Blog.query.get_or_404(blog_id)
+    form = ModifyBlog()
+    if form.validate_on_submit():
+        blog.title = form.title.data
+        blog.content = form.content.data
+        blog.author_username = current_user.username
+        blog.public = form.public.data
+        blog.last_update = datetime.utcnow()
+        db.session.add(blog)
+        db.session.commit()
+        current_user.log_operation('Edit blog %s, blog_id is %s' % (blog.title, str(blog.id)))
+        flash('Edit blog successful!')
+        return redirect(url_for('admin.blog_list'))
+    form.title.data = blog.title
+    form.content.data = blog.content
+    form.public.data = blog.public
+    return render_template('admin/blog_edit.html', form=form)
+
+
+@admin.route('/blog/<int:blog_id>', methods=['GET', 'POST'])
+@admin_required
+def blog_detail(blog_id):
+
+    '''
+        define operation about blog detail
+    :param blog_id: blog_id
+    :return: page
+    '''
+
+    blog = Blog.query.get_or_404(blog_id)
+    return render_template('admin/blog_detail.html', blog=blog)

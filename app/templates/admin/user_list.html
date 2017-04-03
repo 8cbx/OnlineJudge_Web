@@ -44,7 +44,7 @@
                             <tr>
                               <td>{{ users.id }}</td>
                               <td>{{ users.email }}</td>
-                              <td><a href="{{ url_for('admin.user_detail', user_id=users.id) }}">{{ users.username }}</a></td>
+                              <td><a href="{{ url_for('admin.user_detail', username=users.username) }}">{{ users.username }}</a></td>
                               <td>{{ users.nickname }}</td>
                               <td>{{ users.role.name }}</td>
                               <td>{% if users.confirmed is sameas true %}是{% else %}否{% endif %}</td>

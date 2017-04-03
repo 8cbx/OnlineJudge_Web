@@ -134,9 +134,27 @@ class ModifyOJStatus(FlaskForm):
         define Modify OJ status form
     '''
 
-    oj_name = StringField(u'OJ名称', validators=[DataRequired(), Length(0, 128)])
+    oj_name = StringField(u'OJ名称', validators=[InputRequired(), Length(0, 128)])
     description = TextAreaField(u'OJ描述')
-    url = StringField(u'OJ地址', validators=[DataRequired(), Length(0, 128)])
+    url = StringField(u'OJ地址', validators=[InputRequired(), Length(0, 128)])
     vjudge = BooleanField(u'vjudge')
-    status = SelectField(u'OJ状态', validators=[DataRequired()], choices=[('0', u'负载较重'), ('1', u'一般'), ('2', u'正常')])
+    status = SelectField(u'OJ状态', validators=[InputRequired()], choices=[('0', u'负载较重'), ('1', u'一般'), ('2', u'正常')])
     submit = SubmitField(u'提交')
+
+
+class ModifySubmissionStatus(FlaskForm):
+
+    '''
+        define Modify submission status form
+    '''
+
+    status = SelectField(u'评判结果', validators=[InputRequired()], coerce=int)
+    exec_time = IntegerField(u'运行时间', validators=[InputRequired()])
+    exec_memory = IntegerField(u'运行内存', validators=[InputRequired()])
+    visible = BooleanField(u'可见性')
+    submit = SubmitField(u'提交')
+
+    def __init__(self, *args, **kwargs):
+        super(ModifySubmissionStatus, self).__init__(*args, **kwargs)
+        self.status.choices = [(int(current_app.config['LOCAL_SUBMISSION_STATUS'][k]), k)
+                               for k in current_app.config['LOCAL_SUBMISSION_STATUS']]

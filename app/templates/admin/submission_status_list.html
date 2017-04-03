@@ -1,0 +1,68 @@
+{% extends "admin/base.html" %}
+{% import "_macros.html" as macros %}
+{% block content %}
+       <div class="right_col" role="main">
+          <!-- top tiles -->
+          <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">用户提交列表
+                    <small>Status List</small>
+                </h1>
+                <ol class="breadcrumb">
+                    <li><a href="{{ url_for('index.index_page') }}">Home</a>
+                    </li>
+                    <li class="active">Admin</li>
+                    <li class="active">Status List</li>
+                </ol>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <div class="row">
+            <div class="col-lg-12">
+            	<div class="col-lg-1">
+            	</div>
+                <div class="col-lg-10">
+                    {% if pagination %}
+                        {{ macros.pagination_widget(pagination, 'admin.submission_status_list') }}
+                    {% endif %}
+                    <table class="table table-striped table-hover">
+					    <thead>
+                            <tr>
+                              <th>运行ID</th>
+                              <th>提交时间</th>
+                              <th>评判状态</th>
+                              <th>题目ID</th>
+                              <th>题目名称</th>
+                              <th>运行时间</th>
+                              <th>运行内存</th>
+                              <th>代码长度</th>
+                              <th>语言</th>
+                              <th>提交用户/th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for status in status %}
+                            <tr>
+                              <td>{{ status.id }}</td>
+                              <td>{{ moment(status.submit_time).format('LLL') }}</td>
+                              <td><a href="{{ url_for('admin.submission_status_edit', submission_id=status.id) }}">{{ submissions[status.status] }}</a></td>
+                              <td><a href="{{ url_for('admin.problem_detail', problem_id=status.problem_id) }}">{{ status.problem_id }}</a></td>
+                              <td><a href="{{ url_for('admin.problem_detail', problem_id=status.problem_id) }}">{{ status.problem.title }}</a></td>
+                              <td>{% if status.status != 0 %}{{ status.exec_time }}{% else %}-{% endif %}</td>
+                              <td>{% if status.status != 0 %}{{ status.exec_memory }}{% else %}-{% endif %}</td>
+                              <td><a href="{{ url_for('admin.submission_status_detail', submission_id=status.id) }}">{{ status.code_length }}</a></td>
+                              <td>{{ language[status.language] }}</td>
+                              <td><a href="{{ url_for('admin.user_detail', username=status.author_username) }}">{{ status.author_username }}</a></td>
+                          </tr>
+                          {% endfor %}
+                         </tbody>
+					</table>
+                    {% if pagination %}
+                        {{ macros.pagination_widget(pagination, 'admin.submission_status_list') }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        </div>
+{% endblock %}

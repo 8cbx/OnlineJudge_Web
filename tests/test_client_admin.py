@@ -258,7 +258,7 @@ class FlaskClientTestCase(unittest.TestCase):
         db.session.commit()
         response = self.client.get(url_for('admin.user_list'))
         self.assertTrue(b'test3' in response.data)
-        response = self.client.get(url_for('admin.user_detail', user_id=u2.id))
+        response = self.client.get(url_for('admin.user_detail', username=u2.username))
         self.assertTrue(b'test3' in response.data)
         response = self.client.get(url_for('admin.user_edit', user_id=u2.id))
         self.assertTrue(b'test3' in response.data)
@@ -387,5 +387,39 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get(url_for('admin.oj_list'))
         self.assertFalse(b'oj_test' in response.data)
 
+    def test_submission(self):
 
+        '''
+            test status part
+        :return: None
+        '''
 
+        u = User(username='test2', password='123456', email='test2@test.com', confirmed=True)
+        u.role_id = Role.query.filter_by(permission=0xff).first().id
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test2',
+            'password': '123456'
+        }, follow_redirects=True)
+        p = Problem(title='test', visible=True)
+        db.session.add(p)
+        db.session.commit()
+        response = self.client.post(url_for('problem.submit', problem_id=p.id), data={
+            'problem_id': p.id,
+            'language': '1',
+            'code': 'helloworldsdfsdf'
+        }, follow_redirects=True)
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(b'G++' in response.data)
+        self.client.get(url_for('admin.submission_status_list'))
+        self.assertTrue(b'G++' in response.data)
+        self.client.get(url_for('admin.submission_status_detail', submission_id=1))
+        self.assertTrue(b'G++' in response.data)
+        response = self.client.get(url_for('admin.submission_status_edit', submission_id=1))
+        response = self.client.post(url_for('admin.submission_status_edit', submission_id=1), data={
+            'status': '1',
+            'exec_time': '1',
+            'exec_memory': '1'
+        }, follow_redirects=True)
+        self.assertTrue(b'Accepted' in response.data)

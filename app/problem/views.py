@@ -62,7 +62,7 @@ def submit(problem_id):
         submission.submit_time = datetime.utcnow()
         submission.problem_id = form.problem_id.data
         submission.status = 0
-        submission.time = 0
+        submission.exec_time = 0
         submission.exec_memory = 0
         submission.language = form.language.data
         submission.code_length = len(form.code.data)
@@ -74,8 +74,7 @@ def submit(problem_id):
         db.session.add(problem)
         db.session.add(submission)
         db.session.commit()
-        #return redirect(url_for('status.status_list'))
-        return redirect(url_for('index.index_page'))
+        return redirect(url_for('status.status_list'))
     form.problem_id.data = problem_id
     return render_template('problem/submit.html', form=form)
 

@@ -9,7 +9,7 @@ from ..models import Role, User, Permission, OJList, Problem, SubmissionStatus, 
 from werkzeug.utils import secure_filename
 from ..decorators import admin_required, permission_required
 from datetime import datetime, timedelta
-from .forms import ModifyProblem, ModifyTag, ModifyUser, ModifyOJStatus
+from .forms import ModifyProblem, ModifyTag, ModifyUser, ModifyOJStatus, ModifySubmissionStatus
 import os, base64, json
 
 @admin.route('/')
@@ -340,17 +340,17 @@ def user_edit(user_id):
     return render_template('admin/user_edit.html', form=form, user=user)
 
 
-@admin.route('/user/<int:user_id>', methods=['GET', 'POST'])
+@admin.route('/user/<username>', methods=['GET', 'POST'])
 @admin_required
-def user_detail(user_id):
+def user_detail(username):
 
     '''
         define user detail operation
-    :param user_id: user_id
+    :param username: username
     :return: page
     '''
 
-    user = User.query.get_or_404(user_id)
+    user = User.query.filter_by(username=username).first_or_404()
     return render_template('admin/user_detail.html', user=user)
 
 
@@ -463,3 +463,73 @@ def oj_status_delete():
     else:
         flash('No such oj in oj_list!')
     return redirect(url_for('admin.oj_list'))
+
+
+@admin.route('/submission-status', methods=['GET', 'POST'])
+@admin_required
+def submission_status_list():
+
+    '''
+        define operations about showing submission status
+    :return: page
+    '''
+
+    page = request.args.get('page', 1, type=int)
+    pagination = SubmissionStatus.query.order_by(SubmissionStatus.id.desc()).paginate(page, per_page=current_app.config['FLASKY_STATUS_PER_PAGE'])
+    status = pagination.items
+    submissions = {}
+    language = {}
+    for k in current_app.config['LOCAL_SUBMISSION_STATUS'].keys():
+        submissions[current_app.config['LOCAL_SUBMISSION_STATUS'][k]] = k
+    for k in current_app.config['LOCAL_LANGUAGE'].keys():
+        language[current_app.config['LOCAL_LANGUAGE'][k]] = k
+    return render_template('admin/submission_status_list.html', submissions=submissions, language=language, status=status, pagination=pagination)
+
+
+@admin.route('/submission-status/<int:submission_id>', methods=['GET', 'POST'])
+@admin_required
+def submission_status_detail(submission_id):
+
+    '''
+        define submission status showing page
+    :param submission_id: submission_id
+    :return: page
+    '''
+
+    status_detail = SubmissionStatus.query.filter_by(id=submission_id).first_or_404()
+    code = base64.b64decode(status_detail.code)
+    ce_info = CompileInfo.query.filter_by(submission_id=submission_id).first()
+    submissions = {}
+    language = {}
+    for k in current_app.config['LOCAL_SUBMISSION_STATUS'].keys():
+        submissions[current_app.config['LOCAL_SUBMISSION_STATUS'][k]] = k
+    for k in current_app.config['LOCAL_LANGUAGE'].keys():
+        language[current_app.config['LOCAL_LANGUAGE'][k]] = k
+    return render_template('admin/submission_status_detail.html', submissions=submissions, language=language, status=status_detail, code=code, ce_info=ce_info)
+
+
+@admin.route('/submission-status/edit/<int:submission_id>', methods=['GET', 'POST'])
+@admin_required
+def submission_status_edit(submission_id):
+
+    '''
+        define operations about editing submission status
+    :param submission_id: submission_id
+    :return: page
+    '''
+
+    status_detail = SubmissionStatus.query.filter_by(id=submission_id).first_or_404()
+    code = base64.b64decode(status_detail.code)
+    ce_info = CompileInfo.query.filter_by(submission_id=submission_id).first()
+    form = ModifySubmissionStatus()
+    if form.validate_on_submit():
+        status_detail.status = form.status.data
+        status_detail.exec_time = form.exec_time.data
+        status_detail.exec_memory = form.exec_memory.data
+        status_detail.visible = form.visible.data
+        return redirect(url_for('admin.submission_status_list'))
+    form.status.data = status_detail.status
+    form.exec_time.data = status_detail.exec_time
+    form.exec_memory.data = status_detail.exec_memory
+    form.visible.data = status_detail.visible
+    return render_template('admin/submission_edit_status.html', status=status_detail, code=code, ce_info=ce_info, form=form)

@@ -789,11 +789,10 @@ class CompileInfo(db.Model):
         :return: compile_info item
         '''
 
-        submission_id = json_compile_info.get('submission_id')
         info = json_compile_info.get('info')
-        if submission_id is None or submission_id == '' or info is None or info == '':
+        if info is None or info == '':
             raise ValidationError('Compile_info require full data')
-        return CompileInfo(submission_id=submission_id, info=info)
+        return CompileInfo(info=info)
 
 
 class Contest(db.Model):

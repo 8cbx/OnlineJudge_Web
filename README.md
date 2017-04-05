@@ -17,4 +17,4 @@ Have a bug or an issue with this project? [Open a new issue](https://github.com/
 
 ## Copyright and License
 
-Code released under the [MIT](https://github.com/8cbx/OnlineJudge_Web/blob/master/LICENSE) license.
+Code released under the [GPL v3.0](https://github.com/8cbx/OnlineJudge_Web/blob/master/LICENSE) license.

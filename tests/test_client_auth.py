@@ -80,6 +80,14 @@ class FlaskClientTestCase(unittest.TestCase):
         }, follow_redirects=True)
         self.assertTrue(response.status_code == 200)
         self.assertTrue(b'hahahaha' in response.data)
+        u.role=Role.query.filter_by(name='Administrator').first()
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test',
+            'password': 'testt'
+        }, follow_redirects=True)
+        self.assertTrue(b'用户名或密码错误' in response.data)
 
     def test_unconfirmed_page(self):
 

@@ -821,6 +821,7 @@ class Contest(db.Model):
     manager_username = db.Column(db.String(64), db.ForeignKey('users.username'))
     visible = db.Column(db.Boolean, default=True)
     rank_frozen = db.Column(db.Boolean, default=True)
+    last_generate_rank = db.Column(db.DateTime(), default=datetime.utcnow)
     problems = db.relationship(
         'ContestProblem',
         foreign_keys=[ContestProblem.contest_id],

@@ -6,7 +6,7 @@ from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import StringField, BooleanField, SelectField, TextAreaField, SubmitField, IntegerField, SelectMultipleField, DateTimeField
 from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo, InputRequired
 from wtforms import validators, ValidationError
-from ..models import Role, User, Permission, OJList, Tag
+from ..models import Role, User, Permission, OJList, Tag, Contest
 from flask import current_app
 from datetime import datetime
 
@@ -171,3 +171,64 @@ class ModifyBlog(FlaskForm):
     public = BooleanField(u'可见性')
     submit = SubmitField(u'提交')
 
+
+class ModifyContest(FlaskForm):
+
+    '''
+        define Modify Contest Form
+    '''
+
+    contest_name = StringField(u'比赛名称', validators=[DataRequired(), Length(0, 128)])
+    start_time = DateTimeField(u'开始时间', format='%Y-%m-%d %H:%M')
+    end_time = DateTimeField(u'结束时间', format='%Y-%m-%d %H:%M')
+    type = SelectField(u'比赛类型', coerce=int, validators=[DataRequired()])
+    password = StringField(u'比赛密码', validators=[Length(0, 64)])
+    description = TextAreaField(u'比赛描述')
+    announce = TextAreaField(u'比赛通知', validators=[Length(0, 1024)])
+    visible = BooleanField(u'可见性')
+    manager = StringField(u'管理员用户名', validators=[DataRequired()])
+    rank_frozen = BooleanField(u'封榜')
+    submit = SubmitField(u'提交')
+
+    def __init__(self, *args, **kwargs):
+
+        '''
+            init settings about ModifyContest class
+        :param args: args
+        :param kwargs: kwargs
+        '''
+
+        super(ModifyContest, self).__init__(*args, **kwargs)
+        self.type.choices = [(1, u'开放注册'), (2, u'私有比赛(管理员确认)'), (3, u'私有比赛(密码保护)'), (4, u'现场赛预注册'), (5, u'现场赛/正式比赛')]
+
+    def validate_manager(self, field):
+
+        '''
+            check if the manager is good
+        :param field: form field
+        :return: True or False
+        '''
+
+        if User.query.filter_by(username=field.data).first() is None:
+            raise ValidationError(u'指定的比赛管理员用户不存在')
+
+    def validate_contest_name(self, field):
+
+        '''
+            check if the manager is good
+        :param field: form field
+        :return: True or False
+        '''
+
+        if Contest.query.filter_by(contest_name=field.data).first() is not None:
+            raise ValidationError(u'比赛名称已存在，请更换比赛名称')
+
+class AddContestProblem(FlaskForm):
+
+    '''
+        define Add contest problem form
+    '''
+
+    problem_id = IntegerField(u'题目ID', validators=[DataRequired()])
+    problem_alias = StringField(u'题目别名', validators=[Length(0, 64)])
+    submit = SubmitField(u'提交')

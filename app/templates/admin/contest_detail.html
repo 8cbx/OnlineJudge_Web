@@ -1,0 +1,66 @@
+{% extends "admin/base.html" %}
+{% block content %}
+       <div class="right_col" role="main">
+          <!-- top tiles -->
+          <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">比赛信息
+                    <small>{{ contest.contest_name }}</small>
+                </h1>
+                <ol class="breadcrumb">
+                    <li><a href="{{ url_for('index.index_page') }}">Home</a>
+                    </li>
+                    <li class="active">Admin</li>
+                    <li class="active">Contest</li>
+                </ol>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <div class="row">
+            <div class="col-lg-12">
+            	<div class="col-lg-2">
+            	</div>
+                <div class="col-lg-8">
+                    <table class="table table-bordered" cellspacing="0" width="100%" style="font-size:10px;">
+                        <thead>
+                            <tr>
+                                <th>开始时间</th>
+                                <th>结束时间</th>
+                                <th>比赛类型</th>
+                                <th>管理员</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ moment(contest.start_time).format('LLLL') }}</td>
+                                <td>{{ moment(contest.end_time).format('LLLL') }}</td>
+                                {% if contest.style == 2 %}
+                                    <td>私有比赛(管理员确认)</td>
+                                {% elif contest.style == 3 %}
+                                    <td>私有比赛(密码保护)</td>
+                                {% elif contest.style == 1 %}
+                                    <td>开放注册</td>
+                                {% elif contest.style == 4 %}
+                                    <td>现场赛预注册</td>
+                                {% elif contest.style == 5 %}
+                                    <td>现场赛/正式比赛</td>
+                                {% endif %}
+                                <td>{{ contest.manager_username }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <hr>
+                    <h2>比赛描述</h2>
+                    {{ contest.description|safe }}
+                    <hr>
+                    {% if contest.announce != None and contest.announce != '' %}
+                    <h2>比赛通知</h2>
+                    {{ contest.announce|safe }}
+                    <hr>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        </div>
+{% endblock %}

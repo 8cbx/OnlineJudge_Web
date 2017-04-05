@@ -89,8 +89,8 @@
                   </li>
                   <li><a><i class="fa fa-bar-chart-o"></i> 比赛管理 <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
-                      <li><a href="chartjs.html">比赛列表</a></li>
-                      <li><a href="chartjs2.html">添加比赛</a></li>
+                      <li><a href="{{ url_for('admin.contest_list') }}">比赛列表</a></li>
+                      <li><a href="{{ url_for('admin.contest_insert') }}">添加比赛</a></li>
                     </ul>
                   </li>
                   <li><a><i class="fa fa-clone"></i> 提交状态管理 <span class="fa fa-chevron-down"></span></a>

@@ -469,3 +469,188 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue(b'thisisatestttttt' in response.data)
         response = self.client.get(url_for('admin.blog_detail', blog_id=1))
         self.assertTrue(b'thisisatestttttt' in response.data)
+
+    def test_contest(self):
+
+        '''
+            test contest part is good
+        :return: None
+        '''
+
+        u = User(username='test2', password='123456', email='test2@test.com', confirmed=True)
+        u.role_id = Role.query.filter_by(permission=0xff).first().id
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test2',
+            'password': '123456'
+        }, follow_redirects=True)
+        response = self.client.get(url_for('admin.contest_list'))
+        self.assertTrue(response.status_code == 200)
+        response = self.client.post(url_for('admin.contest_insert'), data={
+            'contest_name': 'contest_test',
+            'start_time': '2001-11-11 10:10',
+            'end_time': '2001-11-11 10:11',
+            'type': '1',
+            'password': 'thisisatest',
+            'manager': 'test',
+        }, follow_redirects=True)
+        self.assertTrue(b'指定的比赛管理员用户不存在' in response.data)
+        response = self.client.post(url_for('admin.contest_insert'), data={
+            'contest_name': 'contest_test',
+            'start_time': '2001-11-11 10:10',
+            'end_time': '2001-11-11 10:11',
+            'type': '1',
+            'password': 'thisisatest',
+            'manager': 'test2',
+        }, follow_redirects=True)
+        self.assertTrue(b'编辑比赛题目' in response.data)
+        response = self.client.post(url_for('admin.contest_insert'), data={
+            'contest_name': 'contest_test',
+            'start_time': '2001-11-11 10:10',
+            'end_time': '2001-11-11 10:11',
+            'type': '1',
+            'password': 'thisisatest',
+            'manager': 'test2',
+        }, follow_redirects=True)
+        self.assertTrue(b'比赛名称已存在' in response.data)
+        response = self.client.post(url_for('admin.contest_insert'), data={
+            'contest_name': 'contest_test2',
+            'start_time': '2001-11-11 10:10',
+            'end_time': '2001-11-11 10:11',
+            'type': '2',
+            'password': 'thisisatest',
+            'manager': 'test2',
+        }, follow_redirects=True)
+        self.assertTrue(b'编辑比赛题目' in response.data)
+        response = self.client.post(url_for('admin.contest_insert'), data={
+            'contest_name': 'contest_test3',
+            'start_time': '2001-11-11 10:10',
+            'end_time': '2001-11-11 10:11',
+            'type': '3',
+            'password': 'thisisatest',
+            'manager': 'test2',
+        }, follow_redirects=True)
+        self.assertTrue(b'编辑比赛题目' in response.data)
+        response = self.client.post(url_for('admin.contest_insert'), data={
+            'contest_name': 'contest_test4',
+            'start_time': '2001-11-11 10:10',
+            'end_time': '2001-11-11 10:11',
+            'type': '3',
+            'manager': 'test2',
+        }, follow_redirects=True)
+        self.assertTrue(b'密码保护的比赛密码不能为空' in response.data)
+        response = self.client.post(url_for('admin.contest_insert'), data={
+            'contest_name': 'contest_test5',
+            'start_time': '2001-11-11 10:10',
+            'end_time': '2001-11-11 10:09',
+            'type': '5',
+            'manager': 'test2',
+        }, follow_redirects=True)
+        self.assertTrue(b'编辑比赛题目' in response.data)
+        response = self.client.post(url_for('admin.contest_edit', contest_id=1), data={
+            'contest_name': 'contest_test6',
+            'start_time': '2001-11-11 10:10',
+            'end_time': '2001-11-11 10:09',
+            'type': '5',
+            'manager': 'test2',
+        }, follow_redirects=True)
+        self.assertTrue(b'编辑比赛题目' in response.data)
+        response = self.client.post(url_for('admin.contest_edit', contest_id=1), data={
+            'contest_name': 'contest_test7',
+            'start_time': '2001-11-11 10:10',
+            'end_time': '2001-11-11 10:11',
+            'type': '1',
+            'password': 'thisisatest',
+            'manager': 'test2',
+        }, follow_redirects=True)
+        self.assertTrue(b'编辑比赛题目' in response.data)
+        response = self.client.post(url_for('admin.contest_edit', contest_id=1), data={
+            'contest_name': 'contest_test8',
+            'start_time': '2001-11-11 10:10',
+            'end_time': '2001-11-11 10:11',
+            'type': '2',
+            'password': 'thisisatest',
+            'manager': 'test2',
+        }, follow_redirects=True)
+        self.assertTrue(b'编辑比赛题目' in response.data)
+        response = self.client.post(url_for('admin.contest_edit', contest_id=1), data={
+            'contest_name': 'contest_test9',
+            'start_time': '2001-11-11 10:10',
+            'end_time': '2001-11-11 10:11',
+            'type': '3',
+            'password': 'thisisatest',
+            'manager': 'test2',
+        }, follow_redirects=True)
+        self.assertTrue(b'编辑比赛题目' in response.data)
+        response = self.client.post(url_for('admin.contest_edit', contest_id=1), data={
+            'contest_name': 'contest_test10',
+            'start_time': '2001-11-11 10:10',
+            'end_time': '2001-11-11 10:11',
+            'type': '3',
+            'manager': 'test2',
+        }, follow_redirects=True)
+        self.assertTrue(b'密码保护的比赛密码不能为空' in response.data)
+        response = self.client.post(url_for('admin.contest_edit', contest_id=1), data={
+            'contest_name': 'contest_test11',
+            'start_time': '2001-11-11 10:10',
+            'end_time': '2001-11-11 10:09',
+            'type': '5',
+            'manager': 'test2',
+        }, follow_redirects=True)
+        self.assertTrue(b'编辑比赛题目' in response.data)
+        response = self.client.post(url_for('admin.contest_edit', contest_id=1), data={
+            'contest_name': 'contest_test2',
+            'start_time': '2001-11-11 10:10',
+            'end_time': '2001-11-11 10:09',
+            'type': '1',
+            'password': 'thisisatest',
+            'manager': 'test2',
+        }, follow_redirects=True)
+        self.assertTrue(b'比赛名称已存在' in response.data)
+        response = self.client.post(url_for('admin.contest_edit', contest_id=1), data={
+            'contest_name': 'contest_test',
+            'start_time': '2001-11-11 10:10',
+            'end_time': '2001-11-11 10:11',
+            'type': '1',
+            'password': 'thisisatest',
+            'manager': 'test',
+        }, follow_redirects=True)
+        self.assertTrue(b'指定的比赛管理员用户不存在' in response.data)
+        response = self.client.post(url_for('admin.add_contest_problem', contest_id=1), data={
+            'problem_id': '1',
+            'problem_alias': 'contest_problem'
+        }, follow_redirects=True)
+        self.assertTrue(b'题目不存在' in response.data)
+        p = Problem(title='problem_test')
+        db.session.add(p)
+        db.session.commit()
+        p = Problem(title='problem_test2')
+        db.session.add(p)
+        db.session.commit()
+        response = self.client.post(url_for('admin.add_contest_problem', contest_id=1), data={
+            'problem_id': '1',
+            'problem_alias': 'contest_problem'
+        }, follow_redirects=True)
+        self.assertTrue(b'contest_problem' in response.data)
+        response = self.client.post(url_for('admin.add_contest_problem', contest_id=1), data={
+            'problem_id': '1',
+            'problem_alias': 'contest_problem2'
+        }, follow_redirects=True)
+        self.assertTrue(b'题目已添加至比赛中' in response.data)
+        response = self.client.post(url_for('admin.add_contest_problem', contest_id=1), data={
+            'problem_id': '2'
+        }, follow_redirects=True)
+        self.assertTrue(b'添加题目成功' in response.data)
+        self.assertTrue(b'problem_test2' in response.data)
+        response = self.client.get(url_for('admin.delete_contest_problem', contest_id=1), follow_redirects=True)
+        self.assertTrue(b'请指定题目ID' in response.data)
+        response = self.client.get(url_for('admin.delete_contest_problem', contest_id=1, problem_id=3), follow_redirects=True)
+        self.assertTrue(b'题目列表中不存在该题目' in response.data)
+        p = Problem(title='problem_test3')
+        db.session.add(p)
+        db.session.commit()
+        response = self.client.get(url_for('admin.delete_contest_problem', contest_id=1, problem_id=3), follow_redirects=True)
+        self.assertTrue(b'比赛题目列表中没有该题目' in response.data)
+        response = self.client.get(url_for('admin.delete_contest_problem', contest_id=1, problem_id=2), follow_redirects=True)
+        self.assertTrue(b'删除成功' in response.data)

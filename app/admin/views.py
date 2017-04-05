@@ -9,7 +9,7 @@ from ..models import Role, User, Permission, OJList, Problem, SubmissionStatus, 
 from werkzeug.utils import secure_filename
 from ..decorators import admin_required, permission_required
 from datetime import datetime, timedelta
-from .forms import ModifyProblem, ModifyTag, ModifyUser, ModifyOJStatus, ModifySubmissionStatus, ModifyBlog
+from .forms import ModifyProblem, ModifyTag, ModifyUser, ModifyOJStatus, ModifySubmissionStatus, ModifyBlog, ModifyContest, AddContestProblem
 import os, base64, json
 
 @admin.route('/')
@@ -629,3 +629,229 @@ def blog_detail(blog_id):
 
     blog = Blog.query.get_or_404(blog_id)
     return render_template('admin/blog_detail.html', blog=blog)
+
+@admin.route('/contests', methods=['GET', 'POST'])
+@admin_required
+def contest_list():
+
+    '''
+        define show contest list operation
+    :return: page
+    '''
+
+    page = request.args.get('page', 1, type=int)
+    pagination = Contest.query.order_by(Contest.id.desc()).paginate(page, per_page=current_app.config['FLASKY_CONTESTS_PER_PAGE'])
+    contests = pagination.items
+    now = datetime.utcnow()
+    return render_template('admin/contest_list.html', contests=contests, pagination=pagination, now=now)
+
+
+@admin.route('/contest/<int:contest_id>', methods=['GET', 'POST'])
+@admin_required
+def contest_detail(contest_id):
+
+    '''
+        define operations about contest
+    :param contest_id: contest id
+    :return: page
+    '''
+
+    contest = Contest.query.get_or_404(contest_id)
+    return render_template('admin/contest_detail.html', contest=contest)
+
+
+@admin.route('/contest/add', methods=['GET', 'POST'])
+@admin_required
+def contest_insert():
+    contest = Contest()
+    form = ModifyContest()
+    if form.validate_on_submit():
+        contest.contest_name = form.contest_name.data
+        contest.start_time = form.start_time.data - timedelta(hours=8)
+        contest.end_time = form.end_time.data - timedelta(hours=8)
+        # end_time is smaller than start_time, we use the 5 hours later time as the end time
+        if contest.end_time <= contest.start_time:
+            contest.end_time = contest.start_time + timedelta(hours=5)
+        # Five types contest
+        if form.type.data == 1:
+            # contest we need to registe, no password, no verify
+            contest.style = 1
+            contest.verify = False
+            contest.password = ''
+        elif form.type.data == 2 or form.type.data == 4:
+            # contest we need to registe or pre register of onsite contest, no password, but has verify by the manager
+            contest.style = form.type.data
+            contest.verify = True
+            contest.password = ''
+        elif form.type.data == 3:
+            # contest we need to registe, has the password, no verify
+            contest.style = 3
+            contest.verify = False
+            contest.password = form.password.data
+            if form.password.data == '':
+                flash(u'密码保护的比赛密码不能为空!')
+                return redirect(url_for('admin.contest_insert', contest_id=contest.id))
+        elif form.type.data == 5:
+            # contest onsite, no password, no verify
+            contest.style = 5
+            contest.verify = False
+            contest.password = ''
+        contest.description = form.description.data
+        contest.announce = form.announce.data
+        contest.visible = form.visible.data
+        contest.manager_username = form.manager.data
+        contest.rank_frozen = form.rank_frozen.data
+        db.session.add(contest)
+        db.session.commit()
+        current_user.log_operation('Add contest %s, contest_id is %s' % (contest.contest_name, str(contest.id)))
+        flash(u'添加比赛成功!')
+        # Todo: check if the contest.id is good for use
+        return redirect(url_for('admin.add_contest_problem', contest_id=contest.id))
+    form.contest_name.data = contest.contest_name
+    form.start_time.data = contest.start_time
+    form.end_time.data = contest.end_time
+    form.type.data = contest.style
+    form.password.data = contest.password
+    form.description.data = contest.description
+    form.announce.data = contest.announce
+    form.visible.data = contest.visible
+    form.manager.data = contest.manager_username
+    form.rank_frozen.data = contest.rank_frozen
+    return render_template('admin/contest_add.html', form=form, contest=contest, current_time=datetime.utcnow())
+
+
+@admin.route('/contest/edit/<int:contest_id>', methods=['GET', 'POST'])
+@admin_required
+def contest_edit(contest_id):
+
+    '''
+        define edit contest operation
+    :param contest_id: contest_id
+    :return: page
+    '''
+
+    contest = Contest.query.get_or_404(contest_id)
+    form = ModifyContest()
+    if form.validate_on_submit():
+        contest.contest_name = form.contest_name.data
+        contest.start_time = form.start_time.data - timedelta(hours=8)
+        contest.end_time = form.end_time.data - timedelta(hours=8)
+        # end_time is smaller than start_time, we use the 5 hours later time as the end time
+        if contest.end_time <= contest.start_time:
+            contest.end_time = contest.start_time + timedelta(hours=5)
+        # Five types contest
+        if form.type.data == 1:
+            # contest we need to registe, no password, no verify
+            contest.style = 1
+            contest.verify = False
+            contest.password = ''
+        elif form.type.data == 2 or form.type.data == 4:
+            # contest we need to registe or pre register of onsite contest, no password, but has verify by the manager
+            contest.style = form.type.data
+            contest.verify = True
+            contest.password = ''
+        elif form.type.data == 3:
+            # contest we need to registe, has the password, no verify
+            contest.style = 3
+            contest.verify = False
+            contest.password = form.password.data
+            if form.password.data == '':
+                flash(u'密码保护的比赛密码不能为空!')
+                return redirect(url_for('admin.contest_insert', contest_id=contest.id))
+        elif form.type.data == 5:
+            # contest onsite, no password, no verify
+            contest.style = 5
+            contest.verify = False
+            contest.password = ''
+        contest.description = form.description.data
+        contest.announce = form.announce.data
+        contest.visible = form.visible.data
+        contest.manager_username = form.manager.data
+        contest.rank_frozen = form.rank_frozen.data
+        db.session.add(contest)
+        db.session.commit()
+        current_user.log_operation('Edit contest %s, contest_id is %s' % (contest.contest_name, str(contest.id)))
+        flash(u'编辑比赛成功!')
+        # Todo: check if the contest.id is good for use
+        return redirect(url_for('admin.add_contest_problem', contest_id=contest.id))
+    form.contest_name.data = contest.contest_name
+    form.start_time.data = contest.start_time + timedelta(hours=8)
+    form.end_time.data = contest.end_time + timedelta(hours=8)
+    form.type.data = contest.style
+    form.password.data = contest.password
+    form.description.data = contest.description
+    form.announce.data = contest.announce
+    form.visible.data = contest.visible
+    form.manager.data = contest.manager_username
+    form.rank_frozen.data = contest.rank_frozen
+    return render_template('admin/contest_edit.html', form=form, contest=contest, current_time=datetime.utcnow())
+
+
+@admin.route('/contest/edit/add_problem/<int:contest_id>', methods=['GET', 'POST'])
+@admin_required
+def add_contest_problem(contest_id):
+
+    '''
+        define contest add problem operation
+    :param contest_id: contest id
+    :return: page
+    '''
+
+    contest = Contest.query.get_or_404(contest_id)
+    form = AddContestProblem()
+    if form.validate_on_submit():
+        problem = Problem.query.get(form.problem_id.data)
+        if problem is not None:
+            if ContestProblem.query.filter_by(problem_id=problem.id, contest_id=contest_id).first() != None:
+                flash(u'题目已添加至比赛中，请勿重复添加!')
+                return redirect(url_for('admin.add_contest_problem', contest_id=contest_id))
+            contest_problem = ContestProblem(contest=contest, problem=problem)
+            contest_problem.problem_index = contest.problems.count() + 1000
+            if form.problem_alias != '':
+                contest_problem.problem_alias = form.problem_alias.data
+            else:
+                contest_problem.problem_alias = problem.problem_title
+            db.session.add(contest_problem)
+            db.session.commit()
+            current_user.log_operation('Add problem %s to contest %s, problem id is %s, contest_id is %s' % (problem.title, contest.contest_name, str(problem.id), str(contest.id)))
+            flash(u'添加题目成功!')
+        else:
+            flash(u'题目不存在!')
+    return render_template('admin/contest_add_problem.html', form=form, contest=contest)
+
+
+@admin.route('/contest/edit/delete_problem/<int:contest_id>', methods=['GET', 'POST'])
+@admin_required
+def delete_contest_problem(contest_id):
+
+    '''
+        define contest delete problem operation
+    :param contest_id: contest_id
+    :return: page
+    '''
+
+    contest = Contest.query.get_or_404(contest_id)
+    # get problem_id from GET request
+    problem_id = request.args.get('problem_id', -1, type=int)
+    # if we get a problem id
+    if problem_id != -1:
+        # try to get the problem
+        problem = Problem.query.get(problem_id)
+        # the problem id is valid
+        if problem is not None:
+            # get the contest_problem data from the sql
+            contest_problem = contest.problems.filter_by(problem_id=problem.id).first()
+            # problem is in the contest
+            if contest_problem:
+                # delete it
+                db.session.delete(contest_problem)
+                db.session.commit()
+                current_user.log_operation('Delete problem %s from contest %s, problem id is %s, contest_id is %s' % (problem.title, contest.contest_name, str(problem.id), str(contest.id)))
+                flash(u'删除成功')
+            else:
+                flash(u'比赛题目列表中没有该题目！')
+        else:
+            flash(u'题目列表中不存在该题目！')
+    else:
+        flash(u'请指定题目ID')
+    return redirect(url_for('admin.add_contest_problem', contest_id=contest_id))

@@ -90,7 +90,12 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get(url_for('contest.contest_problem_detail', contest_id=1, problem_index=1001), follow_redirects=True)
         self.assertTrue(response.status_code == 200)
         self.assertTrue(b'contest_problem' in response.data)
+        # visit contest problem detail do not exist
+        response = self.client.get(url_for('contest.contest_problem_detail', contest_id=1, problem_index=1009), follow_redirects=True)
+        self.assertTrue(response.status_code == 404)
         # submit code
+        response = self.client.get(url_for('contest.contest_submit', contest_id=1, problem_index=1001), follow_redirects=True)
+        self.assertTrue(response.status_code == 200)
         response = self.client.post(url_for('contest.contest_submit', contest_id=1, problem_index=1001), data={
             'language': '1',
             'code': '1234567890.1234586789'

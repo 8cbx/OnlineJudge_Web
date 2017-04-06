@@ -78,6 +78,10 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get(url_for('contest.contest_detail', contest_id=1), follow_redirects=True)
         self.assertTrue(response.status_code == 200)
         self.assertTrue(b'比赛描述' in response.data)
+        # in contest again
+        response = self.client.get(url_for('contest.open_contest_register', contest_id=1), follow_redirects=True)
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(b'您已注册' in response.data)
         # visit contest_problem list
         response = self.client.get(url_for('contest.contest_problem_list', contest_id=1), follow_redirects=True)
         self.assertTrue(response.status_code == 200)

@@ -177,3 +177,43 @@ class FlaskClientTestCase(unittest.TestCase):
         }, follow_redirects=True)
         self.assertTrue(response.status_code == 200)
         self.assertTrue(b'比赛已经结束' in response.data)
+
+    def test_register_contest(self):
+
+        '''
+            test if the contest is register contest
+        :return: None
+        '''
+
+        u = User(username='test2', password='123456', email='test2@test.com', confirmed=True)
+        u2 = User(username='test3', password='123456', email='test3@test.com', confirmed=True)
+        u.role_id = Role.query.filter_by(permission=0xff).first().id
+        db.session.add(u)
+        db.session.add(u2)
+        db.session.commit()
+        # user login
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test2',
+            'password': '123456'
+        }, follow_redirects=True)
+        # add type 2 contest
+        response = self.client.post(url_for('admin.contest_insert'), data={
+            'contest_name': 'contest_test',
+            'start_time': '2001-11-11 10:10',
+            'end_time': '2001-11-11 10:11',
+            'type': '2',
+            'password': 'thisisatest',
+            'manager': 'test2',
+        }, follow_redirects=True)
+        self.assertTrue(b'编辑比赛题目' in response.data)
+        response = self.client.get(url_for('auth.logout'))
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test3',
+            'password': '123456'
+        }, follow_redirects=True)
+        response = self.client.get(url_for('contest.contest_detail', contest_id=1), follow_redirects=True)
+        self.assertTrue(b'请确保以下个人信息符合比赛管理员' in response.data)
+        response = self.client.get(url_for('contest.private_contest_register', contest_id=1), follow_redirects=True)
+        self.assertTrue(b'注册成功' in response.data)
+        response = self.client.get(url_for('contest.private_contest_register', contest_id=1), follow_redirects=True)
+        self.assertTrue(b'您已注册' in response.data)

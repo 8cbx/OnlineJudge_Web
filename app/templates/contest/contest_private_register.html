@@ -49,15 +49,15 @@
                             <tr>
                                 <td>{{ moment(contest.start_time).format('LLLL') }}</td>
                                 <td>{{ moment(contest.end_time).format('LLLL') }}</td>
-                                {% if contests.style == 2 %}
+                                {% if contest.style == 2 %}
                                 <td>私有比赛(管理员确认)</td>
-                                {% elif contests.style == 3 %}
+                                {% elif contest.style == 3 %}
                                 <td>私有比赛(密码保护)</td>
-                                {% elif contests.style == 1 %}
+                                {% elif contest.style == 1 %}
                                 <td>开放注册</td>
-                                {% elif contests.style == 4 %}
+                                {% elif contest.style == 4 %}
                                 <td>现场赛预注册</td>
-                                {% elif contests.style == 5 %}
+                                {% elif contest.style == 5 %}
                                 <td>现场赛/正式比赛</td>
                                 {% endif %}
                                 <td>{{ contest.manager_username }}</td>
@@ -87,7 +87,6 @@
                             <th>学号:</th>
                             <td>{{ current_user.student_num }}</td>
                         </tr>
-                        {% endif %}
                     </table>
                     <a class="btn btn-default btn-block btn-primary" href="{{ url_for('auth.edit_profile', next=url_for('contest.private_contest_pre_register',contest_id=contest.id)) }}" role="button">修改个人信息</a>
                     <h4 style="text-align: center;">比赛的开始时间为 {{ moment(contest.start_time).format('LLLL') }}, 结束时间为 {{ moment(contest.end_time).format('LLLL') }}</h4>

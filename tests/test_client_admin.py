@@ -506,15 +506,6 @@ class FlaskClientTestCase(unittest.TestCase):
         }, follow_redirects=True)
         self.assertTrue(b'编辑比赛题目' in response.data)
         response = self.client.post(url_for('admin.contest_insert'), data={
-            'contest_name': 'contest_test',
-            'start_time': '2001-11-11 10:10',
-            'end_time': '2001-11-11 10:11',
-            'type': '1',
-            'password': 'thisisatest',
-            'manager': 'test2',
-        }, follow_redirects=True)
-        self.assertTrue(b'比赛名称已存在' in response.data)
-        response = self.client.post(url_for('admin.contest_insert'), data={
             'contest_name': 'contest_test2',
             'start_time': '2001-11-11 10:10',
             'end_time': '2001-11-11 10:11',
@@ -599,15 +590,6 @@ class FlaskClientTestCase(unittest.TestCase):
             'manager': 'test2',
         }, follow_redirects=True)
         self.assertTrue(b'编辑比赛题目' in response.data)
-        response = self.client.post(url_for('admin.contest_edit', contest_id=1), data={
-            'contest_name': 'contest_test2',
-            'start_time': '2001-11-11 10:10',
-            'end_time': '2001-11-11 10:09',
-            'type': '1',
-            'password': 'thisisatest',
-            'manager': 'test2',
-        }, follow_redirects=True)
-        self.assertTrue(b'比赛名称已存在' in response.data)
         response = self.client.post(url_for('admin.contest_edit', contest_id=1), data={
             'contest_name': 'contest_test',
             'start_time': '2001-11-11 10:10',

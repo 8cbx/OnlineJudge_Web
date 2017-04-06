@@ -212,16 +212,6 @@ class ModifyContest(FlaskForm):
         if User.query.filter_by(username=field.data).first() is None:
             raise ValidationError(u'指定的比赛管理员用户不存在')
 
-    def validate_contest_name(self, field):
-
-        '''
-            check if the manager is good
-        :param field: form field
-        :return: True or False
-        '''
-
-        if Contest.query.filter_by(contest_name=field.data).first() is not None:
-            raise ValidationError(u'比赛名称已存在，请更换比赛名称')
 
 class AddContestProblem(FlaskForm):
 

@@ -803,7 +803,7 @@ class Contest(db.Model):
 
     __tablename__ = 'contests'
     id = db.Column(db.Integer, primary_key=True)
-    contest_name = db.Column(db.String(128), index=True, unique=True)
+    contest_name = db.Column(db.String(128), index=True)
     start_time = db.Column(db.DateTime(), default=datetime.utcnow)
     end_time = db.Column(db.DateTime(), default=datetime.utcnow)
     # need to verify by the manager

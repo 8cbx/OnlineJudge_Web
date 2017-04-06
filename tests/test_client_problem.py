@@ -54,7 +54,7 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get(url_for('problem.problem_list'))
         self.assertTrue(response.status_code == 200)
         self.assertTrue(b'Problem List' in response.data)
-        self.assertFalse(b'test' in response.data)
+        self.assertFalse(b'thisisatest' in response.data)
         u = User(username='test2', password='123456', email='test@test.com', confirmed=True)
         db.session.add(u)
         db.session.commit()

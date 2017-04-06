@@ -34,6 +34,22 @@
                 </div>
             </div>
 
+            <div class="form-group has-feedback{% if form.realname.errors %} has-error{% endif %}">
+                {{ form.realname.label(for="inputRealname", class="col-sm-2 control-label") }}
+        		<div class="col-sm-8">
+                    {{ form.realname(type="text", class="form-control", placeholder="真实姓名") }}
+        		    {% if form.realname.errors %}
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                    <span id="inputError" class="sr-only">(error)</span>
+                        {% for error in form.realname.errors %}
+	                        <span id="helpBlock" class="help-block">
+	                        {{ error }}
+                            </span>
+		                {% endfor%}
+	                {% endif %}
+                </div>
+            </div>
+
             <div class="form-group has-feedback{% if form.gender.errors %} has-error{% endif %}">
                 {{ form.gender.label(for="inputGender", class="col-sm-2 control-label") }}
         		<div class="col-sm-8">

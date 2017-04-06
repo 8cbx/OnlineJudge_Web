@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+{% block title %}Contest-{{ contest.contest_name }}{% endblock %}
+{% block body_attribs %}onload="set_globle({{ sec_now|int }}, {{ sec_init|int }}, {{ sec_end|int }})"{% endblock body_attribs %}
+{% block page_content %}
+    <!-- Page Heading/Breadcrumbs -->
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">Contest
+                    <small>{{ contest.contest_name }}</small>
+                </h1>
+                <ol class="breadcrumb">
+                    <li><a href="{{ url_for('index.index_page') }}">Home</a>
+                    </li>
+                    <li class="active">Contest</li>
+                </ol>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped active" id="contest_bar" style="min-width: 4em; width: 0%"></div>
+                </div>
+            	<div class="col-lg-2">
+                    <div class="list-group">
+                        <a href="{{ url_for('contest.contest_detail', contest_id=contest.id) }}" class="list-group-item">比赛首页</a>
+                         <a href="{{ url_for('contest.contest_problem_list', contest_id=contest_id) }}" class="list-group-item">题目列表</a>
+                        <a href="{{ url_for('contest.contest_status_list', contest_id=contest_id) }}" class="list-group-item">提交列表</a>
+                        <a href="{{ url_for('contest.contest_ranklist', contest_id=contest_id) }}" class="list-group-item">排行榜</a>
+                        {% if contest.manager_username == current_user.username or current_user.is_admin()  %}
+                        <a href="{{ url_for('contest.contest_user_check', contest_id=contest_id) }}" class="list-group-item">Confirm</a>
+                        {% endif %}
+                    </div>
+            	</div>
+                <div class="col-lg-10">
+                    <h3>比赛信息</h3>
+                    <table class="table table-bordered" cellspacing="0" width="100%" style="font-size:10px;">
+                        <thead>
+                            <tr>
+                                <th>开始时间</th>
+                                <th>结束时间</th>
+                                <th>比赛类型</th>
+                                <th>管理员</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ moment(contest.start_time).format('LLLL') }}</td>
+                                <td>{{ moment(contest.end_time).format('LLLL') }}</td>
+                                {% if contest.style == 2 %}
+                                <td>私有比赛(管理员确认)</td>
+                                {% elif contest.style == 3 %}
+                                <td>私有比赛(密码保护)</td>
+                                {% elif contest.style == 1 %}
+                                <td>开放注册</td>
+                                {% elif contest.style == 4 %}
+                                <td>现场赛预注册</td>
+                                {% elif contest.style == 5 %}
+                                <td>现场赛/正式比赛</td>
+                                {% endif %}
+                                <td>{{ contest.manager_username }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <hr>
+                    <h3>比赛描述</h3>
+                    {{ contest.description|safe }}
+                    <hr>
+                    {% if contest.announce != None and contest.announce != '' %}
+                    <h3>比赛通知</h3>
+                    {{ contest.announce|safe }}
+                    <hr>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" src="{{ url_for('static', filename='js/accessory.js') }}"></script>
+{% endblock %}

@@ -152,6 +152,7 @@ class EditProfileForm(FlaskForm):
     '''
 
     nickname = StringField(u'昵称', validators=[Length(0, 64)])
+    realname = StringField(u'真实姓名', validators=[Length(0, 64)])
     gender = SelectField(u'性别', coerce=unicode)
     major = StringField(u'专业', validators=[Length(0, 64)])
     degree = SelectField(u'学位', coerce=unicode)

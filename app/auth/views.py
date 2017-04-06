@@ -278,6 +278,7 @@ def edit_profile():
     form = EditProfileForm()
     if form.validate_on_submit():
         current_user.nickname = form.nickname.data
+        current_user.realname = form.realname.data
         current_user.gender = form.gender.data
         current_user.major = form.major.data
         current_user.degree = form.degree.data
@@ -290,8 +291,9 @@ def edit_profile():
         db.session.add(current_user)
         db.session.commit()
         flash(u'您的个人信息已经更新')
-        return redirect(url_for('auth.user_detail', username=current_user.username))
+        return redirect(request.args.get('next') or url_for('auth.user_detail', username=current_user.username))
     form.nickname.data = current_user.nickname
+    form.realname.data = current_user.realname
     form.gender.data = current_user.gender
     form.major.data = current_user.major
     form.degree.data = current_user.degree

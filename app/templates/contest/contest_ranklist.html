@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+{% block title %}Contest-{{ contest.contest_name }}{% endblock %}
+{% block styles %}
+{{ super() }}
+<style>
+    #ranklist .firstaccept{
+    background: #006000;
+    color: white;
+}
+
+#ranklist .accept{
+    background: #09b732;
+    color: white;
+}
+
+
+#ranklist .wrong{
+    background: #e80f29;
+    color: white;
+}
+</style>
+{% endblock styles %}
+{% block body_attribs %}onload="set_globle({{ sec_now|int }}, {{ sec_init|int }}, {{ sec_end|int }})"{% endblock body_attribs %}
+{% block page_content %}
+    <!-- Page Heading/Breadcrumbs -->
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">Contest
+                    <small>{{ contest.contest_name }}</small>
+                </h1>
+                <ol class="breadcrumb">
+                    <li><a href="{{ url_for('index.index_page') }}">Home</a>
+                    </li>
+                    <li class="active">Contest</li>
+                </ol>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped active" id="contest_bar" style="min-width: 4em; width: 0%"></div>
+                </div>
+            	<div class="col-lg-2">
+                    <div class="list-group">
+                        <a href="{{ url_for('contest.contest_detail', contest_id=contest.id) }}" class="list-group-item">比赛首页</a>
+                         <a href="{{ url_for('contest.contest_problem_list', contest_id=contest_id) }}" class="list-group-item">题目列表</a>
+                        <a href="{{ url_for('contest.contest_status_list', contest_id=contest_id) }}" class="list-group-item">提交列表</a>
+                        <a href="{{ url_for('contest.contest_ranklist', contest_id=contest_id) }}" class="list-group-item">排行榜</a>
+                        {% if contest.manager_username == current_user.username or current_user.is_admin()  %}
+                        <a href="{{ url_for('contest.contest_user_check', contest_id=contest_id) }}" class="list-group-item">Confirm</a>
+                        {% endif %}
+                    </div>
+            	</div>
+                <div class="col-lg-10">
+                    <table class="table table-bordered" cellspacing="0" width="100%" style="font-size:10px;" id="ranklist">
+                        <thead>
+                         <tr>
+                            <th>用户名</th>
+                            <th>总AC数</th>
+                            <th>总用时</th>
+                            {% for problem in problems %}
+                            <th><a href="{{ url_for('contest.contest_problem_detail',contest_id=contest_id, problem_index=problem.problem_index) }}">{{ problem.problem_index }}</a></th>
+                            {% endfor %}
+                        </tr>
+                         </thead>
+                        <tbody>
+                        {% for ranklist in ranklists %}
+                        <tr>
+                            <td>{{ ranklist['username'] }}</td>
+                            <td>{{ ranklist['total_ac'] }}</td>
+                            <td>{{ ranklist['total_time'] }}</td>
+                            {% for problem in ranklist['submission_detail'] %}
+                            <td {% if ranklist['submission_detail'][problem]['first_blood'] %}class="firstaccept" {% elif ranklist['submission_detail'][problem]['ac'] %}class="accept" {% elif ranklist['submission_detail'][problem]['submission_num'] > 0 %}class="wrong"{% endif %}>{% if ranklist['submission_detail'][problem]['submission_num'] > 0 %}{{ ranklist['submission_detail'][problem]['submission_num'] }}{% else %}-{% endif %}/{% if ranklist['submission_detail'][problem]['ac'] %}{{ ranklist['submission_detail'][problem]['time'] }}{% else %}--{% endif %}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                     </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" src="{{ url_for('static', filename='js/accessory.js') }}"></script>
+{% endblock %}

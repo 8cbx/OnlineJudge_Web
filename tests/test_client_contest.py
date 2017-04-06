@@ -187,9 +187,11 @@ class FlaskClientTestCase(unittest.TestCase):
 
         u = User(username='test2', password='123456', email='test2@test.com', confirmed=True)
         u2 = User(username='test3', password='123456', email='test3@test.com', confirmed=True)
+        u3 = User(username='test4', password='123456', email='test4@test.com', confirmed=True)
         u.role_id = Role.query.filter_by(permission=0xff).first().id
         db.session.add(u)
         db.session.add(u2)
+        db.session.add(u3)
         db.session.commit()
         # user login
         response = self.client.post(url_for('auth.login'), data={
@@ -217,3 +219,34 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue(b'注册成功' in response.data)
         response = self.client.get(url_for('contest.private_contest_register', contest_id=1), follow_redirects=True)
         self.assertTrue(b'您已注册' in response.data)
+        response = self.client.get(url_for('contest.private_contest_pre_register', contest_id=1), follow_redirects=True)
+        self.assertTrue(b'您已注册' in response.data)
+        response = self.client.get(url_for('contest.contest_problem_list', contest_id=1), follow_redirects=True)
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(b'请等待管理员确认您的参赛请求' in response.data)
+        response = self.client.get(url_for('contest.contest_user_check', contest_id=1), follow_redirects=True)
+        self.assertTrue(b'你没有权限访问这个页面' in response.data)
+        response = self.client.get(url_for('contest.contest_user_checked', contest_id=1), follow_redirects=True)
+        self.assertTrue(b'你没有权限访问这个页面' in response.data)
+        response = self.client.get(url_for('auth.logout'))
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test2',
+            'password': '123456'
+        }, follow_redirects=True)
+        response = self.client.get(url_for('contest.contest_user_check', contest_id=1), follow_redirects=True)
+        self.assertTrue(b'test3' in response.data)
+        self.assertTrue(b'未确认' in response.data)
+        response = self.client.get(url_for('contest.contest_user_checked', contest_id=1, user_id=2, flag=1), follow_redirects=True)
+        self.assertTrue(b'test3' in response.data)
+        self.assertTrue(b'已确认' in response.data)
+        response = self.client.get(url_for('contest.contest_user_checked', contest_id=1, user_id=2, flag=0), follow_redirects=True)
+        self.assertTrue(b'test3' in response.data)
+        self.assertTrue(b'未确认' in response.data)
+        response = self.client.get(url_for('auth.logout'))
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test4',
+            'password': '123456'
+        }, follow_redirects=True)
+        response = self.client.get(url_for('contest.contest_problem_list', contest_id=1), follow_redirects=True)
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(b'请确保以下个人信息符合' in response.data)

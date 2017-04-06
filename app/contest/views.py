@@ -152,7 +152,7 @@ def private_contest_register(contest_id):
         school=current_user.school,
         student_num=current_user.student_num,
         phone_num=current_user.phone_num,
-        user_confirmed=True,
+        user_confirmed=False,
         register_time=datetime.utcnow()
     )
     db.session.add(contest_user)
@@ -215,13 +215,13 @@ def contest_user_check(contest_id):
 
     contest = Contest.query.get_or_404(contest_id)
     page = request.args.get('page', 1, type=int)
+    if contest.manager_username != current_user.username and (current_user.is_admin() is False):
+        flash(u"你没有权限访问这个页面！")
+        abort(403)
     now = datetime.utcnow()
     sec_now = time.mktime(now.timetuple())
     sec_init = time.mktime(contest.start_time.timetuple())
     sec_end = time.mktime(contest.end_time.timetuple())
-    if contest.manager_username != current_user.username and (current_user.is_admin() is False):
-        flash(u"你没有权限访问这个页面！")
-        abort(403)
     checked_num = contest.users.filter_by(user_confirmed=True).count()
     unchecked_num = contest.users.filter_by(user_confirmed=False).count()
     pagination = contest.users.order_by(ContestUsers.user_confirmed.asc(), ContestUsers.register_time.asc()).paginate(page, per_page=current_app.config['FLASKY_CONTESTS_PER_PAGE'])

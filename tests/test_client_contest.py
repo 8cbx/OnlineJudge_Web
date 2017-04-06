@@ -44,8 +44,10 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get(url_for('contest.contest_list'))
         self.assertTrue(response.status_code == 200)
         u = User(username='test2', password='123456', email='test2@test.com', confirmed=True)
+        u2 = User(username='test3', password='123456', email='test3@test.com', confirmed=True)
         u.role_id = Role.query.filter_by(permission=0xff).first().id
         db.session.add(u)
+        db.session.add(u2)
         db.session.commit()
         # user login
         response = self.client.post(url_for('auth.login'), data={
@@ -82,6 +84,10 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get(url_for('contest.open_contest_register', contest_id=1), follow_redirects=True)
         self.assertTrue(response.status_code == 200)
         self.assertTrue(b'您已注册' in response.data)
+        response = self.client.get(url_for('contest.private_contest_pre_register', contest_id=1), follow_redirects=True)
+        self.assertTrue(response.status_code == 404)
+        response = self.client.get(url_for('contest.private_contest_register', contest_id=1), follow_redirects=True)
+        self.assertTrue(response.status_code == 404)
         # visit contest_problem list
         response = self.client.get(url_for('contest.contest_problem_list', contest_id=1), follow_redirects=True)
         self.assertTrue(response.status_code == 200)
@@ -109,7 +115,16 @@ class FlaskClientTestCase(unittest.TestCase):
         # visit contest rank
         response = self.client.get(url_for('contest.contest_ranklist', contest_id=1), follow_redirects=True)
         self.assertTrue(response.status_code == 200)
-
+        response = self.client.get(url_for('auth.logout'))
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test3',
+            'password': '123456'
+        }, follow_redirects=True)
+        response = self.client.get(url_for('contest.contest_detail', contest_id=1), follow_redirects=True)
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(b'比赛描述' in response.data)
+        response = self.client.get(url_for('contest.contest_status_detail', run_id=1, contest_id=1), follow_redirects=True)
+        self.assertTrue(response.status_code == 403)
 
     def test_contest_user(self):
 
@@ -221,6 +236,8 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue(b'您已注册' in response.data)
         response = self.client.get(url_for('contest.private_contest_pre_register', contest_id=1), follow_redirects=True)
         self.assertTrue(b'您已注册' in response.data)
+        response = self.client.get(url_for('contest.password_contest_register', contest_id=1), follow_redirects=True)
+        self.assertTrue(response.status_code == 404)
         response = self.client.get(url_for('contest.contest_problem_list', contest_id=1), follow_redirects=True)
         self.assertTrue(response.status_code == 200)
         self.assertTrue(b'请等待管理员确认您的参赛请求' in response.data)
@@ -309,6 +326,12 @@ class FlaskClientTestCase(unittest.TestCase):
             'contest_password': 'thisisatest'
         }, follow_redirects=True)
         self.assertTrue(b'注册成功' in response.data)
+        response = self.client.post(url_for('contest.password_contest_register', contest_id=1), data={
+            'contest_password': 'thisisatest'
+        }, follow_redirects=True)
+        self.assertTrue(b'您已注册' in response.data)
+        response = self.client.get(url_for('contest.open_contest_register', contest_id=1), follow_redirects=True)
+        self.assertTrue(response.status_code == 404)
 
     def test_onsite_contest(self):
 

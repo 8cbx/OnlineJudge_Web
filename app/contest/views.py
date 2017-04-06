@@ -145,7 +145,7 @@ def private_contest_register(contest_id):
     '''
 
     contest = Contest.query.get_or_404(contest_id)
-    if contest.style != 2:
+    if contest.style != 2 and contest.style != 4:
         abort(404)
     if contest.users.filter_by(user_id=current_user.id).first() is not None:
         flash(u'您已注册！')
@@ -303,6 +303,9 @@ def contest_problem_detail(contest_id, problem_index):
     contest = Contest.query.get_or_404(contest_id)
     result = in_contest(contest, current_user.id)
     now = datetime.utcnow()
+    if contest.start_time > now:
+        flash(u'比赛尚未开始，请等待！')
+        return redirect(url_for('contest.contest_detail', contest_id=contest_id))
     sec_now = time.mktime(now.timetuple())
     sec_init = time.mktime(contest.start_time.timetuple())
     sec_end = time.mktime(contest.end_time.timetuple())
@@ -358,6 +361,9 @@ def contest_submit(contest_id, problem_index):
     if not result[0]:
         return result[1]
     now = datetime.utcnow()
+    if contest.start_time > now:
+        flash(u'比赛尚未开始，请等待！')
+        return redirect(url_for('contest.contest_detail', contest_id=contest_id))
     if contest.end_time < now and current_user.username != contest.manager_username and (not current_user.is_admin()):
         flash(u'比赛已经结束，无法提交代码！')
         return redirect(url_for('contest.contest_detail', contest_id=contest_id))

@@ -90,6 +90,8 @@ def open_contest_register(contest_id):
     '''
 
     contest = Contest.query.get_or_404(contest_id)
+    if contest.style != 1:
+        abort(404)
     if contest.users.filter_by(user_id=current_user.id).first() is not None:
         flash(u'您已注册！')
         return redirect(url_for('contest.contest_detail', contest_id=contest_id))
@@ -120,6 +122,8 @@ def private_contest_pre_register(contest_id):
     '''
 
     contest = Contest.query.get_or_404(contest_id)
+    if contest.style != 2 and contest.style != 4:
+        abort(404)
     if contest.users.filter_by(user_id=current_user.id).first() is not None:
         flash(u'您已注册！')
         return redirect(url_for('contest.contest_detail', contest_id=contest_id))
@@ -141,6 +145,8 @@ def private_contest_register(contest_id):
     '''
 
     contest = Contest.query.get_or_404(contest_id)
+    if contest.style != 2:
+        abort(404)
     if contest.users.filter_by(user_id=current_user.id).first() is not None:
         flash(u'您已注册！')
         return redirect(url_for('contest.contest_detail', contest_id=contest_id))
@@ -172,13 +178,15 @@ def password_contest_register(contest_id):
     '''
 
     contest = Contest.query.get_or_404(contest_id)
+    if contest.style != 3:
+        abort(404)
+    if contest.users.filter_by(user_id=current_user.id).first() is not None:
+        flash(u'您已注册！')
+        return redirect(url_for('contest.contest_detail', contest_id=contest_id))
     now = datetime.utcnow()
     sec_now = time.mktime(now.timetuple())
     sec_init = time.mktime(contest.start_time.timetuple())
     sec_end = time.mktime(contest.end_time.timetuple())
-    if contest.users.filter_by(user_id=current_user.id).first() is not None:
-        flash(u'您已注册！')
-        return redirect(url_for('contest.contest_detail', contest_id=contest_id))
     form = PasswordRegisterForm()
     if form.validate_on_submit():
         if form.contest_password.data == contest.password:
@@ -301,8 +309,6 @@ def contest_problem_detail(contest_id, problem_index):
     if not result[0]:
         return result[1]
     problem = contest.problems.filter_by(problem_index=problem_index).first_or_404().problem
-    if problem is None:
-        return abort(404)
     return render_template('contest/contest_problem.html', contest=contest, problem=problem, problem_index=problem_index, contest_id=contest_id, sec_now = sec_now, sec_init = sec_init, sec_end = sec_end)
 
 

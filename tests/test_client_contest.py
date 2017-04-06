@@ -224,6 +224,21 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get(url_for('contest.contest_problem_list', contest_id=1), follow_redirects=True)
         self.assertTrue(response.status_code == 200)
         self.assertTrue(b'请等待管理员确认您的参赛请求' in response.data)
+        response = self.client.get(url_for('contest.contest_problem_detail', contest_id=1, problem_index=1001), follow_redirects=True)
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(b'请等待管理员确认您的参赛请求' in response.data)
+        response = self.client.get(url_for('contest.contest_status_list', contest_id=1), follow_redirects=True)
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(b'请等待管理员确认您的参赛请求' in response.data)
+        response = self.client.get(url_for('contest.contest_ranklist', contest_id=1), follow_redirects=True)
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(b'请等待管理员确认您的参赛请求' in response.data)
+        response = self.client.get(url_for('contest.contest_submit', contest_id=1, problem_index=1001),follow_redirects=True)
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(b'请等待管理员确认您的参赛请求' in response.data)
+        response = self.client.get(url_for('contest.contest_status_detail', contest_id=1, run_id=1),follow_redirects=True)
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(b'请等待管理员确认您的参赛请求' in response.data)
         response = self.client.get(url_for('contest.contest_user_check', contest_id=1), follow_redirects=True)
         self.assertTrue(b'你没有权限访问这个页面' in response.data)
         response = self.client.get(url_for('contest.contest_user_checked', contest_id=1), follow_redirects=True)
@@ -250,3 +265,85 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get(url_for('contest.contest_problem_list', contest_id=1), follow_redirects=True)
         self.assertTrue(response.status_code == 200)
         self.assertTrue(b'请确保以下个人信息符合' in response.data)
+
+    def test_password_contest(self):
+
+        '''
+            test if the contest is password protect contest
+        :return: None
+        '''
+
+        u = User(username='test2', password='123456', email='test2@test.com', confirmed=True)
+        u2 = User(username='test3', password='123456', email='test3@test.com', confirmed=True)
+        u.role_id = Role.query.filter_by(permission=0xff).first().id
+        db.session.add(u)
+        db.session.add(u2)
+        db.session.commit()
+        # user login
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test2',
+            'password': '123456'
+        }, follow_redirects=True)
+        # add type 2 contest
+        response = self.client.post(url_for('admin.contest_insert'), data={
+            'contest_name': 'contest_test',
+            'start_time': '2001-11-11 10:10',
+            'end_time': '2001-11-11 10:11',
+            'type': '3',
+            'password': 'thisisatest',
+            'manager': 'test2',
+        }, follow_redirects=True)
+        self.assertTrue(b'编辑比赛题目' in response.data)
+        response = self.client.get(url_for('auth.logout'))
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test3',
+            'password': '123456'
+        }, follow_redirects=True)
+        response = self.client.get(url_for('contest.contest_detail', contest_id=1), follow_redirects=True)
+        self.assertTrue(b'比赛密码' in response.data)
+        response = self.client.post(url_for('contest.password_contest_register', contest_id=1), data={
+            'contest_password': 'test'
+        }, follow_redirects=True)
+        self.assertTrue(b'密码错误' in response.data)
+        response = self.client.post(url_for('contest.password_contest_register', contest_id=1), data={
+            'contest_password': 'thisisatest'
+        }, follow_redirects=True)
+        self.assertTrue(b'注册成功' in response.data)
+
+    def test_onsite_contest(self):
+
+        '''
+            test if the contest is password protect contest
+        :return: None
+        '''
+
+        u = User(username='test2', password='123456', email='test2@test.com', confirmed=True)
+        u2 = User(username='test3', password='123456', email='test3@test.com', confirmed=True)
+        u3 = User(username='test4', password='123456', email='test4@test.com', confirmed=True)
+        u.role_id = Role.query.filter_by(permission=0xff).first().id
+        db.session.add(u)
+        db.session.add(u2)
+        db.session.add(u3)
+        db.session.commit()
+        # user login
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test2',
+            'password': '123456'
+        }, follow_redirects=True)
+        # add type 2 contest
+        response = self.client.post(url_for('admin.contest_insert'), data={
+            'contest_name': 'contest_test',
+            'start_time': '2001-11-11 10:10',
+            'end_time': '2001-11-11 10:11',
+            'type': '5',
+            'password': 'thisisatest',
+            'manager': 'test2',
+        }, follow_redirects=True)
+        self.assertTrue(b'编辑比赛题目' in response.data)
+        response = self.client.get(url_for('auth.logout'))
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test3',
+            'password': '123456'
+        }, follow_redirects=True)
+        response = self.client.get(url_for('contest.contest_detail', contest_id=1), follow_redirects=True)
+        self.assertTrue(b'本场比赛为正式比赛' in response.data)

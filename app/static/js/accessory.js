@@ -1,5 +1,5 @@
 var s_now, s_init, s_end;
-var t = document.createElement('span'); //创建时间节点
+var t = document.getElementById("contest_bar"); //创建时间节点
 document.getElementById("contest_bar").parentNode.appendChild(t);
 function set_globle (sec_now, sec_init, sec_end) {
       s_now = sec_now, s_init = sec_init, s_end = sec_end;

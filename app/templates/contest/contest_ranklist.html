@@ -67,18 +67,10 @@
                         </tr>
                          </thead>
                         <tbody>
-                        {% for ranklist in ranklists %}
-                        <tr>
-                            <td>{{ ranklist['username'] }}</td>
-                            <td>{{ ranklist['total_ac'] }}</td>
-                            <td>{{ ranklist['total_time'] }}</td>
-                            {% for problem in ranklist['submission_detail'] %}
-                            <td {% if ranklist['submission_detail'][problem]['first_blood'] %}class="firstaccept" {% elif ranklist['submission_detail'][problem]['ac'] %}class="accept" {% elif ranklist['submission_detail'][problem]['submission_num'] > 0 %}class="wrong"{% endif %}>{% if ranklist['submission_detail'][problem]['submission_num'] > 0 %}{{ ranklist['submission_detail'][problem]['submission_num'] }}{% else %}-{% endif %}/{% if ranklist['submission_detail'][problem]['ac'] %}{{ ranklist['submission_detail'][problem]['time'] }}{% else %}--{% endif %}</td>
-                            {% endfor %}
-                        </tr>
-                        {% endfor %}
+                        {{ ranklists|safe }}
                      </tbody>
                     </table>
+                    <h6>*本页面每30s更新一次</h6>
                 </div>
             </div>
         </div>

@@ -412,6 +412,7 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue(b'test' in response.data)
         response = self.client.post(url_for('auth.edit_profile'), data={
             'major': 'test2',
+            'nickname': 'test2',
             'gender': 'Male',
             'degree': 'Bachelor',
             'country': 'China',

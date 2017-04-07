@@ -5,10 +5,10 @@ from flask import render_template, redirect, request, url_for, flash, abort, cur
 from flask_login import login_user, logout_user, login_required, current_user
 from . import contest
 from .. import db
-from ..models import Role, User, Permission, OJList, Problem, SubmissionStatus, CompileInfo, Contest, Logs, Tag, ContestUsers, Topic
+from ..models import Role, User, Permission, OJList, Problem, SubmissionStatus, CompileInfo, Contest, Logs, Tag, ContestUsers, Topic, KeyValue
 from .forms import PasswordRegisterForm, SubmitForm
 from ..decorators import admin_required, permission_required
-from datetime import datetime
+from datetime import datetime, timedelta
 import base64, time
 
 
@@ -437,18 +437,31 @@ def contest_ranklist(contest_id):
         data_struct:
         ranklist = [{username': (str), 'total_ac': (int), 'total_time': (int), 'submission_detail': {problem_index : {'submission_num': (int), 'ac': bool, 'first_blood': bool, 'time': (int)}}}]
     '''
+
     contest = Contest.query.get_or_404(contest_id)
     result = in_contest(contest, current_user.id)
     if not result[0]:
         return result[1]
-    users = contest.users.all()
+    now = datetime.utcnow()
+    sec_now = time.mktime(now.timetuple())
+    sec_init = time.mktime(contest.start_time.timetuple())
+    sec_end = time.mktime(contest.end_time.timetuple())
     problems = contest.problems.all()
+    ranklists_table_in_database = KeyValue.query.filter_by(key='contest_rank_%s' % str(contest.id)).first()
+    if contest.end_time < now or contest.last_generate_rank + timedelta(seconds=10) > now:
+        if ranklists_table_in_database is None:
+            ranklists = ''
+        else:
+            ranklists = ranklists_table_in_database.value
+        return render_template('contest/contest_ranklist.html', ranklists=ranklists, problems=problems, contest=contest, contest_id=contest_id, sec_now=sec_now, sec_init=sec_init, sec_end=sec_end)
+    users = contest.users.all()
     ranklists = []
     for user in users:
         if user.user.is_admin() or contest.manager_username==user.user.username:
             continue
         user_total = {}
         user_total['username'] = user.user.username
+        user_total['realname'] = user.realname if user.realname else user.user.nickname
         user_total['submission_detail'] = {}
         user_total['total_time'] = 0
         user_total['total_ac'] = 0
@@ -479,11 +492,49 @@ def contest_ranklist(contest_id):
                     user_total['submission_detail'][problem.problem_index]['first_blood'] = True
                     break
     ranklists.sort(cmp=cmp_ranklist)
-    now = datetime.utcnow()
-    sec_now = time.mktime(now.timetuple())
-    sec_init = time.mktime(contest.start_time.timetuple())
-    sec_end = time.mktime(contest.end_time.timetuple())
-    return render_template('contest/contest_ranklist.html', ranklists=ranklists, problems=problems, contest=contest, contest_id=contest_id, sec_now=sec_now, sec_init=sec_init, sec_end=sec_end)
+    # generate html ranklist
+    ranklist_table = ''
+    for ranklist in ranklists:
+        ranklist_table += '<tr><td>'
+        ranklist_table += ranklist['realname']
+        ranklist_table += '</td><td>'
+        ranklist_table += str(ranklist['total_ac'])
+        ranklist_table += '</td><td>'
+        ranklist_table += str(ranklist['total_time'])
+        ranklist_table += '</td>'
+        for problem in ranklist['submission_detail']:
+            ranklist_table += '<td '
+            if ranklist['submission_detail'][problem]['first_blood']:
+                ranklist_table += 'class="firstaccept">'
+            elif ranklist['submission_detail'][problem]['ac']:
+                ranklist_table += 'class="accept">'
+            elif ranklist['submission_detail'][problem]['submission_num'] > 0:
+                ranklist_table += 'class="wrong">'
+            if ranklist['submission_detail'][problem]['submission_num'] > 0:
+                ranklist_table += str(ranklist['submission_detail'][problem]['submission_num'])
+            else:
+                ranklist_table += '-'
+            ranklist_table += '/'
+            if ranklist['submission_detail'][problem]['ac']:
+                ranklist_table += str(ranklist['submission_detail'][problem]['time'])
+            else:
+                ranklist_table += '--'
+            ranklist_table += '</td>'
+        ranklist_table += '</tr>'
+
+    if ranklists_table_in_database is None:
+        newKV = KeyValue(key='contest_rank_%s'% str(contest.id), value=ranklist_table)
+        contest.last_generate_rank = now
+        db.session.add(newKV)
+        db.session.add(contest)
+        db.session.commit()
+    else:
+        ranklists_table_in_database.value = ranklist_table
+        contest.last_generate_rank = now
+        db.session.add(ranklists_table_in_database)
+        db.session.add(contest)
+        db.session.commit()
+    return render_template('contest/contest_ranklist.html', ranklists=ranklist_table, problems=problems, contest=contest, contest_id=contest_id, sec_now=sec_now, sec_init=sec_init, sec_end=sec_end)
 
 
 def cmp_ranklist(a, b):

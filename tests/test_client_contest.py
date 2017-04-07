@@ -6,6 +6,7 @@ from flask import url_for
 from flask_login import login_user
 from app import create_app, db
 from app.models import User, Role, Problem, Contest
+import time
 
 class FlaskClientTestCase(unittest.TestCase):
 
@@ -396,7 +397,7 @@ class FlaskClientTestCase(unittest.TestCase):
             'end_time': '2019-11-11 10:11',
             'type': '1',
             'password': 'thisisatest',
-            'manager': 'test2',
+            'manager': 'test2'
         }, follow_redirects=True)
         self.assertTrue(b'编辑比赛题目' in response.data)
         # add problem
@@ -442,4 +443,7 @@ class FlaskClientTestCase(unittest.TestCase):
             'password': '123456'
         }, follow_redirects=True)
         response = self.client.get(url_for('contest.contest_ranklist', contest_id=1),follow_redirects=True)
+        self.assertTrue(b'accept' in response.data)
+        time.sleep(20)
+        response = self.client.get(url_for('contest.contest_ranklist', contest_id=1), follow_redirects=True)
         self.assertTrue(b'accept' in response.data)

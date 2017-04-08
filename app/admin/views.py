@@ -807,7 +807,7 @@ def add_contest_problem(contest_id):
                 return redirect(url_for('admin.add_contest_problem', contest_id=contest_id))
             contest_problem = ContestProblem(contest=contest, problem=problem)
             contest_problem.problem_index = contest.problems.count() + 1000
-            if form.problem_alias != '':
+            if form.problem_alias != '' and form.problem_alias is not None:
                 contest_problem.problem_alias = form.problem_alias.data
             else:
                 contest_problem.problem_alias = problem.problem_title

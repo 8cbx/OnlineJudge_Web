@@ -180,7 +180,7 @@ def problem_edit(problem_id):
     form.sample_output.data = problem.sample_output
     form.source_name.data = problem.source_name
     form.hint.data = problem.hint
-    form.author.data = problem.hint
+    form.author.data = problem.author
     form.visible.data = problem.visible
     form.tags.data = problem.tags
     return render_template('admin/problem_edit.html', form=form, problem=problem)

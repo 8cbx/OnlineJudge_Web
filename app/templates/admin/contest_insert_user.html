@@ -1,0 +1,61 @@
+{% extends "admin/base.html" %}
+{% block head %}
+{{ super() }}
+<script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
+{% endblock %}
+{% block content %}
+       <div class="right_col" role="main">
+          <!-- top tiles -->
+          <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">导入比赛用户
+                    <small>{{ contest.contest_name }}</small>
+                </h1>
+                <ol class="breadcrumb">
+                    <li><a href="{{ url_for('index.index_page') }}">Home</a>
+                    </li>
+                    <li class="active">Admin</li>
+                    <li class="active">Insert Contest User</li>
+                </ol>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <div class="row">
+            <div class="col-lg-12">
+            	<div class="col-lg-2">
+            	</div>
+                <div class="col-lg-8">
+                    <h3>用户列表需要用英文分号分隔(结尾的数据后面不能有分号)，形式如下，不能缺项：user_realname, student_num, school, phone_num, username, password, email; test3, 2010000, MIT, 15555555555, test4, 123456, test3@test4.com</h3>
+                    <form method="post" class="form-horizontal">
+                    {{ form.hidden_tag() }}
+                    <div class="form-group has-feedback{% if form.user_list.errors %} has-error{% endif %}">
+                        {{ form.user_list.label(for="inputUserinfo", class="col-sm-2 control-label") }}
+                        <div class="col-sm-8">
+                            {{ form.user_list(type="text", class="form-control", placeholder="用户csv信息", rows="20") }}
+                            {% if form.user_list.errors %}
+                            <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                            <span id="inputError" class="sr-only">(error)</span>
+                                {% for error in form.user_list.errors %}
+                                    <span id="helpBlock" class="help-block">
+                                    {{ error }}
+                                    </span>
+                                {% endfor%}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-8">
+                            {{ form.submit(class="btn btn-default btn-block btn btn-primary") }}
+                        </div>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+
+
+
+        </div>
+{% endblock %}

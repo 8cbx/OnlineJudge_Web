@@ -63,7 +63,7 @@ def contest_detail(contest_id):
     if contest.manager_username == current_user.username or current_user.is_admin():
         if is_in_contest is None:
             return redirect(url_for('contest.open_contest_register', contest_id=contest_id))
-        return render_template('contest/contest_detail.html', contest=contest, contest_id=contest_id, sec_now = sec_now, sec_init = sec_init, sec_end = sec_end)
+        return render_template('contest/contest_detail.html', contest=contest, contest_id=contest_id, sec_now = sec_now, sec_init = sec_init, sec_end = sec_end, is_in_contest=is_in_contest)
     if is_in_contest is None:
         if contest.style == 1:
             return redirect(url_for('contest.open_contest_register', contest_id=contest_id))
@@ -76,7 +76,7 @@ def contest_detail(contest_id):
         elif contest.style == 5:
             flash(u'本场比赛为正式比赛，您无权参加!')
             return redirect(url_for('contest.contest_list'))
-    return render_template('contest/contest_detail.html', contest=contest ,contest_id=contest_id, sec_now = sec_now, sec_init = sec_init, sec_end = sec_end)
+    return render_template('contest/contest_detail.html', contest=contest ,contest_id=contest_id, sec_now = sec_now, sec_init = sec_init, sec_end = sec_end, is_in_contest=is_in_contest)
 
 
 @contest.route('/<int:contest_id>/open_register', methods=['GET', 'POST'])
@@ -124,14 +124,15 @@ def private_contest_pre_register(contest_id):
     contest = Contest.query.get_or_404(contest_id)
     if contest.style != 2 and contest.style != 4:
         abort(404)
-    if contest.users.filter_by(user_id=current_user.id).first() is not None:
+    is_in_contest = contest.users.filter_by(user_id=current_user.id).first()
+    if is_in_contest is not None:
         flash(u'您已注册！')
         return redirect(url_for('contest.contest_detail', contest_id=contest_id))
     now = datetime.utcnow()
     sec_now = time.mktime(now.timetuple())
     sec_init = time.mktime(contest.start_time.timetuple())
     sec_end = time.mktime(contest.end_time.timetuple())
-    return render_template('contest/contest_private_register.html', contest=contest, sec_now = sec_now, sec_init = sec_init, sec_end = sec_end, contest_id=contest_id)
+    return render_template('contest/contest_private_register.html', contest=contest, sec_now = sec_now, sec_init = sec_init, sec_end = sec_end, contest_id=contest_id, is_in_contest=is_in_contest)
 
 
 @contest.route('/<int:contest_id>/private_register', methods=['GET', 'POST'])
@@ -180,7 +181,8 @@ def password_contest_register(contest_id):
     contest = Contest.query.get_or_404(contest_id)
     if contest.style != 3:
         abort(404)
-    if contest.users.filter_by(user_id=current_user.id).first() is not None:
+    is_in_contest = contest.users.filter_by(user_id=current_user.id).first()
+    if is_in_contest is not None:
         flash(u'您已注册！')
         return redirect(url_for('contest.contest_detail', contest_id=contest_id))
     now = datetime.utcnow()
@@ -208,7 +210,7 @@ def password_contest_register(contest_id):
         else:
             flash(u'密码错误!')
             return redirect(url_for('contest.password_contest_register', contest_id=contest_id))
-    return render_template('contest/contest_password_register.html', contest=contest, form=form, sec_now = sec_now, sec_init = sec_init, sec_end = sec_end, contest_id=contest_id)
+    return render_template('contest/contest_password_register.html', contest=contest, form=form, sec_now = sec_now, sec_init = sec_init, sec_end = sec_end, contest_id=contest_id, is_in_contest=is_in_contest)
 
 
 @contest.route('/<int:contest_id>/checking', methods=['GET', 'POST'])
@@ -273,20 +275,20 @@ def contest_problem_list(contest_id):
     '''
     contest = Contest.query.get_or_404(contest_id)
     now = datetime.utcnow()
-    # is_in_contest = contest.users.filter_by(user_id=current_user.id).first()
+    is_in_contest = contest.users.filter_by(user_id=current_user.id).first()
     problems = contest.problems.all()
     sec_now = time.mktime(now.timetuple())
     sec_init = time.mktime(contest.start_time.timetuple())
     sec_end = time.mktime(contest.end_time.timetuple())
     if contest.manager_username == current_user.username or current_user.is_admin():
-        return render_template('contest/contest_problem_list.html', contest=contest, problems=problems, contest_id=contest_id, sec_now = sec_now, sec_init = sec_init, sec_end = sec_end)
+        return render_template('contest/contest_problem_list.html', contest=contest, problems=problems, contest_id=contest_id, sec_now = sec_now, sec_init = sec_init, sec_end = sec_end, is_in_contest=is_in_contest)
     result = in_contest(contest, current_user.id)
     if not result[0]:
         return result[1]
     if contest.start_time > now:
         flash(u'比赛尚未开始，请等待！')
         return redirect(url_for('contest.contest_detail',contest_id=contest_id))
-    return render_template('contest/contest_problem_list.html', contest=contest, problems=problems ,contest_id=contest_id, sec_now = sec_now, sec_init = sec_init, sec_end = sec_end)
+    return render_template('contest/contest_problem_list.html', contest=contest, problems=problems ,contest_id=contest_id, sec_now = sec_now, sec_init = sec_init, sec_end = sec_end, is_in_contest=is_in_contest)
 
 
 @contest.route('/<int:contest_id>/problem/<int:problem_index>', methods=['GET', 'POST'])

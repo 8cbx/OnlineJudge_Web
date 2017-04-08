@@ -9,7 +9,7 @@ from ..models import Role, User, Permission, OJList, Problem, SubmissionStatus, 
 from werkzeug.utils import secure_filename
 from ..decorators import admin_required, permission_required
 from datetime import datetime, timedelta
-from .forms import ModifyProblem, ModifyTag, ModifyUser, ModifyOJStatus, ModifySubmissionStatus, ModifyBlog, ModifyContest, AddContestProblem
+from .forms import ModifyProblem, ModifyTag, ModifyUser, ModifyOJStatus, ModifySubmissionStatus, ModifyBlog, ModifyContest, AddContestProblem, ContestUserInsert
 import os, base64, json
 
 @admin.route('/')
@@ -890,3 +890,69 @@ def rejudge_contest_problem(contest_id):
     else:
         flash(u'请指定题目ID')
     return redirect(url_for('admin.contest_detail', contest_id=contest_id))
+
+
+@admin.route('/contest/insert_user/<int:contest_id>', methods=['GET', 'POST'])
+@admin_required
+def contest_insert_user(contest_id):
+
+    '''
+        define operation about insert user into contest
+    :param contest_id: contest_id
+    :return: page
+    '''
+
+    '''
+        users = ["user_realname, student_num, school, phone_num, username, password, email", ....]
+        用户名和密码不能跨网站更新,当前用户名和邮箱冲突的话会强制更新用户名的邮箱
+    '''
+    contest = Contest.query.get_or_404(contest_id)
+    form = ContestUserInsert()
+    if form.validate_on_submit():
+        users = form.user_list.data.strip().split(';')
+        user_to_insert = []
+        for user in users:
+            user = user.strip()
+            user_detail = user.split(',')
+            if len(user_detail) != 7:
+                flash(u'输入的用户数据错误, 每个数据行只能有7个元素,数据行间以英文分号分隔!')
+                return redirect(url_for('admin.contest_insert_user',contest_id=contest_id))
+            find_user = User.query.filter_by(username=user_detail[4].strip()).first()
+            if find_user is not None:
+                find_user.realname = user_detail[0].strip()
+                find_user.student_num = user_detail[1].strip()
+                find_user.school = user_detail[2].strip()
+                find_user.phone_num = user_detail[3].strip()
+                find_user.password = user_detail[5].strip()
+                find_user.email = user_detail[6].strip()
+                find_user.confirmed = True
+            else:
+                find_user = User()
+                find_user.username = user_detail[4].strip()
+                find_user.realname = user_detail[0].strip()
+                find_user.student_num = user_detail[1].strip()
+                find_user.school = user_detail[2].strip()
+                find_user.phone_num = user_detail[3].strip()
+                find_user.password = user_detail[5].strip()
+                find_user.email = user_detail[6].strip()
+                find_user.confirmed = True
+            user_to_insert.append(find_user)
+        for user in user_to_insert:
+            db.session.add(user)
+            db.session.commit()
+            contest_user = ContestUsers(
+                user_id=user.id,
+                contest_id=contest_id,
+                realname=user.realname,
+                address=user.address,
+                school=user.school,
+                student_num=user.student_num,
+                phone_num=user.phone_num,
+                user_confirmed=True,
+                register_time=datetime.utcnow()
+            )
+            db.session.add(contest_user)
+            db.session.commit()
+        flash(u'插入用户成功!')
+        return redirect(url_for('admin.contest_detail', contest_id=contest_id))
+    return render_template('admin/contest_insert_user.html', form=form, contest=contest)

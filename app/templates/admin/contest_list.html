@@ -67,7 +67,7 @@
                               <td>等待开始</td>
                               {% endif %}
                               <td>{{ contest.manager_username }}</td>
-                              <td><a href="{{ url_for('admin.contest_edit', contest_id=contest.id) }}"><button class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span> 编辑</button></a><a href="{{ url_for('admin.add_contest_problem', contest_id=contest.id) }}"><button class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span> 编辑比赛题目</button></a></td>
+                              <td><a href="{{ url_for('admin.contest_edit', contest_id=contest.id) }}"><button class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span> 编辑</button></a><a href="{{ url_for('admin.add_contest_problem', contest_id=contest.id) }}"><button class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span> 编辑比赛题目</button></a><a href="{{ url_for('admin.contest_insert_user', contest_id=contest.id) }}"><button class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span> 导入用户数据</button></a></td>
                            </tr>
                            {% endfor %}
                         </tbody>

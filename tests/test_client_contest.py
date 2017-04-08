@@ -595,3 +595,67 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get(url_for('contest.contest_status_list', contest_id=1), follow_redirects=True)
         self.assertTrue(response.status_code == 200)
         self.assertTrue(b'Waiting' in response.data)
+
+    def test_contest_insert_user(self):
+
+        '''
+            test if the insert user into contest func is good
+        :return: None
+        '''
+
+        u = User(username='test2', password='123456', email='test2@test.com', confirmed=True)
+        u2 = User(username='test3', password='123456', email='test3@test.com', confirmed=True)
+        u.role_id = Role.query.filter_by(permission=0xff).first().id
+        db.session.add(u)
+        db.session.add(u2)
+        db.session.commit()
+        # user login
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test2',
+            'password': '123456'
+        }, follow_redirects=True)
+        # add type 5 contest
+        response = self.client.post(url_for('admin.contest_insert'), data={
+            'contest_name': 'contest_test',
+            'start_time': '2001-11-11 10:10',
+            'end_time': '2001-11-11 10:11',
+            'type': '5',
+            'password': 'thisisatest',
+            'manager': 'test2',
+        }, follow_redirects=True)
+        self.assertTrue(b'编辑比赛题目' in response.data)
+        response = self.client.get(url_for('auth.logout'))
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test3',
+            'password': '123456'
+        }, follow_redirects=True)
+        response = self.client.get(url_for('contest.contest_detail', contest_id=1), follow_redirects=True)
+        self.assertTrue(b'本场比赛为正式比赛' in response.data)
+        response = self.client.get(url_for('auth.logout'))
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test2',
+            'password': '123456'
+        }, follow_redirects=True)
+        response = self.client.post(url_for('admin.contest_insert_user', contest_id=1), data={
+            'user_list': 'test3, 2010000, MIT, 15555555555, test3, 1234567, test3@test3.com; test3, 2010000, MIT, 15555555555, test4, 123456'
+        }, follow_redirects=True)
+        self.assertTrue(b'输入的用户数据错误' in response.data)
+        response = self.client.post(url_for('admin.contest_insert_user', contest_id=1), data={
+            'user_list': 'test3, 2010000, MIT, 15555555555, test3, 1234567, test3@test3.com; test3, 2010000, MIT, 15555555555, test4, 123456, test3@test4.com'
+        }, follow_redirects=True)
+        self.assertTrue(b'插入用户成功' in response.data)
+        response = self.client.get(url_for('auth.logout'))
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test3',
+            'password': '1234567'
+        }, follow_redirects=True)
+        response = self.client.get(url_for('contest.contest_detail', contest_id=1), follow_redirects=True)
+        self.assertTrue(b'已注册并确认' in response.data)
+        response = self.client.get(url_for('auth.logout'))
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test4',
+            'password': '123456'
+        }, follow_redirects=True)
+        response = self.client.get(url_for('contest.contest_detail', contest_id=1), follow_redirects=True)
+        self.assertTrue(b'已注册并确认' in response.data)
+

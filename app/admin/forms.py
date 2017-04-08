@@ -222,3 +222,13 @@ class AddContestProblem(FlaskForm):
     problem_id = IntegerField(u'题目ID', validators=[DataRequired()])
     problem_alias = StringField(u'题目别名', validators=[Length(0, 64)])
     submit = SubmitField(u'提交')
+
+
+class ContestUserInsert(FlaskForm):
+
+    '''
+        define add contest user form
+    '''
+
+    user_list = TextAreaField(u'用户csv信息', validators=[DataRequired()])
+    submit = SubmitField(u'提交')

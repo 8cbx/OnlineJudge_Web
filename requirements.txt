@@ -21,6 +21,7 @@ Flask-Moment==0.5.1
 Flask-Script==2.0.5
 Flask-SQLAlchemy==2.2
 Flask-WTF==0.14.2
+gunicorn==19.7.1
 isort==4.2.5
 itsdangerous==0.24
 Jinja2==2.9.5

@@ -448,7 +448,12 @@ def contest_ranklist(contest_id):
     sec_end = time.mktime(contest.end_time.timetuple())
     problems = contest.problems.all()
     ranklists_table_in_database = KeyValue.query.filter_by(key='contest_rank_%s' % str(contest.id)).first()
-    if contest.end_time < now or contest.last_generate_rank + timedelta(seconds=10) > now:
+    # frozen rank setting
+    if contest.rank_frozen:
+        delay = timedelta(hours=1)
+    else:
+        delay = timedelta(hours=0)
+    if contest.end_time - delay < now or contest.last_generate_rank + timedelta(seconds=10) > now:
         if ranklists_table_in_database is None:
             ranklists = ''
         else:
@@ -486,11 +491,15 @@ def contest_ranklist(contest_id):
         ranklists.append(user_total)
     for problem in problems:
         submissions = contest.submissions.filter_by(problem_id=problem.problem_id, status=current_app.config['LOCAL_SUBMISSION_STATUS']['Accepted']).order_by(SubmissionStatus.id.asc()).limit(20)
+        flag = False
         for submission in submissions:
             for user_total in ranklists:
                 if user_total['username'] == submission.author_username:
                     user_total['submission_detail'][problem.problem_index]['first_blood'] = True
+                    flag = True
                     break
+            if flag:
+                break
     ranklists.sort(cmp=cmp_ranklist)
     # generate html ranklist
     ranklist_table = ''
@@ -524,6 +533,128 @@ def contest_ranklist(contest_id):
 
     if ranklists_table_in_database is None:
         newKV = KeyValue(key='contest_rank_%s'% str(contest.id), value=ranklist_table)
+        contest.last_generate_rank = now
+        db.session.add(newKV)
+        db.session.add(contest)
+        db.session.commit()
+    else:
+        ranklists_table_in_database.value = ranklist_table
+        contest.last_generate_rank = now
+        db.session.add(ranklists_table_in_database)
+        db.session.add(contest)
+        db.session.commit()
+    return render_template('contest/contest_ranklist.html', ranklists=ranklist_table, problems=problems, contest=contest, contest_id=contest_id, sec_now=sec_now, sec_init=sec_init, sec_end=sec_end)
+
+
+@contest.route('/<int:contest_id>/ranklist_admin', methods=['GET', 'POST'])
+@login_required
+def contest_ranklist_admin(contest_id):
+
+    '''
+        define operation of showing ranklist
+    :param contest_id: contest_id
+    :return: page
+    '''
+
+    '''
+        data_struct:
+        ranklist = [{username': (str), 'total_ac': (int), 'total_time': (int), 'submission_detail': {problem_index : {'submission_num': (int), 'ac': bool, 'first_blood': bool, 'time': (int)}}}]
+    '''
+
+    contest = Contest.query.get_or_404(contest_id)
+    if current_user.username != contest.manager_username and (not current_user.is_admin()):
+        return redirect(url_for('contest.contest_ranklist', contest_id=contest.id))
+    now = datetime.utcnow()
+    sec_now = time.mktime(now.timetuple())
+    sec_init = time.mktime(contest.start_time.timetuple())
+    sec_end = time.mktime(contest.end_time.timetuple())
+    problems = contest.problems.all()
+    ranklists_table_in_database = KeyValue.query.filter_by(key='contest_rank_%s_admin' % str(contest.id)).first()
+    # frozen rank setting
+    if contest.rank_frozen:
+        delay = timedelta(hours=1)
+    else:
+        delay = timedelta(hours=0)
+    if contest.end_time - delay < now or contest.last_generate_rank + timedelta(seconds=10) > now:
+        if ranklists_table_in_database is None:
+            ranklists = ''
+        else:
+            ranklists = ranklists_table_in_database.value
+        return render_template('contest/contest_ranklist.html', ranklists=ranklists, problems=problems, contest=contest, contest_id=contest_id, sec_now=sec_now, sec_init=sec_init, sec_end=sec_end)
+    users = contest.users.all()
+    ranklists = []
+    for user in users:
+        if user.user.is_admin() or contest.manager_username==user.user.username:
+            continue
+        user_total = {}
+        user_total['username'] = user.user.username
+        user_total['realname'] = user.realname if user.realname else user.user.nickname
+        user_total['submission_detail'] = {}
+        user_total['total_time'] = 0
+        user_total['total_ac'] = 0
+        for problem in problems:
+            status = contest.submissions.filter_by(problem_id=problem.problem_id, author_username=user_total['username']).order_by(SubmissionStatus.id.asc()).all()
+            problem_detail = {}
+            problem_detail['submission_num'] = 0
+            problem_detail['ac'] = False
+            problem_detail['first_blood'] = False
+            problem_detail['time'] = 0
+            for item in status:
+                if item.status == 1:
+                    problem_detail['ac'] = True
+                    user_total['total_ac'] += 1
+                    problem_detail['time'] = problem_detail['submission_num'] * 20 + (item.submit_time - contest.start_time).seconds / 60
+                    user_total['total_time'] += problem_detail['time']
+                    problem_detail['submission_num'] += 1
+                    break
+                else:
+                    problem_detail['submission_num'] += 1
+            user_total['submission_detail'][problem.problem_index] = problem_detail
+        ranklists.append(user_total)
+    for problem in problems:
+        submissions = contest.submissions.filter_by(problem_id=problem.problem_id, status=current_app.config['LOCAL_SUBMISSION_STATUS']['Accepted']).order_by(SubmissionStatus.id.asc()).limit(20)
+        flag = False
+        for submission in submissions:
+            for user_total in ranklists:
+                if user_total['username'] == submission.author_username:
+                    user_total['submission_detail'][problem.problem_index]['first_blood'] = True
+                    flag = True
+                    break
+            if flag:
+                break
+    ranklists.sort(cmp=cmp_ranklist)
+    # generate html ranklist
+    ranklist_table = ''
+    for ranklist in ranklists:
+        ranklist_table += '<tr><td>'
+        ranklist_table += ranklist['realname']
+        ranklist_table += '</td><td>'
+        ranklist_table += str(ranklist['total_ac'])
+        ranklist_table += '</td><td>'
+        ranklist_table += str(ranklist['total_time'])
+        ranklist_table += '</td>'
+        for problem in ranklist['submission_detail']:
+            ranklist_table += '<td '
+            if ranklist['submission_detail'][problem]['first_blood']:
+                ranklist_table += 'class="firstaccept">'
+            elif ranklist['submission_detail'][problem]['ac']:
+                ranklist_table += 'class="accept">'
+            elif ranklist['submission_detail'][problem]['submission_num'] > 0:
+                ranklist_table += 'class="wrong">'
+            if ranklist['submission_detail'][problem]['submission_num'] > 0:
+                ranklist_table += str(ranklist['submission_detail'][problem]['submission_num'])
+            else:
+                ranklist_table += '-'
+            ranklist_table += '/'
+            if ranklist['submission_detail'][problem]['ac']:
+                ranklist_table += str(ranklist['submission_detail'][problem]['time'])
+            else:
+                ranklist_table += '--'
+            ranklist_table += '</td>'
+        ranklist_table += '</tr>'
+
+    if ranklists_table_in_database is None:
+        newKV = KeyValue(key='contest_rank_%s_admin'% str(contest.id), value=ranklist_table)
         contest.last_generate_rank = now
         db.session.add(newKV)
         db.session.add(contest)

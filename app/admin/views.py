@@ -855,3 +855,38 @@ def delete_contest_problem(contest_id):
     else:
         flash(u'请指定题目ID')
     return redirect(url_for('admin.add_contest_problem', contest_id=contest_id))
+
+
+@admin.route('/contest/edit/rejudge/<int:contest_id>', methods=['GET', 'POST'])
+@admin_required
+def rejudge_contest_problem(contest_id):
+
+    '''
+        define operation about rejudge contest problem
+    :param contest_id: contest_id
+    :return: redirect
+    '''
+
+    contest = Contest.query.get_or_404(contest_id)
+    # get problem_id from GET request
+    problem_id = request.args.get('problem_id', -1, type=int)
+    # if we get a problem id
+    if problem_id != -1:
+        # try to get the problem
+        problem = Problem.query.get(problem_id)
+        # the problem id is valid
+        if problem is not None:
+                # rejudge it
+            submissions = contest.submissions.filter_by(problem_id=problem.id).all()
+            for item in submissions:
+                item.status = 0
+                db.session.add(item)
+            db.session.commit()
+            current_user.log_operation('Rejudge problem %s from contest %s, problem id is %s, contest_id is %s' % (
+            problem.title, contest.contest_name, str(problem.id), str(contest.id)))
+            flash(u'rejudge请求提交成功')
+        else:
+            flash(u'题目列表中不存在该题目！')
+    else:
+        flash(u'请指定题目ID')
+    return redirect(url_for('admin.contest_detail', contest_id=contest_id))

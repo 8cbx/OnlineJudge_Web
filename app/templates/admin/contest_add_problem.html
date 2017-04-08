@@ -43,7 +43,7 @@
                                 <th>{{ problem.problem.id }}</th>
                                 <th>{{ problem.problem.title }}</th>
                                 <th>{{ problem.problem_alias }}</th>
-                                <th><a href="{{ url_for('admin.delete_contest_problem', problem_id=problem.problem.id, contest_id=contest.id) }}"><button class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span>删除</button></a></th>
+                                <th><a href="{{ url_for('admin.delete_contest_problem', problem_id=problem.problem.id, contest_id=contest.id) }}"><button class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span>删除</button></a><a href="{{ url_for('admin.rejudge_contest_problem', problem_id=problem.problem.id, contest_id=contest.id) }}"><button class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span>ReJudge</button></a></th>
                             </tr>
                             {% endfor %}
                         </tbody>

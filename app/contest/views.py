@@ -90,7 +90,7 @@ def open_contest_register(contest_id):
     '''
 
     contest = Contest.query.get_or_404(contest_id)
-    if contest.style != 1:
+    if contest.style != 1 and contest.manager_username != current_user.username and (not current_user.is_admin()):
         abort(404)
     if contest.users.filter_by(user_id=current_user.id).first() is not None:
         flash(u'您已注册！')

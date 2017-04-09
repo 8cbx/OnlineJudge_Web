@@ -8,12 +8,12 @@ RUN apt-get update && apt-get -y install python-pip python-mysqldb python-dev vi
 
 # install requirement package
 
-COPY requirements.txt /opt/judge_contest/requirements.txt
-RUN pip install -r /opt/judge_contest/requirements.txt
+COPY requirements.txt /opt/judge_web/requirements.txt
+RUN pip install -r /opt/judge_web/requirements.txt
 
-ADD ./ /opt/judge_contest
+ADD ./ /opt/judge_web
 
-WORKDIR /opt/judge_contest
+WORKDIR /opt/judge_web
 VOLUME ["/root/data"]
 ENTRYPOINT ["./start.sh"]
 

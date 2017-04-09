@@ -75,7 +75,7 @@ def create_app(config_name):
             pre_fix = os.environ.get("HOSTNAME")
         else:
             pre_fix = ''
-        file_handler = RotatingFileHandler('./judge-%s.log' % pre_fix, 'a', 1*1024*1024, 10)
+        file_handler = RotatingFileHandler('./log/judge-%s.log' % pre_fix, 'a', 1*1024*1024, 10)
         file_handler.setFormatter(logging.Formatter( \
             '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s: %(lineno)d]'))
         app.logger.setLevel(logging.INFO)

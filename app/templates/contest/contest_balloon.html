@@ -37,9 +37,6 @@
                     </div>
             	</div>
                 <div class="col-lg-10">
-                    {% if pagination %}
-                        {{ macros.pagination_widget(pagination, 'contest.contest_status_list', contest_id=contest_id) }}
-                    {% endif %}
                     <table class="table table-striped table-hover">
                         <thead>
                             <tr>
@@ -47,34 +44,23 @@
                               <th>提交时间</th>
                               <th>评测状态</th>
                               <th>题目ID</th>
-                              <th>运行时间</th>
-                              <th>运行内存</th>
-                              <th>代码长度</th>
-                              <th>语言</th>
                               <th>提交用户</th>
+                              <th>send</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {% for status in status %}
+                            {% for status in submissions %}
                             <tr>
-                            {% if current_user.username == status.author_username or current_user.is_admin() or current_user.username == status.contest.manager_username%}
                               <td>{{ status.id }}</td>
                               <td>{{ moment(status.submit_time).format('LLL')  }}</td>
                               <td>{{ status_list[status.status] }}</td>
                               <td><a href="{{ url_for('contest.contest_problem_detail', contest_id=contest_id, problem_index=status.contest.problems.filter_by(problem_id=status.problem_id).first().problem_index) }}">{{ status.contest.problems.filter_by(problem_id=status.problem_id).first().problem_index }}</a></td>
-                              <td>{% if status.status != 0 and status.status != 10 %}{{ status.exec_time }}ms{% else %}-{% endif %}</td>
-                              <td>{% if status.status != 0 and status.status != 10 %}{{ status.exec_memory }}k{% else %}-{% endif %}</td>
-                              <td><a href="{{ url_for('contest.contest_status_detail', contest_id=contest_id, run_id=status.id) }}">{{ status.code_length }}B</a></td>
-                              <td>{{ language[status.language] }}</td>
                               <td><a href="{{ url_for('auth.user_detail', username=status.author_username) }}">{{ status.author_username }}</a></td>
+                              <td><a href="{{ url_for('contest.contest_sent_balloon', contest_id=contest_id, run_id=status.id) }}"><button class="btn btn-default"><span class="glyphicon glyphicon-send"></span> SEND</button></a></td>
                           </tr>
-                          {% endif %}
                           {% endfor %}
                          </tbody>
                     </table>
-                    {% if pagination %}
-                        {{ macros.pagination_widget(pagination, 'contest.contest_status_list', contest_id=contest_id) }}
-                    {% endif %}
                 </div>
             </div>
         </div>

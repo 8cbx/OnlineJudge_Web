@@ -32,6 +32,7 @@
                         {% if contest.manager_username == current_user.username or current_user.is_admin()  %}
                         <a href="{{ url_for('contest.contest_user_check', contest_id=contest_id) }}" class="list-group-item">Confirm</a>
                         <a href="{{ url_for('contest.contest_ranklist_admin', contest_id=contest_id) }}" class="list-group-item">排行榜(管理员)</a>
+                        <a href="{{ url_for('contest.contest_show_balloon', contest_id=contest_id) }}" class="list-group-item">发送气球</a>
                         {% endif %}
                     </div>
             	</div>

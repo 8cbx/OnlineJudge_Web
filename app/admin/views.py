@@ -96,12 +96,18 @@ def problem_insert():
         problem.hint = form.hint.data
         problem.author = form.author.data
         problem.visible = form.visible.data
-        for i in form.tags.data:
-            t = TagProblem(tag=Tag.query.get(i), problem=problem)
-            db.session.add(t)
-            # db.session.commit()
         problem.last_update = datetime.utcnow()
         db.session.add(problem)
+        db.session.commit()
+        # add tags to the problem, delete old tags
+        t = TagProblem.query.filter_by(problem_id=problem.id).all()
+        for tag in t:
+            db.session.delete(t)
+        db.session.commit()
+        for i in form.tags.data:
+            t = TagProblem(tag_id=i, problem_id=problem.id)
+            db.session.add(t)
+            # db.session.commit()
         db.session.commit()
         current_user.log_operation('Insert problem "%s", problem_id is %s' % (problem.title, str(problem.id)))
         return redirect(url_for('admin.problem_list'))
@@ -155,9 +161,13 @@ def problem_edit(problem_id):
         problem.hint = form.hint.data
         problem.author = form.author.data
         problem.visible = form.visible.data
-        # add tags to the problem, tag and problems are primary key, so it can't be duplicate
+        # add tags to the problem, delete old tags
+        t = TagProblem.query.filter_by(problem_id=problem.id).all()
+        for tag in t:
+            db.session.delete(tag)
+        db.session.commit()
         for i in form.tags.data:
-            t = TagProblem(tag=Tag.query.get(i), problems=problem)
+            t = TagProblem(tag_id=i, problem_id=problem.id)
             db.session.add(t)
             # db.session.commit()
         problem.last_update = datetime.utcnow()

@@ -524,7 +524,7 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get(url_for('contest.contest_ranklist_admin', contest_id=1), follow_redirects=True)
         self.assertTrue(b'accept' in response.data)
 
-    def test_rejudge(self):
+    def test_rejudge_and_sendballoon(self):
 
         '''
             test rejudge func
@@ -583,6 +583,28 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get(url_for('contest.contest_status_list', contest_id=1), follow_redirects=True)
         self.assertTrue(response.status_code == 200)
         self.assertTrue(b'Accept' in response.data)
+        # send balloon
+        response = self.client.get(url_for('contest.contest_show_balloon', contest_id=1), follow_redirects=True)
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(b'Accept' in response.data)
+        response = self.client.get(url_for('contest.contest_sent_balloon', contest_id=1, run_id=1), follow_redirects=True)
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(b'已发送气球' in response.data)
+        self.assertFalse(b'Accept' in response.data)
+        response = self.client.get(url_for('auth.logout'))
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test3',
+            'password': '123456'
+        }, follow_redirects=True)
+        response = self.client.get(url_for('contest.contest_show_balloon', contest_id=1), follow_redirects=True)
+        self.assertTrue(response.status_code == 403)
+        response = self.client.get(url_for('contest.contest_sent_balloon', contest_id=1, run_id=1),follow_redirects=True)
+        self.assertTrue(response.status_code == 403)
+        response = self.client.get(url_for('auth.logout'))
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test2',
+            'password': '123456'
+        }, follow_redirects=True)
         response = self.client.get(url_for('admin.rejudge_contest_problem', contest_id=1), follow_redirects=True)
         self.assertTrue(response.status_code == 200)
         self.assertTrue(b'请指定题目ID' in response.data)

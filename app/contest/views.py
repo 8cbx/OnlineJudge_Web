@@ -694,3 +694,45 @@ def cmp_ranklist(a, b):
             return 1
     else:
         return 1
+
+@contest.route('/balloon/<int:contest_id>', methods=['GET', 'POST'])
+@login_required
+def contest_show_balloon(contest_id):
+
+    '''
+        define operation of show balloons to be sent
+    :param contest_id: contest_id
+    :return: page
+    '''
+
+    contest = Contest.query.get_or_404(contest_id)
+    if contest.manager_username != current_user.username and (current_user.is_admin() is False):
+        abort(403)
+    submissions = SubmissionStatus.query.filter_by(contest_id=contest_id, balloon_sent=False, status=current_app.config['LOCAL_SUBMISSION_STATUS']['Accepted']).order_by(SubmissionStatus.id.asc()).paginate(1, per_page=current_app.config['FLASKY_STATUS_PER_PAGE']).items
+    now = datetime.utcnow()
+    sec_now = time.mktime(now.timetuple())
+    sec_init = time.mktime(contest.start_time.timetuple())
+    sec_end = time.mktime(contest.end_time.timetuple())
+    status_list = {}
+    for k in current_app.config['LOCAL_SUBMISSION_STATUS'].keys():
+        status_list[current_app.config['LOCAL_SUBMISSION_STATUS'][k]] = k
+    return render_template('contest/contest_balloon.html', submissions=submissions, contest=contest, sec_now=sec_now, sec_init=sec_init, sec_end=sec_end, contest_id=contest_id, status_list=status_list)
+
+
+@contest.route('/balloon/<int:contest_id>/<int:run_id>', methods=['GET', 'POST'])
+@login_required
+def contest_sent_balloon(contest_id, run_id):
+
+    '''
+        define operation of sent balloons
+    :param run_id: submission run id
+    :return: page
+    '''
+
+    contest = Contest.query.get_or_404(contest_id)
+    if contest.manager_username != current_user.username and (current_user.is_admin() is False):
+        abort(403)
+    submission = SubmissionStatus.query.get_or_404(run_id)
+    submission.send_balloon()
+    flash(u'已发送气球')
+    return redirect(url_for('contest.contest_show_balloon', contest_id=contest_id))

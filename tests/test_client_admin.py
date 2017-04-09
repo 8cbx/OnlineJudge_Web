@@ -233,6 +233,10 @@ class FlaskClientTestCase(unittest.TestCase):
             'tag_name': 'thisisatag'
         }, follow_redirects=True)
         self.assertTrue(b'thisisatag' in response.data)
+        response = self.client.post(url_for('admin.tag_insert'), data={
+            'tag_name': 'thisisatag'
+        }, follow_redirects=True)
+        self.assertTrue(b'tag名称已存在' in response.data)
         response = self.client.post(url_for('admin.tag_edit', tag_id=1), data={
             'tag_name': 'thisisatag2'
         }, follow_redirects=True)

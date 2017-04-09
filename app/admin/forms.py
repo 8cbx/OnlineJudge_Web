@@ -62,6 +62,17 @@ class ModifyTag(FlaskForm):
     tag_name = StringField(u'标签名称', validators=[DataRequired(), Length(0, 32)])
     submit = SubmitField(u'提交')
 
+    def validate_tag_name(self, field):
+
+        '''
+            judge the email field is good for our need
+        :param field: field
+        :return: None
+        '''
+
+        if Tag.query.filter_by(tag_name=field.data).first():
+            raise ValidationError(u'tag名称已存在！')
+
 
 class ModifyUser(FlaskForm):
 

@@ -505,8 +505,10 @@ def contest_ranklist(contest_id):
     ranklists.sort(cmp=cmp_ranklist)
     # generate html ranklist
     ranklist_table = ''
-    for ranklist in ranklists:
+    for i, ranklist in enumerate(ranklists):
         ranklist_table += '<tr><td>'
+        ranklist_table += str(i+1)
+        ranklist_table += '</td><td>'
         ranklist_table += ranklist['realname']
         ranklist_table += '</td><td>'
         ranklist_table += str(ranklist['total_ac'])
@@ -627,8 +629,10 @@ def contest_ranklist_admin(contest_id):
     ranklists.sort(cmp=cmp_ranklist)
     # generate html ranklist
     ranklist_table = ''
-    for ranklist in ranklists:
+    for i, ranklist in enumerate(ranklists):
         ranklist_table += '<tr><td>'
+        ranklist_table += str(i+1)
+        ranklist_table += '</td><td>'
         ranklist_table += ranklist['realname']
         ranklist_table += '</td><td>'
         ranklist_table += str(ranklist['total_ac'])

@@ -15,6 +15,10 @@
     {%- endblock metas %}
 
     {%- block styles %}
+
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/modern-business.css') }}" rel="stylesheet">
+rel="stylesheet" type="text/css">
     <link href="{{ url_for('static', filename='vendors/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="{{ url_for('static', filename='vendors/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet">
@@ -176,6 +180,7 @@
     </div>
     {% block scripts %}
     <!-- jQuery -->
+    <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
     <script src="{{ url_for('static', filename='vendors/jquery/dist/jquery.min.js') }}"></script>
     <!-- Bootstrap -->
     <script src="{{ url_for('static', filename='vendors/bootstrap/dist/js/bootstrap.min.js') }}"></script>

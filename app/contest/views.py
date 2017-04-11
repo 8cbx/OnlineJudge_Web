@@ -305,7 +305,7 @@ def contest_problem_detail(contest_id, problem_index):
     contest = Contest.query.get_or_404(contest_id)
     result = in_contest(contest, current_user.id)
     now = datetime.utcnow()
-    if contest.start_time > now:
+    if contest.start_time > now and current_user.username != contest.manager_username and (not current_user.is_admin()):
         flash(u'比赛尚未开始，请等待！')
         return redirect(url_for('contest.contest_detail', contest_id=contest_id))
     sec_now = time.mktime(now.timetuple())
@@ -408,7 +408,7 @@ def contest_status_detail(run_id, contest_id):
     if not result[0]:
         return result[1]
     status = contest.submissions.filter_by(id=run_id).first_or_404()
-    if current_user.username != status.author_username and (not current_user.is_admin()):
+    if current_user.username != status.author_username and (not current_user.is_admin()) and current_user.username != contest.manager_username:
         return abort(403)
     code=base64.b64decode(status.code).decode('utf-8')
     ce_info = CompileInfo.query.filter_by(submission_id=status.id).first()

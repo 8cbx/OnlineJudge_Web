@@ -363,7 +363,7 @@ def contest_submit(contest_id, problem_index):
     if not result[0]:
         return result[1]
     now = datetime.utcnow()
-    if contest.start_time > now:
+    if contest.start_time > now and current_user.username != contest.manager_username and (not current_user.is_admin()):
         flash(u'比赛尚未开始，请等待！')
         return redirect(url_for('contest.contest_detail', contest_id=contest_id))
     if contest.end_time < now and current_user.username != contest.manager_username and (not current_user.is_admin()):

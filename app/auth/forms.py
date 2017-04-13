@@ -160,7 +160,7 @@ class EditProfileForm(FlaskForm):
     address = StringField(u'通讯地址', validators=[Length(0, 128)])
     school = StringField(u'学校', validators=[Length(0, 128)])
     student_num = StringField(u'学号', validators=[Length(0, 64)])
-    phone_num = StringField(u'手机号', validators=[Length(0, 32), Regexp('0?(13|14|15|18)[0-9]{9}', 0, u'非法手机号')])
+    phone_num = StringField(u'手机号', validators=[Length(0, 32), Regexp('0?(13|14|15|17|18)[0-9]{9}', 0, u'非法手机号')])
     about_me = TextAreaField(u'关于我', validators=[Length(0, 1024)])
     submit = SubmitField(u'提交')
 

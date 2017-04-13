@@ -331,7 +331,10 @@ def contest_status_list(contest_id):
     result = in_contest(contest, current_user.id)
     if not result[0]:
         return result[1]
-    pagination = SubmissionStatus.query.filter_by(contest_id=contest_id).order_by(SubmissionStatus.id.desc()).paginate(page, per_page=current_app.config['FLASKY_STATUS_PER_PAGE'])
+    if current_user.is_admin() or current_user.username == contest.manager_username:
+        pagination = SubmissionStatus.query.filter_by(contest_id=contest_id).order_by( SubmissionStatus.id.desc()).paginate(page, per_page=current_app.config['FLASKY_STATUS_PER_PAGE'])
+    else:
+        pagination = SubmissionStatus.query.filter_by(contest_id=contest_id, author_username=current_user.username).order_by(SubmissionStatus.id.desc()).paginate(page, per_page=current_app.config['FLASKY_STATUS_PER_PAGE'])
     status = pagination.items
     now = datetime.utcnow()
     sec_now = time.mktime(now.timetuple())
@@ -574,17 +577,6 @@ def contest_ranklist_admin(contest_id):
     sec_end = time.mktime(contest.end_time.timetuple())
     problems = contest.problems.all()
     ranklists_table_in_database = KeyValue.query.filter_by(key='contest_rank_%s_admin' % str(contest.id)).first()
-    # frozen rank setting
-    if contest.rank_frozen:
-        delay = timedelta(hours=1)
-    else:
-        delay = timedelta(hours=0)
-    if contest.end_time - delay < now or contest.last_generate_rank + timedelta(seconds=10) > now:
-        if ranklists_table_in_database is None:
-            ranklists = ''
-        else:
-            ranklists = ranklists_table_in_database.value
-        return render_template('contest/contest_ranklist.html', ranklists=ranklists, problems=problems, contest=contest, contest_id=contest_id, sec_now=sec_now, sec_init=sec_init, sec_end=sec_end)
     users = contest.users.all()
     ranklists = []
     for user in users:
@@ -658,19 +650,6 @@ def contest_ranklist_admin(contest_id):
                 ranklist_table += '--'
             ranklist_table += '</td>'
         ranklist_table += '</tr>'
-
-    if ranklists_table_in_database is None:
-        newKV = KeyValue(key='contest_rank_%s_admin'% str(contest.id), value=ranklist_table)
-        contest.last_generate_rank = now
-        db.session.add(newKV)
-        db.session.add(contest)
-        db.session.commit()
-    else:
-        ranklists_table_in_database.value = ranklist_table
-        contest.last_generate_rank = now
-        db.session.add(ranklists_table_in_database)
-        db.session.add(contest)
-        db.session.commit()
     return render_template('contest/contest_ranklist.html', ranklists=ranklist_table, problems=problems, contest=contest, contest_id=contest_id, sec_now=sec_now, sec_init=sec_init, sec_end=sec_end)
 
 

@@ -940,6 +940,7 @@ def contest_insert_user(contest_id):
                 find_user = User()
                 find_user.username = user_detail[4].strip()
                 find_user.realname = user_detail[0].strip()
+                find_user.nickname = user_detail[0].strip()
                 find_user.student_num = user_detail[1].strip()
                 find_user.school = user_detail[2].strip()
                 find_user.phone_num = user_detail[3].strip()

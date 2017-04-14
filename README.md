@@ -8,7 +8,7 @@ Online Judge用于学校程序设计竞赛的评判工作，本部分为Web端
 
 ## Getting Started
 
-None
+[项目详细文档](https://8cbx.github.io/OnlineJudge_Web/)
 
 ## Bugs and Issues
 

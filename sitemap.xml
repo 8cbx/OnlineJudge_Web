@@ -9,4 +9,48 @@
     </url>
     
 
+    
+    <url>
+     <loc>/deploy/</loc>
+     <lastmod>2017-04-14</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>/init/</loc>
+     <lastmod>2017-04-14</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>/start/</loc>
+     <lastmod>2017-04-14</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+        
+    <url>
+     <loc>/design/</loc>
+     <lastmod>2017-04-14</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    
+
+    
+        
+    <url>
+     <loc>/design/</loc>
+     <lastmod>2017-04-14</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    
+
 </urlset>

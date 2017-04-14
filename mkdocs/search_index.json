@@ -2,13 +2,43 @@
     "docs": [
         {
             "location": "/", 
-            "text": "\u6b22\u8fce\u6765\u5230 OnlineJudge_Web", 
-            "title": "Home"
+            "text": "\u6b22\u8fce\u6765\u5230 OnlineJudge_Web\n\n\n\n\n\n\n\n\nOnline Judge\u7528\u4e8e\u5b66\u6821\u7a0b\u5e8f\u8bbe\u8ba1\u7ade\u8d5b\u7684\u8bc4\u5224\u5de5\u4f5c\uff0c\u672c\u90e8\u5206\u4e3aWeb\u7aef\n\n\n\u9879\u76ee\u8bf4\u660e\n\n\n\n\n\u6574\u4e2a\u9879\u76ee\u5206\u4e3aWeb\u7aef\u548cJudge\u7aef\n\n\nWeb\u7aef\u53ef\u4f7f\u7528docker\u8fdb\u884c\u5feb\u901f\u90e8\u7f72\n\n\n\u90e8\u7f72\u65b9\u5f0f\u53ef\u4ee5\u9009\u62e9\u4e3a\u5355\u673a\u90e8\u7f72(\u5355Web\u5355Judge), \u591a\u673a\u90e8\u7f72(\u5355Web\u591aJudge\u548c\u5355\u8d1f\u8f7d\u5747\u8861+\u591aWeb\u591aJudge)\u4e09\u79cd\u65b9\u6848\n\n\n\u4f9d\u8d56celery\u548crabbitmq\u8fdb\u884c\u90e8\u5206\u4efb\u52a1\u7684\u5206\u53d1\u548c\u5904\u7406", 
+            "title": "Introduction"
         }, 
         {
             "location": "/#onlinejudge_web", 
-            "text": "", 
+            "text": "Online Judge\u7528\u4e8e\u5b66\u6821\u7a0b\u5e8f\u8bbe\u8ba1\u7ade\u8d5b\u7684\u8bc4\u5224\u5de5\u4f5c\uff0c\u672c\u90e8\u5206\u4e3aWeb\u7aef", 
             "title": "\u6b22\u8fce\u6765\u5230 OnlineJudge_Web"
+        }, 
+        {
+            "location": "/#_1", 
+            "text": "\u6574\u4e2a\u9879\u76ee\u5206\u4e3aWeb\u7aef\u548cJudge\u7aef  Web\u7aef\u53ef\u4f7f\u7528docker\u8fdb\u884c\u5feb\u901f\u90e8\u7f72  \u90e8\u7f72\u65b9\u5f0f\u53ef\u4ee5\u9009\u62e9\u4e3a\u5355\u673a\u90e8\u7f72(\u5355Web\u5355Judge), \u591a\u673a\u90e8\u7f72(\u5355Web\u591aJudge\u548c\u5355\u8d1f\u8f7d\u5747\u8861+\u591aWeb\u591aJudge)\u4e09\u79cd\u65b9\u6848  \u4f9d\u8d56celery\u548crabbitmq\u8fdb\u884c\u90e8\u5206\u4efb\u52a1\u7684\u5206\u53d1\u548c\u5904\u7406", 
+            "title": "\u9879\u76ee\u8bf4\u660e"
+        }, 
+        {
+            "location": "/deploy/", 
+            "text": "", 
+            "title": "Deploy"
+        }, 
+        {
+            "location": "/init/", 
+            "text": "", 
+            "title": "Init"
+        }, 
+        {
+            "location": "/start/", 
+            "text": "", 
+            "title": "Start!"
+        }, 
+        {
+            "location": "/design/", 
+            "text": "", 
+            "title": "Index"
+        }, 
+        {
+            "location": "/design/", 
+            "text": "", 
+            "title": "Index"
         }
     ]
 }

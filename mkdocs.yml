@@ -1,0 +1,9 @@
+site_name: OnlineJudge_Web
+site_description: Online Judge is a training tool
+site_author: 8cbx
+repo_url: https://github.com/8cbx/OnlineJudge_Web
+
+pages:
+- [index.md, Home]
+
+theme: readthedocs

@@ -4,6 +4,13 @@ site_author: 8cbx
 repo_url: https://github.com/8cbx/OnlineJudge_Web
 
 pages:
-- [index.md, Home]
+- Introduction: index.md
+- Deploy: deploy.md
+- Init: init.md
+- Start!: start.md
+- Design:
+  - Index: design/index.md
+- API:
+  - Index: design/index.md
 
 theme: readthedocs

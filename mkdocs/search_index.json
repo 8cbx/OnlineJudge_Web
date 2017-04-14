@@ -1,0 +1,14 @@
+{
+    "docs": [
+        {
+            "location": "/", 
+            "text": "\u6b22\u8fce\u6765\u5230 OnlineJudge_Web", 
+            "title": "Home"
+        }, 
+        {
+            "location": "/#onlinejudge_web", 
+            "text": "", 
+            "title": "\u6b22\u8fce\u6765\u5230 OnlineJudge_Web"
+        }
+    ]
+}

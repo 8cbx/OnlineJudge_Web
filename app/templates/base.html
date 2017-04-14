@@ -52,21 +52,6 @@
                             </li>
                             {% endif %}
                             <li>
-                                <a href="{{ url_for('auth.edit_profile') }}">修改个人信息</a>
-                            </li>
-                            <li>
-                                <a href="{{ url_for('auth.change_email_request') }}">修改邮箱</a>
-                            </li>
-                            <li>
-                                <a href="{{ url_for('auth.change_password') }}">修改密码</a>
-                            </li>
-                            <li>
-                                <a href="{{ url_for('auth.followed') }}">我关注的人</a>
-                            </li>
-                            <li>
-                                <a href="{{ url_for('auth.followed_by') }}">关注我的人</a>
-                            </li>
-                            <li>
                                 <a href="{{ url_for('auth.logout') }}">退出系统</a>
                             </li>
                         </ul>
@@ -75,9 +60,6 @@
                         <a href="{{ url_for('auth.user_detail', username=current_user.username) }}">个人资料</a>
                     </li>
                     {% else %}
-                    <li>
-                        <a href="{{ url_for('auth.register') }}">注册</a>
-                    </li>
                     <li>
                         <a href="{{ url_for('auth.login') }}">登录</a>
                     </li>

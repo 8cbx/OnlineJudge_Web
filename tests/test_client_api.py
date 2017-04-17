@@ -7,7 +7,7 @@ import re
 from base64 import b64encode
 from flask import url_for
 from app import create_app, db
-from app.models import User, Role, SubmissionStatus, CompileInfo, Problem
+from app.models import User, Role, SubmissionStatus, CompileInfo, Problem, OJList
 
 
 class APITestCase(unittest.TestCase):
@@ -252,3 +252,70 @@ class APITestCase(unittest.TestCase):
         json_response = json.loads(response.data.decode('utf-8'))
         self.assertTrue(b'No more waiting submissions' in json_response.get('message'))
         self.assertTrue(response.status_code == 200)
+
+    def test_problem(self):
+
+        '''
+            test insert problem func is good
+        :return: None
+        '''
+
+        r = Role.query.filter_by(name='Remote Judger').first()
+        self.assertIsNotNone(r)
+        u = User(username='test', email='test@test.com', password='123456', confirmed=True, role=r)
+        db.session.add(u)
+        db.session.commit()
+        # login
+        response = self.client.post(url_for('auth.login'), data={
+            'username': 'test',
+            'password': '123456',
+            'remember_me': 0
+        }, follow_redirects=True)
+        # try add problem with valid oj
+        response = self.client.post(
+            url_for('api.update_problem', oj_id=1, remote_id=1),
+            headers=self.get_api_headers('test', '123456'),
+            data=json.dumps({'remote_id': 1,
+            'title': 'test',
+            'description': 'test',
+            'oj_id': '1'})
+        )
+        self.assertTrue(response.status_code == 404)
+        oj = OJList(vjudge=False)
+        db.session.add(oj)
+        db.session.commit()
+        # try add problem with oj not vjudge
+        response = self.client.post(
+            url_for('api.update_problem', oj_id=1, remote_id=1),
+            headers=self.get_api_headers('test', '123456'),
+            data=json.dumps({'remote_id': 1,
+                             'title': 'test',
+                             'description': 'test',
+                             'oj_id': '1'})
+        )
+        self.assertTrue(response.status_code == 400)
+        oj.vjudge=True
+        db.session.add(oj)
+        db.session.commit()
+        # try add problem with oj not vjudge
+        response = self.client.post(
+            url_for('api.update_problem', oj_id=1, remote_id=1),
+            headers=self.get_api_headers('test', '123456'),
+            data=json.dumps({'remote_id': 1,
+                             'title': 'test',
+                             'description': 'test',
+                             'oj_id': '1'})
+        )
+        self.assertTrue(response.status_code == 201)
+        # Wrong oj_id or remote_id
+        response = self.client.post(
+            url_for('api.update_problem', oj_id=1, remote_id=1),
+            headers=self.get_api_headers('test', '123456'),
+            data=json.dumps({'remote_id': 2,
+                             'title': 'test',
+                             'description': 'test',
+                             'oj_id': '1'})
+        )
+        json_response = json.loads(response.data.decode('utf-8'))
+        self.assertTrue(b'Wrong oj_id or remote_id' in json_response.get('message'))
+        self.assertTrue(response.status_code == 400)

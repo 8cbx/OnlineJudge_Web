@@ -319,3 +319,9 @@ class APITestCase(unittest.TestCase):
         json_response = json.loads(response.data.decode('utf-8'))
         self.assertTrue(b'Wrong oj_id or remote_id' in json_response.get('message'))
         self.assertTrue(response.status_code == 400)
+
+        response = self.client.get(
+            url_for('api.get_problem', id=1),
+            headers=self.get_api_headers('test', '123456')
+        )
+        self.assertTrue(response.status_code == 200)

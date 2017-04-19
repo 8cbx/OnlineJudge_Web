@@ -734,7 +734,8 @@ class SubmissionStatus(db.Model):
             'max_time': self.problem.time_limit,
             'max_memory': self.problem.memory_limit,
             'special_judge': 1 if self.problem.special_judge is True else 0,
-            'problem_type': 1 if self.problem.type is True else 0
+            'problem_type': 1 if self.problem.type is True else 0,
+            'vjudge': 1 if self.problem.oj.vjudge is True else 0
         }
         return json_submission
 

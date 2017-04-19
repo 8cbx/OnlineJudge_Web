@@ -5,7 +5,7 @@ import unittest
 from app import create_app, db
 import time, os
 from datetime import datetime
-from app.models import Problem, SubmissionStatus, User
+from app.models import Problem, SubmissionStatus, User, OJList
 from app.exceptions import ValidationError
 
 class UserModelTestCase(unittest.TestCase):
@@ -70,7 +70,9 @@ class UserModelTestCase(unittest.TestCase):
         :return: None
         '''
 
-        problem = Problem()
+        oj = OJList()
+        db.session.add(oj)
+        problem = Problem(oj_id=1)
         db.session.add(problem)
         db.session.commit()
         status = SubmissionStatus(problem_id=problem.id)

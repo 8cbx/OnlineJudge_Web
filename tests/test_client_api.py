@@ -166,7 +166,10 @@ class APITestCase(unittest.TestCase):
             'password': '123456',
             'remember_me': 0
         }, follow_redirects=True)
-        p = Problem(title='test', visible=True)
+        oj = OJList(name='test')
+        db.session.add(oj)
+        db.session.commit()
+        p = Problem(title='test', visible=True, oj_id=oj.id)
         db.session.add(p)
         db.session.commit()
         response = self.client.post(url_for('problem.submit', problem_id=p.id), data={

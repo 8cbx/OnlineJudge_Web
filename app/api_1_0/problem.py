@@ -75,6 +75,8 @@ def update_problem(oj_id, remote_id):
         problem_old.author = problem_new.author
     if problem_new.last_update:
         problem_old.last_update = problem_new.last_update
+    if problem_new.visible:
+        problem_old.visible = problem_new.visible
     db.session.add(problem_old)
     db.session.commit()
     return jsonify(problem_old.to_json()), 201, \

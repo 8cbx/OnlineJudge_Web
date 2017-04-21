@@ -43,7 +43,7 @@ def update_problem(oj_id, remote_id):
         problem_old = Problem()
         problem_old.oj_id = problem_new.oj_id
         problem_old.remote_id = problem_new.remote_id
-    elif problem_old.oj_id != problem_new.oj_id or problem_old.remote_id != problem_new.remote_id:
+    elif long(problem_old.oj_id) != long(problem_new.oj_id) or str(problem_old.remote_id) != str(problem_new.remote_id):
         raise ValidationError('Wrong oj_id or remote_id!')
     if problem_new.title:
         problem_old.title = problem_new.title
@@ -76,7 +76,7 @@ def update_problem(oj_id, remote_id):
     if problem_new.last_update:
         problem_old.last_update = problem_new.last_update
     if problem_new.visible:
-        problem_old.visible = problem_new.visible
+        problem_old.visible = True if int(problem_new.visible) == 1 else False
     db.session.add(problem_old)
     db.session.commit()
     return jsonify(problem_old.to_json()), 201, \

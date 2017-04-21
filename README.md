@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/8cbx/OnlineJudge_Web.svg?branch=master)](https://travis-ci.org/8cbx/OnlineJudge_Web)
 [![Coverage Status](https://coveralls.io/repos/github/8cbx/OnlineJudge_Web/badge.svg?branch=master)](https://coveralls.io/github/8cbx/OnlineJudge_Web?branch=master)
-[![GPL Licence](https://badges.frapsoft.com/os/gpl/gpl.svg?v=103)](https://opensource.org/licenses/GPL-3.0/)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](http://www.gnu.org/licenses/agpl-3.0)
 
 Online Judge用于学校程序设计竞赛的评判工作，本部分为Web端
 
@@ -17,4 +17,4 @@ Have a bug or an issue with this project? [Open a new issue](https://github.com/
 
 ## Copyright and License
 
-Code released under the [GPL v3.0](https://github.com/8cbx/OnlineJudge_Web/blob/master/LICENSE) license.
+Code released under the [AGPL v3.0](https://github.com/8cbx/OnlineJudge_Web/blob/master/LICENSE) license.

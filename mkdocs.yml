@@ -11,6 +11,6 @@ pages:
 - Design:
   - Index: design/index.md
 - API:
-  - Index: design/index.md
+  - Index: api/index.md
 
 theme: readthedocs

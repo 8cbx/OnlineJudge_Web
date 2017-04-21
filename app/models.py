@@ -682,7 +682,7 @@ class Problem(db.Model):
         visible = json_problem.get('visible')
         if title is None or title == '' or description is None or description == '' or oj_id is None or oj_id == '' or remote_id == '' or remote_id is None:
             raise ValidationError('Problem require full data')
-        return Problem(oj_id=oj_id, remote_id=remote_id, title=title, time_limit=time_limit, memory_limit=memory_limit, special_judge=special_judge, submission_num=submission_num, accept_num=accept_num, description=description, input=input, output=output, sample_input=sample_input, sample_output=sample_output, source_name=source_name, hint=hint, author=author, last_update=last_update)
+        return Problem(oj_id=oj_id, remote_id=remote_id, title=title, time_limit=time_limit, memory_limit=memory_limit, special_judge=special_judge, submission_num=submission_num, accept_num=accept_num, description=description, input=input, output=output, sample_input=sample_input, sample_output=sample_output, source_name=source_name, hint=hint, author=author, visible=visible, last_update=last_update)
 
 
 class SubmissionStatus(db.Model):

@@ -737,7 +737,8 @@ class SubmissionStatus(db.Model):
             'special_judge': 1 if self.problem.special_judge is True else 0,
             'problem_type': 1 if self.problem.type is True else 0,
             'vjudge': 1 if self.problem.oj.query.first().vjudge is True else 0,
-            'oj': self.problem.oj.query.first().name
+            'oj': self.problem.oj.query.first().name,
+            'remote_id': self.problem.remote_id
         }
         return json_submission
 

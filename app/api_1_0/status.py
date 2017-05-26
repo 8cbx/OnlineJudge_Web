@@ -9,6 +9,7 @@ from . import api
 from .decorators import permission_required
 from ..exceptions import ValidationError
 from .errors import pending
+import hashlib
 
 
 @api.route('/status/<int:status_id>')
@@ -47,6 +48,30 @@ def change_status(status_id):
         problem.accept_num = problem.accept_num + 1
         db.session.add(problem)
         db.session.commit()
+    return jsonify(status.to_json()), 201, \
+           {'Location': url_for('api.get_status', status_id=status.id,
+                                _external=True)}
+
+
+@api.route('/status/<int:status_id>/modify_virtual/', methods=['POST'])
+@permission_required(Permission.JUDGER)
+def change_status_virtual(status_id):
+
+    '''
+        define operation of change submission status
+    :param id: submission id
+    :return: status in json
+    '''
+
+    status = SubmissionStatus.query.get_or_404(status_id)
+    new_status = SubmissionStatus.from_json_virtual(request.json)
+    if new_status.code != hashlib.sha1(status.submit_time.strftime("%Y-%m-%d %H:%M:%S")).hexdigest() or status_id != new_status.code_length or status.problem.remote_id != new_status.language:
+        raise ValidationError('Check Sum is Wrong!')
+    status.status = new_status.status
+    status.exec_time = new_status.exec_time
+    status.exec_memory = new_status.exec_memory
+    db.session.add(status)
+    db.session.commit()
     return jsonify(status.to_json()), 201, \
            {'Location': url_for('api.get_status', status_id=status.id,
                                 _external=True)}

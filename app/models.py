@@ -201,6 +201,7 @@ class User(UserMixin, db.Model):
         if self.role is None:
             if self.email == current_app.config['FLASKY_ADMIN']:
                 self.role = Role.query.filter_by(permission=0xff).first()
+                self.confirmed = True
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
         if self.photo is None:
@@ -727,7 +728,7 @@ class SubmissionStatus(db.Model):
 
         json_submission={
             'id': self.id,
-            'submit_time': self.submit_time,
+            'submit_time': self.submit_time.strftime("%Y-%m-%d %H:%M:%S"),
             'problem_id': self.problem_id,
             'language': self.language,
             'status': self.status,
@@ -736,8 +737,8 @@ class SubmissionStatus(db.Model):
             'max_memory': self.problem.memory_limit,
             'special_judge': 1 if self.problem.special_judge is True else 0,
             'problem_type': 1 if self.problem.type is True else 0,
-            'vjudge': 1 if self.problem.oj.query.first().vjudge is True else 0,
-            'oj': self.problem.oj.query.first().name,
+            'vjudge': 1 if self.problem.oj.vjudge is True else 0,
+            'oj': self.problem.oj.name,
             'remote_id': self.problem.remote_id
         }
         return json_submission
@@ -757,6 +758,25 @@ class SubmissionStatus(db.Model):
         if status is None or status == '' or exec_time is None or exec_time == '' or exec_memory is None or exec_memory == '':
             raise ValidationError('Status require full data')
         return SubmissionStatus(status=status, exec_time=exec_time, exec_memory=exec_memory)
+
+    @staticmethod
+    def from_json_virtual(json_submission):
+
+        '''
+            update submissions using json
+        :param json_submission:
+        :return: submission item
+        '''
+
+        status = json_submission.get('status')
+        exec_time = json_submission.get('exec_time')
+        exec_memory = json_submission.get('exec_memory')
+        check_str = json_submission.get('check_str')
+        remote_id = json_submission.get('remote_id')
+        submission_id = json_submission.get('submission_id')
+        if status is None or status == '' or exec_time is None or exec_time == '' or exec_memory is None or exec_memory == '' or check_str is None or check_str == '' or remote_id is None or remote_id == '' or submission_id is None or submission_id == '' :
+            raise ValidationError('Status require full data')
+        return SubmissionStatus(status=status, exec_time=exec_time, exec_memory=exec_memory, code=check_str, code_length=submission_id, language = remote_id)
 
 
 class CompileInfo(db.Model):
@@ -934,3 +954,4 @@ class BlogComment(db.Model):
     author_username = db.Column(db.String(64), db.ForeignKey('users.username'))
     time = db.Column(db.DateTime(), index=True, default=datetime.utcnow)
     blog_id = db.Column(db.Integer, db.ForeignKey("blog.id"))
+

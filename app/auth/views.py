@@ -95,11 +95,14 @@ def register():
                     password=form.password.data)
         db.session.add(user)
         db.session.commit()
-        token = user.generate_confirm_token()
-        send_email.apply_async(args=[user.email, u'账号确认', 'auth/email/confirm', user.username, token])
-        # send_email(user.email, u'账号确认', 'auth/email/confirm', user.username, token)
-        login_user(user, False)
-        flash(u'一封注册邮件已经发往您的邮箱，请点击确认连接进行确认！')
+        if current_app.config['SEND_EMAIL'] == True:
+            token = user.generate_confirm_token()
+            send_email.apply_async(args=[user.email, u'账号确认', 'auth/email/confirm', user.username, token])
+            # send_email(user.email, u'账号确认', 'auth/email/confirm', user.username, token)
+            login_user(user, False)
+            flash(u'一封注册邮件已经发往您的邮箱，请点击确认连接进行确认！')
+        else:
+            login_user(user, False)
         return redirect(url_for('auth.unconfirmed'))
     return render_template('auth/register.html', form=form)
 

@@ -5,9 +5,10 @@ from flask import render_template, redirect, request, url_for, flash, abort, cur
 from flask_login import login_required, current_user
 from . import problem
 from .. import db
-from ..models import SubmissionStatus, Problem
+from ..models import SubmissionStatus, Problem, TagProblem, Tag, OJList
 from datetime import datetime
 from .forms import SubmitForm
+from sqlalchemy.sql import or_, func
 import base64
 
 
@@ -23,6 +24,41 @@ def problem_list():
         pagination = Problem.query.order_by(Problem.id.asc()).paginate(page, per_page=current_app.config['FLASKY_PROBLEMS_PER_PAGE'])
     else:
         pagination = Problem.query.filter_by(visible=True).order_by(Problem.id.asc()).paginate(page, per_page=current_app.config['FLASKY_PROBLEMS_PER_PAGE'])
+    problems = pagination.items
+    return render_template('problem/problem_list.html', problems=problems, pagination=pagination)
+
+
+@problem.route('/filter', methods=['GET', 'POST'])
+def problem_list_filter():
+
+    '''
+        show problem list operation
+    :return: page
+    '''
+    page = request.args.get('page', 1, type=int)
+    search_key = request.args.get('key', '', type=str)
+    oj = request.args.get('oj', '', type=str)
+    remote_id=request.args.get('remote_id', -1, type=int)
+    problems_pagination = Problem.query
+    if remote_id != -1:
+        problems_pagination = problems_pagination.filter(Problem.remote_id == remote_id)
+    if oj != '':
+        oj_detail = OJList.query.filter_by(name=oj).first()
+        if oj_detail is not None:
+            oj_id = oj_detail.id
+            problems_pagination = problems_pagination.filter(Problem.oj_id == oj_id)
+        else:
+            problems_pagination = problems_pagination.filter(Problem.oj_id == -100)
+    if search_key != '':
+        search_key = search_key.strip()
+        search_list = search_key.split('|')
+        if len(search_list) == 1:
+            problems_pagination = problems_pagination.join(TagProblem, TagProblem.problem_id == Problem.id).join(Tag, Tag.id == TagProblem.tag_id).filter(Tag.tag_name == search_list[0]).group_by(TagProblem.problem_id).having(func.count() == 1)
+        else:
+            problems_pagination = problems_pagination.join(TagProblem, TagProblem.problem_id==Problem.id).join(Tag, Tag.id==TagProblem.tag_id).filter(or_(Tag.tag_name==search_list[0],Tag.tag_name==search_list[1])).group_by(TagProblem.problem_id).having(func.count() == 2)
+        if not current_user.is_admin():
+            problems_pagination = problems_pagination.filter(Problem.visible == True)
+    pagination = problems_pagination.paginate(page, per_page=current_app.config['FLASKY_PROBLEMS_PER_PAGE'])
     problems = pagination.items
     return render_template('problem/problem_list.html', problems=problems, pagination=pagination)
 

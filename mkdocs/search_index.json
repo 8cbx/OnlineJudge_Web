@@ -17,8 +17,23 @@
         }, 
         {
             "location": "/deploy/", 
+            "text": "Deploy\n\n\nWeb part:\n\n\n\n\napt-get update \n apt-get install python-pip mysql-server nginx git python-dev vim python-imaging python-mysqldb\n*git clone https://github.com/8cbx/OnlineJudge_Web.git\n\n\nsetting nginx\n\n\npip install -r requirements.txt\n\n\nimport environment variables\n\n\ninit db(we need to install flask-celery first, the install flask-celery-helper. otherwise manage.py will not in good use), python manage.py db init, python manage.py db migrate -m \"first init\", python manage.py db upgrade\n\n\ninsert default role\n\n\ngood to start!\n\n\n\n\nJudge part:", 
+            "title": "Deploy"
+        }, 
+        {
+            "location": "/deploy/#deploy", 
             "text": "", 
             "title": "Deploy"
+        }, 
+        {
+            "location": "/deploy/#web-part", 
+            "text": "apt-get update   apt-get install python-pip mysql-server nginx git python-dev vim python-imaging python-mysqldb\n*git clone https://github.com/8cbx/OnlineJudge_Web.git  setting nginx  pip install -r requirements.txt  import environment variables  init db(we need to install flask-celery first, the install flask-celery-helper. otherwise manage.py will not in good use), python manage.py db init, python manage.py db migrate -m \"first init\", python manage.py db upgrade  insert default role  good to start!", 
+            "title": "Web part:"
+        }, 
+        {
+            "location": "/deploy/#judge-part", 
+            "text": "", 
+            "title": "Judge part:"
         }, 
         {
             "location": "/init/", 

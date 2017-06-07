@@ -57,6 +57,17 @@
     <a class="current" href="./">Deploy</a>
     <ul class="subnav">
             
+    <li class="toctree-l2"><a href="#deploy">Deploy</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#web-part">Web part:</a></li>
+        
+            <li><a class="toctree-l3" href="#judge-part">Judge part:</a></li>
+        
+        </ul>
+    
+
     </ul>
 	    </li>
           
@@ -127,7 +138,19 @@
           <div role="main">
             <div class="section">
               
-                
+                <h1 id="deploy">Deploy</h1>
+<h2 id="web-part">Web part:</h2>
+<ul>
+<li>apt-get update &amp;&amp; apt-get install python-pip mysql-server nginx git python-dev vim python-imaging python-mysqldb
+*git clone https://github.com/8cbx/OnlineJudge_Web.git</li>
+<li>setting nginx</li>
+<li>pip install -r requirements.txt</li>
+<li>import environment variables</li>
+<li>init db(we need to install flask-celery first, the install flask-celery-helper. otherwise manage.py will not in good use), python manage.py db init, python manage.py db migrate -m "first init", python manage.py db upgrade</li>
+<li>insert default role</li>
+<li>good to start!</li>
+</ul>
+<h2 id="judge-part">Judge part:</h2>
               
             </div>
           </div>

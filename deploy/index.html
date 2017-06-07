@@ -145,6 +145,21 @@
 <li>good to start!</li>
 </ul>
 <h2 id="judge-part">Judge part:</h2>
+<ul>
+<li>install rabbitmq(in any way)</li>
+<li>import environment variables</li>
+<li><code>wget https://github.com/quark-zju/lrun/releases/download/v1.1.4/lrun_1.1.4_amd64.deb</code></li>
+<li><code>sudo apt-get install -y libseccomp2 build-essential clisp fpc gawk gccgo gcj-jdk ghc git golang lua5.2 mono-mcs ocaml openjdk-8-jdk perl php-cli python2.7 python3 racket rake ruby valac rlwrap</code></li>
+<li><code>sudo dpkg -i lrun_1.1.4_amd64.deb</code></li>
+<li><code>sudo gpasswd -a $USER lrun</code></li>
+<li><code>wget https://deb.nodesource.com/node/pool/main/n/nodejs/nodejs_0.10.46-1nodesource1~xenial1_amd64.deb</code></li>
+<li><code>sudo dpkg -i nodejs_0.10.46-1nodesource1~xenial1_amd64.deb</code></li>
+<li><code>git clone https://github.com/8cbx/ljudge.git</code></li>
+<li><code>cd ljudge</code></li>
+<li><code>make</code></li>
+<li><code>sudo make install</code></li>
+<li><code>sudo cp -r ./etc/ljudge /etc/ljudge</code></li>
+</ul>
               
             </div>
           </div>

@@ -98,7 +98,7 @@ class FlaskClientTestCase(unittest.TestCase):
 
         response = self.client.get(url_for('auth.unconfirmed'))
         self.assertTrue(b'你要前往的页面需要特殊权限' in response.data)
-        u = User(username='test', password='test')
+        u = User(username='test', password='test', email='1@qq.com')
         db.session.add(u)
         db.session.commit()
         response = self.client.post(url_for('auth.login'), data={
@@ -179,7 +179,7 @@ class FlaskClientTestCase(unittest.TestCase):
 
         response = self.client.get(url_for('auth.unconfirmed'))
         self.assertTrue(b'你要前往的页面需要特殊权限' in response.data)
-        u = User(username='test', password='test')
+        u = User(username='test', password='test', email='1@qq.com')
         db.session.add(u)
         db.session.commit()
         response = self.client.post(url_for('auth.login'), data={

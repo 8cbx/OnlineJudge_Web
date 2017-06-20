@@ -4,7 +4,7 @@
     
     <url>
      <loc>/</loc>
-     <lastmod>2017-06-07</lastmod>
+     <lastmod>2017-06-20</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -12,23 +12,7 @@
     
     <url>
      <loc>/deploy/</loc>
-     <lastmod>2017-06-07</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-    
-
-    
-    <url>
-     <loc>/init/</loc>
-     <lastmod>2017-06-07</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-    
-
-    
-    <url>
-     <loc>/start/</loc>
-     <lastmod>2017-06-07</lastmod>
+     <lastmod>2017-06-20</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -37,7 +21,7 @@
         
     <url>
      <loc>/design/</loc>
-     <lastmod>2017-06-07</lastmod>
+     <lastmod>2017-06-20</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
@@ -47,7 +31,7 @@
         
     <url>
      <loc>/api/</loc>
-     <lastmod>2017-06-07</lastmod>
+     <lastmod>2017-06-20</lastmod>
      <changefreq>daily</changefreq>
     </url>
         

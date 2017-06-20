@@ -58,6 +58,12 @@
         
             <li><a class="toctree-l3" href="#_1">项目说明</a></li>
         
+            <li><a class="toctree-l3" href="#web">Web端说明</a></li>
+        
+            <li><a class="toctree-l3" href="#judge">Judge端说明</a></li>
+        
+            <li><a class="toctree-l3" href="#_2">参考书籍和文档</a></li>
+        
         </ul>
     
 
@@ -67,16 +73,6 @@
             <li class="toctree-l1">
 		
     <a class="" href="deploy/">Deploy</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="init/">Init</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="start/">Start!</a>
 	    </li>
           
             <li class="toctree-l1">
@@ -143,11 +139,27 @@
 <p>Online Judge用于学校程序设计竞赛的评判工作，本部分为Web端</p>
 <h2 id="_1">项目说明</h2>
 <ul>
-<li>整个项目分为Web端和Judge端</li>
+<li>整个项目分为Web端和Judge端，基于flask框架</li>
 <li>Web端可使用docker进行快速部署</li>
 <li>部署方式可以选择为单机部署(单Web单Judge), 多机部署(单Web多Judge和单负载均衡+多Web多Judge)三种方案</li>
 <li>依赖celery和rabbitmq进行部分任务的分发和处理</li>
 <li>Under AGPL v3 License</li>
+</ul>
+<h2 id="web">Web端说明</h2>
+<ul>
+<li>Web端主要分为7大模块，功能上还存在不完善的地方，主要在一些细节方面</li>
+<li>比赛模块的排行榜功能尚存在效率低下的问题，最好改成celery中的异步计算</li>
+<li>Web端的数据库中预留了一些设想所需要的字段，如rating等，这些内容可以在后续的开发中加上对应的功能</li>
+</ul>
+<h2 id="judge">Judge端说明</h2>
+<ul>
+<li>Judge端当前可以评判ACM类型题目、NOI类型题目</li>
+<li>Judge端当前采用的是<a href="https://github.com/quark-zju/ljudge">ljudge项目</a>开源的评测机，外面套了一层评判结果的解析和API的调用以及评测任务的调度，如有需要可以调整评测机的使用</li>
+<li>Judge端当前还未实现Special Judge的工作，不过ljudge支持Spical Judge，当前缺少这方面的封装调用工作</li>
+</ul>
+<h2 id="_2">参考书籍和文档</h2>
+<ul>
+<li></li>
 </ul>
               
             </div>
@@ -197,5 +209,5 @@
 
 <!--
 MkDocs version : 0.16.3
-Build Date UTC : 2017-06-07 10:58:15
+Build Date UTC : 2017-06-20 07:56:06
 -->

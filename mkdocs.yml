@@ -6,8 +6,6 @@ repo_url: https://github.com/8cbx/OnlineJudge_Web
 pages:
 - Introduction: index.md
 - Deploy: deploy.md
-- Init: init.md
-- Start!: start.md
 - Design:
   - Index: design/index.md
 - API:

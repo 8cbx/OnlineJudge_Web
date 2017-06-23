@@ -820,7 +820,7 @@ def add_contest_problem(contest_id):
             if form.problem_alias != '' and form.problem_alias is not None:
                 contest_problem.problem_alias = form.problem_alias.data
             else:
-                contest_problem.problem_alias = problem.problem_title
+                contest_problem.problem_alias = problem.title
             db.session.add(contest_problem)
             db.session.commit()
             current_user.log_operation('Add problem %s to contest %s, problem id is %s, contest_id is %s' % (problem.title, contest.contest_name, str(problem.id), str(contest.id)))

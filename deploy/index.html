@@ -133,12 +133,13 @@
 <li>import environment variables</li>
 <li>init db(we need to install flask-celery first, the install flask-celery-helper. otherwise manage.py will not in good use), <code>python manage.py db init</code>, <code>python manage.py db migrate -m "first init"</code>, <code>python manage.py db upgrade</code></li>
 <li>insert default role</li>
-<li>good to start!</li>
+<li>good to start! <code>python manage.py runserver</code> or use gunicorn, and run celery for email sending</li>
 </ul>
 <h2 id="judge-part">Judge part:</h2>
 <ul>
 <li>install rabbitmq(in any way)</li>
 <li>import environment variables</li>
+<li>set API_URL in config.py</li>
 <li><code>wget https://github.com/quark-zju/lrun/releases/download/v1.1.4/lrun_1.1.4_amd64.deb</code></li>
 <li><code>sudo apt-get install -y libseccomp2 build-essential clisp fpc gawk gccgo gcj-jdk ghc git golang lua5.2 mono-mcs ocaml openjdk-8-jdk perl php-cli python2.7 python3 racket rake ruby valac rlwrap</code></li>
 <li><code>sudo dpkg -i lrun_1.1.4_amd64.deb</code></li>
